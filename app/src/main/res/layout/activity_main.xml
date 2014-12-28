@@ -1,0 +1,84 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context="com.maximum.fastride.MainActivity" >
+
+     <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:orientation="horizontal" 
+        android:layout_marginBottom="25dp">
+
+         <com.maximum.fastride.FacesImageView
+             android:id="@+id/faceDetectedImageView"
+             android:layout_width="140dp"
+             android:layout_height="wrap_content"
+             android:layout_weight="1"
+             android:adjustViewBounds="true"
+             android:scaleType="fitXY" />
+
+	    <ImageView
+	        android:id="@+id/rawImageView"
+	        android:layout_width="140dp"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="1"
+	        android:adjustViewBounds="true"
+	        android:scaleType="fitXY" />
+
+    </LinearLayout>
+    
+    <LinearLayout android:orientation="horizontal" 
+       android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+	    <Button
+	        android:id="@+id/btnTakePicture"
+	        android:layout_width="wrap_content"
+	        android:layout_height="48dp"
+	        android:layout_gravity="left"
+	        android:layout_marginBottom="36dp"
+	        android:layout_weight="1"
+	        android:onClick="onTakePicture"
+	        android:text="Take picture" />
+
+	    <Button
+	        android:id="@+id/btnUseCamera"
+	        android:layout_width="wrap_content"
+	        android:layout_height="48dp"
+	        android:layout_gravity="right"
+	        android:layout_weight="1"
+	        android:onClick="onUseCamera"
+	        android:text="Use Camera" />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal" >
+
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="36dp"
+        android:text="Faces detected:"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/txtFacesDetected"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+       android:text="0"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+    </LinearLayout>
+
+
+
+</LinearLayout>

@@ -1,0 +1,11 @@
+C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\classes\debug
+C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\support-annotations-21.0.3-7cc47c38fa2701773c471c75c3a04a9c10b6e26a.jar
+C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\bolts-android-1.1.2-bb3d05a707c08a1ad1c2a589cdd2be80bcfbe130.jar
+C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\mobileservices-1.1.5-87db31074611e35fc234ed5104af50c1f16bfe81.jar
+C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\gson-2.2.2-301d7ff35dc8a616bdc22bbcb55983f332b66be6.jar
+C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3-b2bccb1303176345be29b089af0af5d21cbf46d9.jar
+C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\classes-478527268a674a4bd6833f1feadccda450531fab.jar
+C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\classes-7f84a3a96e4a2dde111da828951ce4a0071c02de.jar
+C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\classes-1ba8472b88931da708f83db9bd0f2e0d901ce46a.jar
+C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\guava-16.0.1-1b72d46e799eab0c4b39ff25520182ff0b7dfdfb.jar
+C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\classes-f3999579297221061c9859079866aac93d3cd97d.jar
