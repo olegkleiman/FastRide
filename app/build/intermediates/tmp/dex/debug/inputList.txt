@@ -1,5 +1,7 @@
 C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\classes\debug
+C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3-2a773e0373beb577eaa935ed9e1ce261de2d06a3.jar
 C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\support-annotations-21.0.3-7cc47c38fa2701773c471c75c3a04a9c10b6e26a.jar
+C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\classes-1764c24b365f3d751a74d1561ea38721657a4b65.jar
 C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\bolts-android-1.1.2-bb3d05a707c08a1ad1c2a589cdd2be80bcfbe130.jar
 C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\mobileservices-1.1.5-87db31074611e35fc234ed5104af50c1f16bfe81.jar
 C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\gson-2.2.2-301d7ff35dc8a616bdc22bbcb55983f332b66be6.jar

@@ -7,5 +7,9 @@
     <string name="title_activity_camera">CameraActivity</string>
     <string name="title_activity_register">RegisterActivity</string>
     <string name="facebook_app_id">1554616841424048</string>
+    <string name="title_activity_settings">Settings</string>
+    <string name="title_section1">User Profile</string>
+    <string name="title_section2">Cars</string>
+    <string name="title_section3">Section 3</string>
 
 </resources>

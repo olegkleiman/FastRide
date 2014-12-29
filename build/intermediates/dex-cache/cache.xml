@@ -2,6 +2,27 @@
 <items version="2" >
 
     <item
+        jar="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\exploded-aar\com.facebook.android\facebook-android-sdk\3.21.1\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="0285ad8da812e92dda76ed5d0dcba05724c7911d">
+        <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\classes-478527268a674a4bd6833f1feadccda450531fab.jar" />
+    </item>
+    <item
+        jar="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\libs\internal_impl-21.0.3.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="01ec05bfbafcc07646ba813000bf2ef11742dd03">
+        <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3-b2bccb1303176345be29b089af0af5d21cbf46d9.jar" />
+    </item>
+    <item
+        jar="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\exploded-aar\com.android.support\support-v13\21.0.3\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="2c2071dcaf7a008c3b01a6381a33be55396bab09">
+        <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\classes-1764c24b365f3d751a74d1561ea38721657a4b65.jar" />
+    </item>
+    <item
         jar="C:\Users\Oleg\.gradle\caches\modules-2\files-2.1\com.google.guava\guava\16.0.1\5fa98cd1a63c99a44dd8d3b77e4762b066a5d0c5\guava-16.0.1.jar"
         jumboMode="false"
         revision="21.1.2"
@@ -16,32 +37,11 @@
         <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\classes-7f84a3a96e4a2dde111da828951ce4a0071c02de.jar" />
     </item>
     <item
-        jar="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\exploded-aar\com.google.android.gms\play-services\6.5.87\classes.jar"
+        jar="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\exploded-aar\com.android.support\support-v13\21.0.3\libs\internal_impl-21.0.3.jar"
         jumboMode="false"
         revision="21.1.2"
-        sha1="dd9247ea0fabe8ee479638c4b4a23e93752be256">
-        <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\classes-f3999579297221061c9859079866aac93d3cd97d.jar" />
-    </item>
-    <item
-        jar="C:\Users\Oleg\.gradle\caches\modules-2\files-2.1\com.parse.bolts\bolts-android\1.1.2\91c20388c9a45f62b5ed8fe0502bb76ff6251fc7\bolts-android-1.1.2.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="91c20388c9a45f62b5ed8fe0502bb76ff6251fc7">
-        <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\bolts-android-1.1.2-bb3d05a707c08a1ad1c2a589cdd2be80bcfbe130.jar" />
-    </item>
-    <item
-        jar="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\exploded-aar\com.facebook.android\facebook-android-sdk\3.21.1\classes.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="0285ad8da812e92dda76ed5d0dcba05724c7911d">
-        <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\classes-478527268a674a4bd6833f1feadccda450531fab.jar" />
-    </item>
-    <item
-        jar="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\libs\internal_impl-21.0.3.jar"
-        jumboMode="false"
-        revision="21.1.2"
-        sha1="01ec05bfbafcc07646ba813000bf2ef11742dd03">
-        <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3-b2bccb1303176345be29b089af0af5d21cbf46d9.jar" />
+        sha1="0dcc55e70f7ebf7238fe2ec53f662eb378ab2668">
+        <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\internal_impl-21.0.3-2a773e0373beb577eaa935ed9e1ce261de2d06a3.jar" />
     </item>
     <item
         jar="C:\Users\Oleg\AppData\Local\Android\sdk\extras\android\m2repository\com\android\support\support-annotations\21.0.3\support-annotations-21.0.3.jar"
@@ -58,11 +58,25 @@
         <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\gson-2.2.2-301d7ff35dc8a616bdc22bbcb55983f332b66be6.jar" />
     </item>
     <item
+        jar="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\exploded-aar\com.google.android.gms\play-services\6.5.87\classes.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="dd9247ea0fabe8ee479638c4b4a23e93752be256">
+        <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\classes-f3999579297221061c9859079866aac93d3cd97d.jar" />
+    </item>
+    <item
         jar="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\exploded-aar\com.android.support\support-v4\21.0.3\classes.jar"
         jumboMode="false"
         revision="21.1.2"
         sha1="2c91c949a45a21cdecf26e03951e46c7beec9ad8">
         <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\classes-1ba8472b88931da708f83db9bd0f2e0d901ce46a.jar" />
+    </item>
+    <item
+        jar="C:\Users\Oleg\.gradle\caches\modules-2\files-2.1\com.parse.bolts\bolts-android\1.1.2\91c20388c9a45f62b5ed8fe0502bb76ff6251fc7\bolts-android-1.1.2.jar"
+        jumboMode="false"
+        revision="21.1.2"
+        sha1="91c20388c9a45f62b5ed8fe0502bb76ff6251fc7">
+        <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\debug\bolts-android-1.1.2-bb3d05a707c08a1ad1c2a589cdd2be80bcfbe130.jar" />
     </item>
     <item
         jar="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\libs\mobileservices-1.1.5.jar"

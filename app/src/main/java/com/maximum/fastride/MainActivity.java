@@ -47,16 +47,17 @@ public class MainActivity extends Activity {
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         String username = sharedPrefs.getString("username", "");
 
-        if( username.isEmpty() ) {
-
-            try {
-                Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
-                startActivityForResult(intent, REGISTER_USER_REQUEST);
-            }
-            catch(Exception ex) {
-                ex.printStackTrace();
-            }
-        }
+//        if( username.isEmpty() ) {
+//
+//            try {
+//                //Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+//                //startActivityForResult(intent, REGISTER_USER_REQUEST);
+//
+//            }
+//            catch(Exception ex) {
+//                ex.printStackTrace();
+//            }
+//        }
 
         try {
             mClient = new MobileServiceClient("https://fastride.azure-mobile.net/",
@@ -81,6 +82,9 @@ public class MainActivity extends Activity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+            startActivity(intent);
+
             return true;
         }
         return super.onOptionsItemSelected(item);

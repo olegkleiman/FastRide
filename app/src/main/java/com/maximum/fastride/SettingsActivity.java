@@ -3,23 +3,20 @@ package com.maximum.fastride;
 import java.util.Locale;
 
 import android.app.Activity;
-import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 
-public class SettingsActivity extends Activity {
+public class SettingsActivity extends FragmentActivity {
 
     /**
      * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -90,7 +87,11 @@ public class SettingsActivity extends Activity {
         public Fragment getItem(int position) {
             // getItem is called to instantiate the fragment for the given page.
             // Return a PlaceholderFragment (defined as a static inner class below).
-            return PlaceholderFragment.newInstance(position + 1);
+            if( position == 0 ){
+               return new UserProfileFragment();
+            }
+            else
+               return PlaceholderFragment.newInstance(position + 1);
         }
 
         @Override
@@ -112,6 +113,17 @@ public class SettingsActivity extends Activity {
             }
             return null;
         }
+    }
+
+    public static class UserProfileFragment extends Fragment {
+
+        @Override
+        public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                                 Bundle savedInstanceState) {
+            View rootView = inflater.inflate(R.layout.fragment_userprofile, container, false);
+            return rootView;
+        }
+
     }
 
     /**
@@ -142,7 +154,7 @@ public class SettingsActivity extends Activity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                                  Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_settings, container, false);
+            View rootView = inflater.inflate(R.layout.fragment_cars, container, false);
             return rootView;
         }
     }
