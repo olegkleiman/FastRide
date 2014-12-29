@@ -2,13 +2,19 @@ package com.maximum.fastride;
 
 import java.util.Locale;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.FragmentTransaction;
+import android.graphics.drawable.Drawable;
 import android.support.v13.app.FragmentPagerAdapter;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.view.ViewPager;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ImageSpan;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -38,6 +44,20 @@ public class SettingsActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
+        final ActionBar actionBar = getActionBar();
+        // specify that action bar shpuld display tabs
+        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+
+        String[] tabs = { "One", "Two", "Three"};
+
+        ActionBar.Tab tab;
+        for(int i = 0; i < tabs.length; i++) {
+            tab = actionBar
+                    .newTab()
+                    .setText(tabs[i])
+                    .setTabListener(tabListener);
+        }
+
 
         // Create the adapter that will return a fragment for each of the three
         // primary sections of the activity.
@@ -48,6 +68,26 @@ public class SettingsActivity extends FragmentActivity {
         mViewPager.setAdapter(mSectionsPagerAdapter);
 
     }
+
+    ActionBar.TabListener tabListener = new ActionBar.TabListener(){
+        @Override
+        public void onTabSelected(ActionBar.Tab tab, FragmentTransaction ft) {
+            // show the tab
+
+            int position = tab.getPosition();
+            mViewPager.setCurrentItem(position);
+        }
+
+        @Override
+        public void onTabUnselected(ActionBar.Tab tab, FragmentTransaction ft) {
+            // hide the tab, we don't need this in this example
+        }
+
+        @Override
+        public void onTabReselected(ActionBar.Tab tab, FragmentTransaction ft) {
+            // when tab is reselected, we don't really need this
+        }
+    };
 
 
     @Override
@@ -104,10 +144,22 @@ public class SettingsActivity extends FragmentActivity {
         public CharSequence getPageTitle(int position) {
             Locale l = Locale.getDefault();
             switch (position) {
-                case 0:
-                    return getString(R.string.title_section1).toUpperCase(l);
+                case 0: {
+                    //return getString(R.string.title_section1).toUpperCase(l);
+
+                    String strTitle = getString(R.string.title_section_user).toUpperCase(l);
+                    SpannableStringBuilder sb = new SpannableStringBuilder(strTitle);
+
+                    Drawable drawable = getApplicationContext().getResources().getDrawable(R.drawable.com_facebook_logo);
+                    drawable.setBounds(0,0, drawable.getIntrinsicHeight(), drawable.getIntrinsicHeight());
+                    ImageSpan span = new ImageSpan(drawable, ImageSpan.ALIGN_BASELINE);
+                    sb.setSpan(span, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
+                    return sb;
+                }
+
                 case 1:
-                    return getString(R.string.title_section2).toUpperCase(l);
+                    return getString(R.string.title_section_cars).toUpperCase(l);
             }
             return null;
         }
