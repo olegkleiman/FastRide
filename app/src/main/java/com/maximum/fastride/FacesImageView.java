@@ -14,7 +14,7 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
-class FacesImageView extends View { // ImageView {
+public class FacesImageView extends View { // ImageView {
 
 	private static final String LOG_TAG = "fast_ride";
 	
