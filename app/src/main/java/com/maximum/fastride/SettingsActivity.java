@@ -44,18 +44,22 @@ public class SettingsActivity extends FragmentActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        final ActionBar actionBar = getActionBar();
-        // specify that action bar shpuld display tabs
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
+        try {
+            final ActionBar actionBar = getActionBar();
+            // specify that action bar should display tabs
+            actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
-        String[] tabs = { "One", "Two", "Three"};
+            String[] tabs = {"One", "Two", "Three"};
 
-        ActionBar.Tab tab;
-        for(int i = 0; i < tabs.length; i++) {
-            tab = actionBar
-                    .newTab()
-                    .setText(tabs[i])
-                    .setTabListener(tabListener);
+            ActionBar.Tab tab;
+            for (int i = 0; i < tabs.length; i++) {
+                tab = actionBar
+                        .newTab()
+                        .setText(tabs[i])
+                        .setTabListener(tabListener);
+            }
+        }catch(Exception ex) {
+            ex.printStackTrace();
         }
 
 

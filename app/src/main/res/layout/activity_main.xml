@@ -9,76 +9,19 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.maximum.fastride.MainActivity" >
 
-     <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="200dp"
-        android:orientation="horizontal" 
-        android:layout_marginBottom="25dp">
-
-         <com.maximum.fastride.FacesImageView
-             android:id="@+id/faceDetectedImageView"
-             android:layout_width="140dp"
-             android:layout_height="wrap_content"
-             android:layout_weight="1"
-             android:adjustViewBounds="true"
-             android:scaleType="fitXY" />
-
-	    <ImageView
-	        android:id="@+id/rawImageView"
-	        android:layout_width="140dp"
-	        android:layout_height="wrap_content"
-	        android:layout_weight="1"
-	        android:adjustViewBounds="true"
-	        android:scaleType="fitXY" />
-
-    </LinearLayout>
-    
-    <LinearLayout android:orientation="horizontal" 
-       android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-	    <Button
-	        android:id="@+id/btnTakePicture"
-	        android:layout_width="wrap_content"
-	        android:layout_height="48dp"
-	        android:layout_gravity="left"
-	        android:layout_marginBottom="36dp"
-	        android:layout_weight="1"
-	        android:onClick="onTakePicture"
-	        android:text="Take picture" />
-
-	    <Button
-	        android:id="@+id/btnUseCamera"
-	        android:layout_width="wrap_content"
-	        android:layout_height="48dp"
-	        android:layout_gravity="right"
-	        android:layout_weight="1"
-	        android:onClick="onUseCamera"
-	        android:text="Use Camera" />
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
+    <Button
+        android:layout_width="140dp"
         android:layout_height="wrap_content"
-        android:orientation="horizontal" >
+        android:text="@string/btnDriverText"
+        android:id="@+id/btnDriver"
+        android:onClick="onDriverClicked"
+        android:layout_gravity="center_horizontal" />
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
+    <Button
+        android:layout_width="140dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="36dp"
-        android:text="Faces detected:"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-
-    <TextView
-        android:id="@+id/txtFacesDetected"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-       android:text="0"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
-    </LinearLayout>
-
-
-
+        android:text="@string/btnPassengerText"
+        android:id="@+id/btnPassenger"
+        android:onClick="onPassengerClicked"
+        android:layout_gravity="center_horizontal" />
 </LinearLayout>
