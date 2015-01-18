@@ -22,6 +22,7 @@ public class BaseActivity extends Activity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+          super.onCreate(savedInstanceState);
 
         try {
             mGoogleApiClient = new GoogleApiClient.Builder(this)
@@ -58,13 +59,16 @@ public class BaseActivity extends Activity
     protected void onStart() {
         super.onStart();
         // Connect the client.
-        mGoogleApiClient.connect();
+        if( mGoogleApiClient != null )
+            mGoogleApiClient.connect();
     }
 
     @Override
     protected void onStop() {
         // Disconnecting the client invalidates it.
-        mGoogleApiClient.disconnect();
+        if( mGoogleApiClient != null )
+            mGoogleApiClient.disconnect();
+
         super.onStop();
     }
 }
