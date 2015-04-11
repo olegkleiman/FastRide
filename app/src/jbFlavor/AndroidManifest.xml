@@ -1,0 +1,26 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <application>
+        <activity android:name="com.maximum.fastride.DriverRoleActivity"
+            android:label="@string/title_activity_driver_role"
+            android:theme="@style/Theme.AppCompat.Light"
+            android:parentActivityName="com.maximum.fastride.MainActivity"
+            >
+        </activity>
+
+        <activity android:name="com.maximum.fastride.SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:theme="@style/Theme.AppCompat.Light"
+            android:parentActivityName="com.maximum.fastride.MainActivity"
+            >
+        </activity>
+
+        <activity android:name="com.maximum.fastride.PassengerRoleActivity"
+            android:label="@string/title_activity_passenger"
+            android:theme="@style/Theme.AppCompat.Light"
+            android:parentActivityName="com.maximum.fastride.MainActivity"
+            >
+        </activity>
+    </application>
+
+</manifest>

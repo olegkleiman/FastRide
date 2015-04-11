@@ -6,79 +6,142 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import rekognition.RekoSDK;
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.MediaStore;
+import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.TextView;
-
-import com.google.android.gms.common.ConnectionResult;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.LocationServices;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
 
 //import org.apache.commons.codec.digest.DigestUtils;
 
+import com.maximum.fastride.gcm.GCMHandler;
+import com.maximum.fastride.utils.Globals;
 import com.microsoft.windowsazure.mobileservices.*;
-import com.microsoft.azure.storage.*;
+import com.microsoft.windowsazure.mobileservices.table.sync.localstore.MobileServiceLocalStoreException;
+import com.microsoft.windowsazure.notifications.NotificationsManager;
 
 
-public class MainActivity extends BaseActivity {
-    //extends Activity { //
+public class MainActivity extends ActionBarActivity { //BaseActivity {
 
     static final int REGISTER_USER_REQUEST = 1;
 
-	private static final String LOG_TAG = "fast_ride";
+	private static final String LOG_TAG = "FR.Main";
 
-    private MobileServiceClient mClient;
+    private DrawerLayout mDrawerLayout;
+    private ActionBarDrawerToggle mDrawerToggle;
+    private ListView mDrawerList;
+    private String[] mDrawerTitles;
+
+    private CharSequence mDrawerTitle;
+    private CharSequence mTitle;
+
+    public static MobileServiceClient wamsClient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        String username = sharedPrefs.getString("username", "");
-
         //String myHexHash = DigestUtils.shaHex(myFancyInput);
-        String hashUserName = sha1Hash(username);
+        //String hashUserName = sha1Hash(username);
 
-        if( username.isEmpty() ) {
-
-            try {
-                Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
-                startActivityForResult(intent, REGISTER_USER_REQUEST);
-
-            }
-            catch(Exception ex) {
-                ex.printStackTrace();
-            }
-        }
-
-//        try {
-//            mClient = new MobileServiceClient("https://fastride.azure-mobile.net/",
-//                    "omCudOMCUJgIGbOklMKYckSiGKajJU91",
-//                    this);
-//        } catch (MalformedURLException ex) {
-//            Log.e(LOG_TAG, ex.getMessage());
+//        if( username.isEmpty() ) {
+//
+//            try {
+//                Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+//                startActivityForResult(intent, REGISTER_USER_REQUEST);
+//
+//            }
+//            catch(Exception ex) {
+//                ex.printStackTrace();
+//            }
 //        }
 
+        mTitle = mDrawerTitle = getTitle();
 
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        // set a custom shadow that overlays the main content when the drawer opens
+        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+
+        mDrawerList = (ListView) findViewById(R.id.left_drawer);
+        mDrawerTitles = getResources().getStringArray(R.array.drawers_array);
+
+        // set up the drawer's list view with items and click listener
+        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
+                R.layout.drawer_list_item, mDrawerTitles));
+        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+
+        // enable ActionBar app icon to behave as action to toggle nav drawer
+        ActionBar actionBar = getSupportActionBar();
+        actionBar.setDisplayHomeAsUpEnabled(true);
+        actionBar.setHomeButtonEnabled(true);
+
+        // ActionBarDrawerToggle ties together the the proper interactions
+        // between the sliding drawer and the action bar app icon
+        mDrawerToggle = new ActionBarDrawerToggle(
+                this,                  /* host Activity */
+                mDrawerLayout,         /* DrawerLayout object */
+                R.drawable.ic_drawer,  /* nav drawer image to replace 'Up' caret */
+                R.string.drawer_open,  /* "open drawer" description for accessibility */
+                R.string.drawer_close  /* "close drawer" description for accessibility */
+        ) {
+            public void onDrawerClosed(View view) {
+                getSupportActionBar().setTitle(mTitle);
+                supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+
+            public void onDrawerOpened(View drawerView) {
+                getSupportActionBar().setTitle(mDrawerTitle);
+                supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            }
+        };
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
+
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        if( sharedPrefs.getString(Globals.USERIDPREF, "").isEmpty() ) {
+
+            Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+            startActivityForResult(intent, REGISTER_USER_REQUEST);
+
+        } else {
+            NotificationsManager.handleNotifications(this, Globals.SENDER_ID,
+                                                    GCMHandler.class);
+
+            String accessToken = sharedPrefs.getString(Globals.TOKENPREF, "");
+            wamsInit(accessToken);
+        }
+    }
+
+    @Override
+    protected void onDestroy(){
+        super.onDestroy();
+        NotificationsManager.stopHandlingNotifications(this);
+    }
+
+    private void wamsInit(String accessToken){
+        try {
+            wamsClient = new MobileServiceClient(
+                    Globals.WAMS_URL,
+                    Globals.WAMS_API_KEY,
+                    this);
+        //} catch(MalformedURLException | MobileServiceLocalStoreException | ExecutionException | InterruptedException ex ) {
+        } catch(MalformedURLException ex ) {
+            Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
+        }
     }
 
     String sha1Hash(String toHash) {
@@ -156,7 +219,19 @@ public class MainActivity extends BaseActivity {
 
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == REGISTER_USER_REQUEST && resultCode == RESULT_OK) {
+        switch( requestCode ) {
+            case REGISTER_USER_REQUEST: {
+                if (resultCode == RESULT_OK) {
+                    Bundle bundle = data.getExtras();
+                    String accessToken = bundle.getString("accessToken");
+
+                    wamsInit(accessToken);
+                    NotificationsManager.handleNotifications(this, Globals.SENDER_ID,
+                            GCMHandler.class);
+
+                }
+            }
+            break;
 
         }
     }
@@ -175,10 +250,44 @@ public class MainActivity extends BaseActivity {
     }
 
     public void onPassengerClicked(View v) {
-        Intent intent = new Intent(this, ConfirmRideActivity.class);
+        Intent intent = new Intent(this, PassengerRoleActivity.class);
         startActivity(intent);
     }
 
+    /* The click listener for ListView in the navigation drawer */
+    private class DrawerItemClickListener implements ListView.OnItemClickListener {
+        @Override
+        public void onItemClick(AdapterView<?> parent,
+                                View view,
+                                int position,
+                                long id) {
+            switch ( position ){
+                case 0: { // Profile
+                    Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                    startActivity(intent);
+                }
+                break;
 
+                case 1: { // Settings
+                    Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                    startActivity(intent);
+                }
+                break;
+
+//                case 2: { // Rating
+//                    Intent intent = new Intent(MainActivity.this, RateActivity.class);
+//                    startActivity(intent);
+//                }
+//                break;
+//
+//                case 4: { // About
+//                    Intent intent = new Intent(MainActivity.this, AboutActivity.class);
+//                    startActivity(intent);
+//                }
+//                break;
+            }
+
+        }
+    }
 
 }
