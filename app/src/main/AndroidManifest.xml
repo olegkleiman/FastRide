@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.maximum.fastride">
+    package="com.maximum.fastride" >
 
     <permission
         android:name="com.maximum.fastride.permission.C2D_MESSAGE"
@@ -40,7 +40,7 @@
             android:name=".MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.AppCompat.Light">
+            android:theme="@style/Theme.AppCompat.Light" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -69,7 +69,10 @@
             android:name=".ConfirmRideActivity"
             android:label="@string/title_activity_confirm_ride" >
         </activity>
-
+        <activity
+            android:name=".AboutActivity"
+            android:label="@string/title_activity_about" >
+        </activity>
     </application>
 
 </manifest>

@@ -1,16 +1,9 @@
 package com.maximum.fastride;
 
-import java.io.UnsupportedEncodingException;
-import java.net.MalformedURLException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.concurrent.ExecutionException;
-
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -25,14 +18,25 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
-//import org.apache.commons.codec.digest.DigestUtils;
-
+import com.google.gson.JsonObject;
 import com.maximum.fastride.gcm.GCMHandler;
 import com.maximum.fastride.utils.Globals;
-import com.microsoft.windowsazure.mobileservices.*;
-import com.microsoft.windowsazure.mobileservices.table.sync.localstore.MobileServiceLocalStoreException;
+import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
+import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceAuthenticationProvider;
+import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceUser;
 import com.microsoft.windowsazure.notifications.NotificationsManager;
+
+import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.concurrent.ExecutionException;
+
+//import org.apache.commons.codec.digest.DigestUtils;
 
 
 public class MainActivity extends ActionBarActivity { //BaseActivity {
@@ -138,10 +142,52 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
                     Globals.WAMS_URL,
                     Globals.WAMS_API_KEY,
                     this);
+
+            final JsonObject body = new JsonObject();
+            body.addProperty("access_token", accessToken);
+
+            new AsyncTask<Void, Void, Void>() {
+
+                Exception mEx;
+
+                @Override
+                protected void onPostExecute(Void result){
+
+                    if( mEx != null ) {
+                        Toast.makeText(MainActivity.this,
+                                mEx.getMessage(), Toast.LENGTH_LONG).show();
+                    }
+                }
+
+                @Override
+                protected Void doInBackground(Void... voids) {
+
+                    try {
+                        MobileServiceUser mobileServiceUser =
+                                wamsClient.login(MobileServiceAuthenticationProvider.Facebook,
+                                        body).get();
+                        saveUser(mobileServiceUser);
+                    } catch(ExecutionException | InterruptedException ex ) {
+                        mEx = ex;
+                        Log.e(LOG_TAG, ex.getMessage());
+                    }
+
+                    return null;
+                }
+            }.execute();
         //} catch(MalformedURLException | MobileServiceLocalStoreException | ExecutionException | InterruptedException ex ) {
         } catch(MalformedURLException ex ) {
             Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
         }
+    }
+
+    private void saveUser(MobileServiceUser mobileServiceUser) {
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        editor.putString(Globals.WAMSTOKENPREF, mobileServiceUser.getAuthenticationToken());
+        editor.putString(Globals.USERIDPREF, mobileServiceUser.getUserId());
+        editor.apply();
     }
 
     String sha1Hash(String toHash) {
@@ -223,11 +269,11 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
             case REGISTER_USER_REQUEST: {
                 if (resultCode == RESULT_OK) {
                     Bundle bundle = data.getExtras();
-                    String accessToken = bundle.getString("accessToken");
+                    String accessToken = bundle.getString(Globals.TOKENPREF);
 
                     wamsInit(accessToken);
                     NotificationsManager.handleNotifications(this, Globals.SENDER_ID,
-                            GCMHandler.class);
+                                                            GCMHandler.class);
 
                 }
             }
@@ -279,12 +325,12 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
 //                    startActivity(intent);
 //                }
 //                break;
-//
-//                case 4: { // About
-//                    Intent intent = new Intent(MainActivity.this, AboutActivity.class);
-//                    startActivity(intent);
-//                }
-//                break;
+
+                case 4: { // About
+                    Intent intent = new Intent(MainActivity.this, AboutActivity.class);
+                    startActivity(intent);
+                }
+                break;
             }
 
         }
