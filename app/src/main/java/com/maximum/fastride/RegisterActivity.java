@@ -74,7 +74,7 @@ public class RegisterActivity extends FragmentActivity
                 user.setPlatform(Globals.PLATFORM);
 
                 try {
-                    usersTable.update(user).get();
+                    usersTable.delete(user).get();
                 } catch (InterruptedException | ExecutionException ex) {
                     Log.e(LOG_TAG, ex.getMessage());
                 }
