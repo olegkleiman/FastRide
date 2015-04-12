@@ -5,6 +5,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.res.Configuration;
+import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -17,12 +20,15 @@ import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.google.gson.JsonObject;
 import com.maximum.fastride.gcm.GCMHandler;
+import com.maximum.fastride.model.User;
 import com.maximum.fastride.utils.Globals;
+import com.maximum.fastride.utils.RoundedDrawable;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceAuthenticationProvider;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceUser;
@@ -125,6 +131,63 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
 
             String accessToken = sharedPrefs.getString(Globals.TOKENPREF, "");
             wamsInit(accessToken);
+
+            User currentUser = User.load(this);
+            String pictureURL = currentUser.getPictureURL();
+
+            ImageView imageView = (ImageView) findViewById(R.id.profileImageView);
+            Drawable drawable = null;
+            try {
+                drawable = (Globals.drawMan.userDrawable(this,
+                        "1",
+                        pictureURL)).get();
+                drawable = RoundedDrawable.fromDrawable(drawable);
+                ((RoundedDrawable) drawable)
+                        .setCornerRadius(Globals.PICTURE_CORNER_RADIUS)
+                        .setBorderColor(Color.LTGRAY)
+                        .setBorderWidth(Globals.PICTURE_BORDER_WIDTH)
+                        .setOval(true);
+
+                imageView.setImageDrawable(drawable);
+            } catch (InterruptedException | ExecutionException ex) {
+                Log.e(LOG_TAG, ex.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration config){
+        super.onConfigurationChanged(config);
+
+        if( config.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+            Log.i(LOG_TAG, "Changed to landscape");
+        } else {
+            Log.i(LOG_TAG, "Changed to portrait");
+        }
+
+        setContentView(R.layout.activity_main);
+
+        User currentUser = User.load(this);
+        if( currentUser != null ) {
+            String pictureURL = currentUser.getPictureURL();
+
+            ImageView imageView = (ImageView) findViewById(R.id.profileImageView);
+            Drawable drawable = null;
+            try {
+                drawable = (Globals.drawMan.userDrawable(this,
+                        "1",
+                        pictureURL)).get();
+                drawable = RoundedDrawable.fromDrawable(drawable);
+                ((RoundedDrawable) drawable)
+                        .setCornerRadius(Globals.PICTURE_CORNER_RADIUS)
+                        .setBorderColor(Color.LTGRAY)
+                        .setBorderWidth(Globals.PICTURE_BORDER_WIDTH)
+                        .setOval(true);
+
+                imageView.setImageDrawable(drawable);
+            } catch (InterruptedException | ExecutionException ex) {
+                Log.e(LOG_TAG, ex.getMessage());
+            }
         }
     }
 
@@ -136,7 +199,10 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
 
     private void wamsInit(String accessToken){
         try {
-            wamsClient = Globals.WAMSClassFactory.getClient(this);
+            wamsClient = new MobileServiceClient(
+                    Globals.WAMS_URL,
+                    Globals.WAMS_API_KEY,
+                    this);
 
             final JsonObject body = new JsonObject();
             body.addProperty("access_token", accessToken);

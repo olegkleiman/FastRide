@@ -190,8 +190,10 @@ public class RegisterActivity extends FragmentActivity
 		});
 
         try{
-            usersTable = Globals.WAMSClassFactory
-                             .getClient(this)
+            usersTable = new MobileServiceClient(
+                                Globals.WAMS_URL,
+                                Globals.WAMS_API_KEY,
+                                this)
                              .getTable("users", User.class);
 
         } catch(MalformedURLException ex ) {

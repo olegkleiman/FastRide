@@ -25,21 +25,8 @@ public class Globals {
     }
     public static final DrawMan drawMan = DManClassFactory.getDrawMan();
 
-    public static class WAMSClassFactory{
-
-        static MobileServiceClient wamsClient;
-
-        public static MobileServiceClient getClient (Context context) throws MalformedURLException {
-            if( wamsClient == null ) {
-                wamsClient = new MobileServiceClient(
-                        Globals.WAMS_URL,
-                        Globals.WAMS_API_KEY,
-                        context);
-            }
-
-            return wamsClient;
-        }
-    }
+    public static float PICTURE_CORNER_RADIUS = 20;
+    public static float PICTURE_BORDER_WIDTH = 4;
 
     public static final String USERIDPREF = "userid";
     public static final String TOKENPREF = "accessToken";
