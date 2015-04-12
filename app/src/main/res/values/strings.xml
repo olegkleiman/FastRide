@@ -35,11 +35,13 @@
     <string-array name="drawers_array">
         <item>Profile</item>
         <item>Settings</item>
+        <item>History</item>
         <item>About</item>
     </string-array>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
-    <string name="title_activity_about">AboutActivity</string>
+    <string name="title_activity_about">FastRide ver. Alpha 0.1</string>
+    <string name="dialog_confirm_registration">Replace previous registration?</string>
 
     <string name="copyright">Copyright (C) 2015 Maximum</string>
         <string name="license">Licensed under the Apache License, Version 2.0 (the "License");

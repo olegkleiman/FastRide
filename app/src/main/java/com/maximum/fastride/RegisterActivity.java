@@ -1,11 +1,15 @@
 package com.maximum.fastride;
 
+import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
 import android.widget.EditText;
@@ -25,11 +29,16 @@ import com.facebook.widget.LoginButton;
 import com.maximum.fastride.model.User;
 import com.maximum.fastride.utils.Globals;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
+import com.microsoft.windowsazure.mobileservices.MobileServiceList;
 import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
 import com.microsoft.windowsazure.mobileservices.table.TableOperationCallback;
 
-public class RegisterActivity extends FragmentActivity {
+import java.net.MalformedURLException;
+import java.util.concurrent.ExecutionException;
+
+public class RegisterActivity extends FragmentActivity
+        implements ConfirmRegistrationFragment.RegistrationDialogListener{
 
     private static final String LOG_TAG = "FR.Register";
 
@@ -43,6 +52,43 @@ public class RegisterActivity extends FragmentActivity {
 
     String mAccessToken;
 
+    @Override
+    public void onDialogPositiveClick(DialogFragment dialog, final User user) {
+
+        final String android_id = Settings.Secure.getString(this.getContentResolver(),
+                Settings.Secure.ANDROID_ID);
+
+
+        new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected void onPostExecute(Void result) {
+                saveFBUser(fbUser);
+                showRegistrationForm();
+            }
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+
+                user.setDeviceId(android_id);
+                user.setPlatform(Globals.PLATFORM);
+
+                try {
+                    usersTable.update(user).get();
+                } catch (InterruptedException | ExecutionException ex) {
+                    Log.e(LOG_TAG, ex.getMessage());
+                }
+
+                return null;
+            }
+        }.execute();
+    }
+
+    @Override
+    public void onDialogNegativeClick(DialogFragment dialog) {
+
+    }
+
     private enum PendingAction {
         NONE,
         POST_PHOTO,
@@ -50,7 +96,12 @@ public class RegisterActivity extends FragmentActivity {
     }
 	
 	private PendingAction pendingAction = PendingAction.NONE;
-	
+
+    // 'Users' table is defined with 'Anybody with the Application Key'
+    // permissions for READ and INSERT operations, so no authentication is
+    // required for adding new user to it
+    MobileServiceTable<User> usersTable;
+
     private Session.StatusCallback callback = new Session.StatusCallback() {
         @Override
         public void call(Session session, SessionState state, Exception exception) {
@@ -75,13 +126,54 @@ public class RegisterActivity extends FragmentActivity {
         
         loginButton.setUserInfoChangedCallback(new LoginButton.UserInfoChangedCallback() {
             @Override
-            public void onUserInfoFetched(GraphUser user) {
+            public void onUserInfoFetched(final GraphUser user) {
                 if( user != null ) {
                     RegisterActivity.this.fbUser = user;
 
-                    saveFBUser(user);
+                    new AsyncTask<Void, Void, Void>() {
 
-                    showRegistrationForm();
+                        Exception mEx;
+
+                        @Override
+                        protected void onPostExecute(Void result){
+                            if( mEx == null )
+                                showRegistrationForm();
+                        }
+
+                        @Override
+                        protected Void doInBackground(Void... params) {
+
+                            String regID = Globals.FB_PROVIDER_FOR_STORE + user.getId();
+                            try{
+                                MobileServiceList<User> _users =
+                                        usersTable.where().field("registration_id").eq(regID)
+                                                .execute().get();
+
+                                if( _users.getTotalCount() >= 1 ) {
+                                    User registeredUser = _users.get(0);
+
+                                    //ConfirmRegistrationFragment dialog =
+                                     new ConfirmRegistrationFragment()
+                                    .setUser(registeredUser)
+                                    .show(getFragmentManager(), "RegistrationDialogFragment");
+
+                                    // Just prevent body execution with onPostExecute()
+                                    mEx = new Exception();
+                                 }
+                                else {
+
+                                    saveFBUser(user);
+                                }
+
+                            } catch (InterruptedException | ExecutionException ex) {
+                                mEx = ex;
+                                Log.e(LOG_TAG, ex.getMessage());
+                            }
+
+                            return null;
+                        }
+                    }.execute();
+
                 }
             }
         });
@@ -92,9 +184,19 @@ public class RegisterActivity extends FragmentActivity {
 			public void onError(FacebookException error) {
 				String msg = error.getMessage();
 				msg.trim();
+                Log.e(LOG_TAG, msg);
 				
 			}
 		});
+
+        try{
+            usersTable = Globals.WAMSClassFactory
+                             .getClient(this)
+                             .getTable("users", User.class);
+
+        } catch(MalformedURLException ex ) {
+            Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
+        }
 	}
 
     private void showRegistrationForm() {
@@ -115,18 +217,8 @@ public class RegisterActivity extends FragmentActivity {
         final ProgressDialog progress = ProgressDialog.show(this, "Adding", "New user");
         try{
 
-            MobileServiceClient wamsClient =
-                    new MobileServiceClient(
-                            Globals.WAMS_URL,
-                            Globals.WAMS_API_KEY,
-                            this);
-            // 'Users' table is defined with 'Anybody with the Application Key'
-            // permissions for READ and INSERT operations, so no authentication is
-            // required for adding new user to it
-            MobileServiceTable<User> usersTable =
-                    wamsClient.getTable("users", User.class);
             User newUser = new User();
-            newUser.setRegistrationId("Facebook:" + fbUser.getId());
+            newUser.setRegistrationId(Globals.FB_PROVIDER_FOR_STORE + fbUser.getId());
             newUser.setFirstName( fbUser.getFirstName() );
             newUser.setLastName( fbUser.getLastName() );
             String pictureURL = "http://graph.facebook.com/" + fbUser.getId() + "/picture?type=large";
@@ -135,6 +227,12 @@ public class RegisterActivity extends FragmentActivity {
             newUser.setPhone(txtUser.getText().toString());
             Switch switchView = (Switch)findViewById(R.id.switchUsePhone);
             newUser.setUsePhone(switchView.isChecked());
+
+            String android_id = Settings.Secure.getString(this.getContentResolver(),
+                    Settings.Secure.ANDROID_ID);
+            newUser.setDeviceId(android_id);
+
+            newUser.setPlatform(Globals.PLATFORM);
 
             newUser.save(this);
 

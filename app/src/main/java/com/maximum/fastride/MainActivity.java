@@ -3,6 +3,8 @@ package com.maximum.fastride;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -12,8 +14,6 @@ import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -57,23 +57,21 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        try {
+            PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(),
+                    PackageManager.GET_SIGNATURES);
+            for (android.content.pm.Signature signature : packageInfo.signatures) {
+                String hash = sha1Hash(signature.toByteArray());
+                Log.d("KeyHash:", hash);
+            }
+        }
+        catch (PackageManager.NameNotFoundException | NoSuchAlgorithmException  ex) {
+            Log.e(LOG_TAG, ex.toString());
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
-        //String myHexHash = DigestUtils.shaHex(myFancyInput);
-        //String hashUserName = sha1Hash(username);
-
-//        if( username.isEmpty() ) {
-//
-//            try {
-//                Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
-//                startActivityForResult(intent, REGISTER_USER_REQUEST);
-//
-//            }
-//            catch(Exception ex) {
-//                ex.printStackTrace();
-//            }
-//        }
 
         mTitle = mDrawerTitle = getTitle();
 
@@ -138,10 +136,7 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
 
     private void wamsInit(String accessToken){
         try {
-            wamsClient = new MobileServiceClient(
-                    Globals.WAMS_URL,
-                    Globals.WAMS_API_KEY,
-                    this);
+            wamsClient = Globals.WAMSClassFactory.getClient(this);
 
             final JsonObject body = new JsonObject();
             body.addProperty("access_token", accessToken);
@@ -190,27 +185,19 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
         editor.apply();
     }
 
-    String sha1Hash(String toHash) {
+    String sha1Hash(byte[] input) throws NoSuchAlgorithmException {
+        MessageDigest digest = MessageDigest.getInstance("SHA-1");
+        digest.update(input, 0, input.length);
+        byte[] bytes = digest.digest();
 
-        String hash = null;
+        // This is ~55x faster than looping and String.formating()
+        return bytesToHex( bytes );
+    }
 
-        try {
-            MessageDigest digest = MessageDigest.getInstance("SHA-1");
-            byte[] bytes = toHash.getBytes("UTF-8");
-            digest.update(bytes, 0, bytes.length);
-            bytes = digest.digest();
+    String sha1Hash(String toHash) throws UnsupportedEncodingException, NoSuchAlgorithmException {
 
-            // This is ~55x faster than looping and String.formating()
-            hash = bytesToHex( bytes );
-
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-
-        return hash;
+        byte[] bytes = toHash.getBytes("UTF-8");
+        return sha1Hash(bytes);
     }
 
     // http://stackoverflow.com/questions/9655181/convert-from-byte-array-to-hex-string-in-java
@@ -227,27 +214,27 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
         return new String( hexChars );
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-            startActivity(intent);
-
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        // Inflate the menu; this adds items to the action bar if it is present.
+//        getMenuInflater().inflate(R.menu.main, menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        // Handle action bar item clicks here. The action bar will
+//        // automatically handle clicks on the Home/Up button, so long
+//        // as you specify a parent activity in AndroidManifest.xml.
+//        int id = item.getItemId();
+//        if (id == R.id.action_settings) {
+//            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+//            startActivity(intent);
+//
+//            return true;
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
 
     @Override
     protected void onStart() {
@@ -320,13 +307,13 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
                 }
                 break;
 
-//                case 2: { // Rating
-//                    Intent intent = new Intent(MainActivity.this, RateActivity.class);
+//                case 2: { // History
+//                    Intent intent = new Intent(MainActivity.this, HistoryActivity.class);
 //                    startActivity(intent);
 //                }
 //                break;
 
-                case 4: { // About
+                case 3: { // About
                     Intent intent = new Intent(MainActivity.this, AboutActivity.class);
                     startActivity(intent);
                 }

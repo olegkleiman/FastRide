@@ -57,6 +57,16 @@ public class User {
     public Boolean getUsePhone() { return this.usePhone; }
     public void setUsePhone(Boolean value) { this.usePhone = value; }
 
+    @com.google.gson.annotations.SerializedName("platform")
+    private String platform;
+    public String getPlatform() { return this.platform; }
+    public void setPlatform(String value) { this.platform = value; }
+
+    @com.google.gson.annotations.SerializedName("device_id")
+    private String deviceId;
+    public String getDeviceId() { return deviceId; }
+    public void setDeviceId(String value) { this.deviceId = value; }
+
     public static User load(Context context) {
 
         User _user = new User();
