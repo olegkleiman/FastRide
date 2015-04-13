@@ -1,6 +1,8 @@
 package com.maximum.fastride;
 
 import android.annotation.SuppressLint;
+import android.app.ActionBar;
+import android.app.Activity;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -12,12 +14,12 @@ import android.graphics.drawable.Drawable;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
@@ -48,7 +50,7 @@ import java.util.concurrent.ExecutionException;
 //import org.apache.commons.codec.digest.DigestUtils;
 
 
-public class MainActivity extends ActionBarActivity { //BaseActivity {
+public class MainActivity extends Activity { //BaseActivity {
 
     static final int REGISTER_USER_REQUEST = 1;
 
@@ -67,6 +69,23 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
+        if (Globals.DEVELOPER_MODE) {
+            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+                    .detectDiskReads()
+                    .detectDiskWrites()
+                    .detectNetwork()
+                    .penaltyLog()
+                    .build());
+
+            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+                    .detectActivityLeaks()
+                    .detectLeakedSqlLiteObjects()
+                    .detectLeakedClosableObjects()
+                    .penaltyLog()
+                    .build());
+        }
+
 
         try {
             String hashKey = Settings.getApplicationSignature(this);
@@ -142,7 +161,7 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
         mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
 
         // enable ActionBar app icon to behave as action to toggle nav drawer
-        ActionBar actionBar = getSupportActionBar();
+        ActionBar actionBar = getActionBar();
         actionBar.setDisplayHomeAsUpEnabled(true);
         actionBar.setHomeButtonEnabled(true);
 
@@ -156,13 +175,13 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
                 R.string.drawer_close  /* "close drawer" description for accessibility */
         ) {
             public void onDrawerClosed(View view) {
-                getSupportActionBar().setTitle(mTitle);
-                supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                getActionBar().setTitle(mTitle);
+                // supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
 
             public void onDrawerOpened(View drawerView) {
-                getSupportActionBar().setTitle(mDrawerTitle);
-                supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                getActionBar().setTitle(mDrawerTitle);
+                //supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
             }
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);

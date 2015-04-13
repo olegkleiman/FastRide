@@ -12,6 +12,8 @@ import java.net.MalformedURLException;
  */
 public class Globals {
 
+    public static final boolean DEVELOPER_MODE = true;
+
     private static class DManClassFactory {
 
         static DrawMan drawMan;
