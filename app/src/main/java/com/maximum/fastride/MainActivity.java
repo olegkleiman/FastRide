@@ -2,12 +2,14 @@ package com.maximum.fastride;
 
 import android.annotation.SuppressLint;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -24,6 +26,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
+import com.facebook.Settings;
 import com.google.gson.JsonObject;
 import com.maximum.fastride.gcm.GCMHandler;
 import com.maximum.fastride.model.User;
@@ -61,10 +64,13 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
 
     public static MobileServiceClient wamsClient;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
         try {
+            String hashKey = Settings.getApplicationSignature(this);
+
             PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(),
                     PackageManager.GET_SIGNATURES);
             for (android.content.pm.Signature signature : packageInfo.signatures) {
@@ -77,8 +83,50 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
         }
 
         super.onCreate(savedInstanceState);
+        Log.i(LOG_TAG, "onCreate");
         setContentView(R.layout.activity_main);
+        setupView();
 
+        // Intended to be executed only once per app life-time
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        if( sharedPrefs.getString(Globals.USERIDPREF, "").isEmpty() ) {
+
+            Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+            startActivityForResult(intent, REGISTER_USER_REQUEST);
+
+        } else {
+            NotificationsManager.handleNotifications(this, Globals.SENDER_ID,
+                                                    GCMHandler.class);
+
+            String accessToken = sharedPrefs.getString(Globals.TOKENPREF, "");
+            wamsInit(accessToken);
+
+        }
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        Log.i(LOG_TAG, "onNewIntent");
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration config){
+        super.onConfigurationChanged(config);
+        Log.i(LOG_TAG, "onConfigurationChanged");
+
+//        if( config.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+//            Log.v(LOG_TAG, "Changed to landscape");
+//        } else {
+//            Log.v(LOG_TAG, "Changed to portrait");
+//        }
+
+        setContentView(R.layout.activity_main);
+        setupView();
+
+    }
+
+    private void setupView(){
         mTitle = mDrawerTitle = getTitle();
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -119,54 +167,6 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        if( sharedPrefs.getString(Globals.USERIDPREF, "").isEmpty() ) {
-
-            Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
-            startActivityForResult(intent, REGISTER_USER_REQUEST);
-
-        } else {
-            NotificationsManager.handleNotifications(this, Globals.SENDER_ID,
-                                                    GCMHandler.class);
-
-            String accessToken = sharedPrefs.getString(Globals.TOKENPREF, "");
-            wamsInit(accessToken);
-
-            User currentUser = User.load(this);
-            String pictureURL = currentUser.getPictureURL();
-
-            ImageView imageView = (ImageView) findViewById(R.id.profileImageView);
-            Drawable drawable = null;
-            try {
-                drawable = (Globals.drawMan.userDrawable(this,
-                        "1",
-                        pictureURL)).get();
-                drawable = RoundedDrawable.fromDrawable(drawable);
-                ((RoundedDrawable) drawable)
-                        .setCornerRadius(Globals.PICTURE_CORNER_RADIUS)
-                        .setBorderColor(Color.LTGRAY)
-                        .setBorderWidth(Globals.PICTURE_BORDER_WIDTH)
-                        .setOval(true);
-
-                imageView.setImageDrawable(drawable);
-            } catch (InterruptedException | ExecutionException ex) {
-                Log.e(LOG_TAG, ex.getMessage());
-            }
-        }
-    }
-
-    @Override
-    public void onConfigurationChanged(Configuration config){
-        super.onConfigurationChanged(config);
-
-        if( config.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-            Log.i(LOG_TAG, "Changed to landscape");
-        } else {
-            Log.i(LOG_TAG, "Changed to portrait");
-        }
-
-        setContentView(R.layout.activity_main);
-
         User currentUser = User.load(this);
         if( currentUser != null ) {
             String pictureURL = currentUser.getPictureURL();
@@ -189,11 +189,14 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
                 Log.e(LOG_TAG, ex.getMessage());
             }
         }
+
     }
 
     @Override
     protected void onDestroy(){
         super.onDestroy();
+        Log.d(LOG_TAG, "onDestroy");
+
         NotificationsManager.stopHandlingNotifications(this);
     }
 
@@ -305,12 +308,14 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
     @Override
     protected void onStart() {
         super.onStart();
+        Log.d(LOG_TAG, "onStart");
     }
 
     @Override
     protected void onStop() {
         // Disconnecting the client invalidates it.
         super.onStop();
+        Log.d(LOG_TAG, "onStop");
     }
 
     @Override
