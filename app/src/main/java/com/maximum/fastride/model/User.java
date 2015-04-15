@@ -84,6 +84,10 @@ public class User {
         return _user;
     }
 
+    public boolean isLoaded() {
+        return !this.getRegistrationId().isEmpty();
+    }
+
     public void save(Context context) {
         SharedPreferences sharedPrefs =
                 PreferenceManager.getDefaultSharedPreferences(context);

@@ -74,6 +74,14 @@
             android:theme="@style/Theme.AppCompat.Light" >
         </activity>
 
+        <receiver android:name="com.microsoft.windowsazure.notifications.NotificationsBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND">
+            <intent-filter>
+                <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+                <category android:name="com.maximum.fastride" />
+            </intent-filter>
+        </receiver>
+
         <receiver
             android:name=".WiFiDirectBroadcastReceiver"
             android:enabled="true"

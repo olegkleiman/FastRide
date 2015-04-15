@@ -103,6 +103,7 @@ public class MainActivity extends Activity { //BaseActivity {
 
         super.onCreate(savedInstanceState);
         Log.i(LOG_TAG, "onCreate");
+
         setContentView(R.layout.activity_main);
         setupView();
 
@@ -187,7 +188,7 @@ public class MainActivity extends Activity { //BaseActivity {
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
         User currentUser = User.load(this);
-        if( currentUser != null ) {
+        if( currentUser.isLoaded() ) {
             String pictureURL = currentUser.getPictureURL();
 
             ImageView imageView = (ImageView) findViewById(R.id.profileImageView);

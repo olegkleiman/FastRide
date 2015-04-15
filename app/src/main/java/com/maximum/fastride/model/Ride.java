@@ -22,4 +22,8 @@ public class Ride {
     public Date getCreated() { return created; }
     public void setCreated(Date value) { created = value; }
 
+    @com.google.gson.annotations.SerializedName("carnumber")
+    private String carNumber;
+    public String getCarNumber() { return carNumber; }
+    public void setCarNumber(String value) { carNumber = value; }
 }

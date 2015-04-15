@@ -82,6 +82,7 @@ public class DriverRoleActivity extends Activity {
                     try {
                         Ride ride = new Ride();
                         ride.setCreated(new Date());
+                        ride.setCarNumber("77-555_99");
                         ride = ridesTable.insert(ride).get();
 
                         mRideCode = ride.getRideCode();
