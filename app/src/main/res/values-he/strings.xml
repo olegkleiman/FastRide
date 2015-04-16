@@ -5,4 +5,5 @@
     <string name="btnPassengerText">נוסע</string>
     <string name="btnFindRide">חפש נסיעה</string>
     <string name="no_phone_number">חובה להזין מספר טלפון, אך אפשר לבחור לא לשתף אותו עם משתמשים אחרים במתג הבא</string>
+    <string name="btnSubmitText">  בקש פטור</string>
 </resources>

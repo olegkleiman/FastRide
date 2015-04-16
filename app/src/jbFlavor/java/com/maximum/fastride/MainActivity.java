@@ -2,17 +2,21 @@ package com.maximum.fastride;
 
 import android.annotation.SuppressLint;
 
+import android.content.ContentQueryMap;
+import android.content.ContentResolver;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
+import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
@@ -46,6 +50,8 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Observable;
+import java.util.Observer;
 import java.util.concurrent.ExecutionException;
 
 //import org.apache.commons.codec.digest.DigestUtils;
@@ -67,6 +73,7 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
 
     public static MobileServiceClient wamsClient;
 
+    ContentQueryMap cqm;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,20 +94,8 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
                     .build());
         }
 
-
-        try {
-            String hashKey = Settings.getApplicationSignature(this);
-
-            PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(),
-                    PackageManager.GET_SIGNATURES);
-            for (android.content.pm.Signature signature : packageInfo.signatures) {
-                String hash = sha1Hash(signature.toByteArray());
-                Log.d("KeyHash:", hash);
-            }
-        }
-        catch (PackageManager.NameNotFoundException | NoSuchAlgorithmException  ex) {
-            Log.e(LOG_TAG, ex.toString());
-        }
+        // Needed for FB HashKey registration
+        String hashKey = Settings.getApplicationSignature(this);
 
         super.onCreate(savedInstanceState);
         Log.i(LOG_TAG, "onCreate");

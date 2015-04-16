@@ -1,11 +1,16 @@
 package com.maximum.fastride.utils;
 
+import android.content.ContentQueryMap;
 import android.content.Context;
+import android.database.Observable;
 import android.os.Build;
 
+import com.google.android.gms.common.data.DataBufferObserver;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 
 import java.net.MalformedURLException;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * Created by Oleg Kleiman on 11-Apr-15.

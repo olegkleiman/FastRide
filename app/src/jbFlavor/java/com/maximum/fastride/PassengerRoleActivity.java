@@ -3,6 +3,7 @@ package com.maximum.fastride;
 import android.content.SharedPreferences;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.util.Log;
@@ -67,8 +68,10 @@ public class PassengerRoleActivity extends ActionBarActivity {
     }
 
     public void onSubmit(View view){
-        EditText editRideCode = (EditText)findViewById(R.id.editTextRideCode);
+        final EditText editRideCode = (EditText)findViewById(R.id.editTextRideCode);
         final String rideCode = editRideCode.getText().toString();
+        final String android_id = Settings.Secure.getString(this.getContentResolver(),
+                Settings.Secure.ANDROID_ID);
 
 
         new AsyncTask<Void, Void, Void>() {
@@ -79,11 +82,18 @@ public class PassengerRoleActivity extends ActionBarActivity {
             @Override
             protected void onPostExecute(Void result){
 
-                if( mEx == null ) {
+                if( mEx != null ) {
 
-                } else {
-                    Toast.makeText(PassengerRoleActivity.this,
-                            mEx.getMessage(), Toast.LENGTH_LONG).show();
+                    String msg = mEx.getMessage();
+                    String[] tokens = msg.split(":");
+                    if(tokens.length > 1)
+                        msg = tokens[1];
+
+                    if( mEx instanceof ExecutionException) {
+                        editRideCode.setError(msg);
+                    } else {
+                        Toast.makeText(PassengerRoleActivity.this, msg, Toast.LENGTH_LONG).show();
+                    }
                 }
             }
 
@@ -93,8 +103,9 @@ public class PassengerRoleActivity extends ActionBarActivity {
                 try{
                     Join _join  = new Join();
                     _join.setWhenJoined(new Date());
+                    _join.setRideCode(rideCode);
+                    _join.setDeviceId(android_id);
 
-                    joinsTable.parameter("rideCode", rideCode);
                     joinsTable.insert(_join).get();
 
                 } catch(ExecutionException| InterruptedException ex ) {

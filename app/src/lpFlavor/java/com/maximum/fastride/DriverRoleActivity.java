@@ -9,10 +9,13 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.maximum.fastride.R;
+import com.maximum.fastride.adapters.PassengersAdapter;
 import com.maximum.fastride.model.Ride;
 import com.maximum.fastride.utils.Globals;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
@@ -30,10 +33,21 @@ public class DriverRoleActivity extends Activity {
     public static MobileServiceClient wamsClient;
     MobileServiceTable<Ride> ridesTable;
 
+    public static PassengersAdapter mPassengersAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_role);
+
+        ListView listView = (ListView)findViewById(R.id.listView);
+
+        mPassengersAdapter = new PassengersAdapter(DriverRoleActivity.this,
+                R.layout.passener_item_row);
+        for (String _passenger : Globals.passengers) {
+            mPassengersAdapter.add(_passenger);
+        }
+        listView.setAdapter(mPassengersAdapter);
 
         wamsInit();
     }
@@ -98,6 +112,10 @@ public class DriverRoleActivity extends Activity {
         } catch(MalformedURLException ex ) {
             Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
         }
+    }
+
+    public void onButtonSubmitRide(View v){
+
     }
 
     @Override

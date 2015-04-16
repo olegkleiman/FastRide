@@ -14,11 +14,14 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.gson.JsonObject;
 import com.maximum.fastride.R;
+import com.maximum.fastride.adapters.PassengersAdapter;
 import com.maximum.fastride.model.Ride;
 import com.maximum.fastride.model.User;
 import com.maximum.fastride.utils.Globals;
@@ -51,11 +54,18 @@ public class DriverRoleActivity extends ActionBarActivity
     public static MobileServiceClient wamsClient;
     MobileServiceTable<Ride> ridesTable;
 
+    public static PassengersAdapter mPassengersAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_role);
+
+        ListView listView = (ListView)findViewById(R.id.listView);
+
+        mPassengersAdapter = new PassengersAdapter(DriverRoleActivity.this,
+                R.layout.passener_item_row);
+        listView.setAdapter(mPassengersAdapter);
 
         wamsInit();
 
@@ -171,6 +181,10 @@ public class DriverRoleActivity extends ActionBarActivity
         } catch(MalformedURLException ex ) {
             Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
         }
+    }
+
+    public void onButtonSubmitRide(View v){
+
     }
 
     public void onReceive(Context context, Intent intent) {

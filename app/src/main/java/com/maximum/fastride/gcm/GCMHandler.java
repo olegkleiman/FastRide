@@ -11,6 +11,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
+import com.maximum.fastride.DriverRoleActivity;
 import com.maximum.fastride.MainActivity;
 import com.maximum.fastride.R;
 import com.maximum.fastride.utils.Globals;
@@ -39,25 +40,26 @@ public class GCMHandler extends  com.microsoft.windowsazure.notifications.Notifi
             protected Void doInBackground(Void... voids) {
 
                 try {
+                    String[] tags = {userID};
                     // Better use WAMS SDK v2 like:
-                    //MainActivity.wamsClient.getPush().register(gcmRegistrationId, null);
+                    MainActivity.wamsClient.getPush().register(gcmRegistrationId, tags);
 
-                    MobileServicePush push = MainActivity.wamsClient.getPush();
-                    if( push != null ) {
-                        String[] tags = {userID};
-                        push.register(gcmRegistrationId, tags,
-                                new RegistrationCallback() {
-
-                                    @Override
-                                    public void onRegister(Registration registration,
-                                                           Exception ex) {
-                                        if (ex != null) {
-                                            String msg = ex.getMessage();
-                                            Log.e("Registration error: ", msg);
-                                        }
-                                    }
-                                });
-                    }
+//                    MobileServicePush push = MainActivity.wamsClient.getPush();
+//                    if( push != null ) {
+//                        String[] tags = {userID};
+//                        push.register(gcmRegistrationId, tags,
+//                                new RegistrationCallback() {
+//
+//                                    @Override
+//                                    public void onRegister(Registration registration,
+//                                                           Exception ex) {
+//                                        if (ex != null) {
+//                                            String msg = ex.getMessage();
+//                                            Log.e("Registration error: ", msg);
+//                                        }
+//                                    }
+//                                });
+//                    }
                 } catch (Exception e) {
                     String msg = e.getMessage();
                     Log.e("Registration error: ", msg);
@@ -77,10 +79,21 @@ public class GCMHandler extends  com.microsoft.windowsazure.notifications.Notifi
     public void onReceive(Context context, Bundle bundle) {
         ctx = context;
 
-        String nhMessage = bundle.getString("message");
         String title = context.getResources().getString(R.string.app_label);
+        boolean bSend = false;
+        String message = bundle.getString("message");
+        String[] tokens = message.split(";");
+        if( tokens.length > 1) {
+            message = tokens[1];
 
-        sendNotification(nhMessage, title);
+            int flag = Integer.parseInt(tokens[0]);
+            // Message flag (first token) means only by 4 bit: X000 where X=1 means display message, X=0 - not display
+            bSend = ( flag >> 3 == 0) ? false : true;
+        }
+
+        DriverRoleActivity.mPassengersAdapter.add(message);
+        if( bSend )
+            sendNotification(message, title);
     }
 
     private void sendNotification(String msg, String title) {
@@ -89,7 +102,7 @@ public class GCMHandler extends  com.microsoft.windowsazure.notifications.Notifi
 
         // TODO: Define to which activity the notification should be delivered
         //      (Optionally) Use TaskStackBuilder if this activity is deep
-        Intent launchIntent = new Intent(ctx, MainActivity.class);
+        Intent launchIntent = new Intent(ctx, DriverRoleActivity.class);
         Bundle b = new Bundle();
         launchIntent.putExtras(b);
 

@@ -70,34 +70,28 @@ public class MainActivity extends Activity { //BaseActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        if (Globals.DEVELOPER_MODE) {
-            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                    .detectDiskReads()
-                    .detectDiskWrites()
-                    .detectNetwork()
-                    .penaltyLog()
-                    .build());
-
-            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                    .detectActivityLeaks()
-                    .detectLeakedSqlLiteObjects()
-                    .detectLeakedClosableObjects()
-                    .penaltyLog()
-                    .build());
-        }
-
+//        if (Globals.DEVELOPER_MODE) {
+//            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+//                    .detectDiskReads()
+//                    .detectDiskWrites()
+//                    .detectNetwork()
+//                    .penaltyLog()
+//                    .build());
+//
+//            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+//                    .detectActivityLeaks()
+//                    .detectLeakedSqlLiteObjects()
+//                    .detectLeakedClosableObjects()
+//                    .penaltyLog()
+//                    .build());
+//        }
 
         try {
-            String hashKey = Settings.getApplicationSignature(this);
-
+            // Needed to detect HashCode for FB registration
             PackageInfo packageInfo = getPackageManager().getPackageInfo(getPackageName(),
                     PackageManager.GET_SIGNATURES);
-            for (android.content.pm.Signature signature : packageInfo.signatures) {
-                String hash = sha1Hash(signature.toByteArray());
-                Log.d("KeyHash:", hash);
-            }
         }
-        catch (PackageManager.NameNotFoundException | NoSuchAlgorithmException  ex) {
+        catch (PackageManager.NameNotFoundException ex) {
             Log.e(LOG_TAG, ex.toString());
         }
 
