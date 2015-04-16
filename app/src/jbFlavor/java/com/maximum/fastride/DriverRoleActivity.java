@@ -31,6 +31,7 @@ import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceUse
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
 
 import java.net.MalformedURLException;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
@@ -39,6 +40,8 @@ public class DriverRoleActivity extends ActionBarActivity
     implements WiFiDirectBroadcastReceiver.IWiFiStateChanges {
 
     private static final String LOG_TAG = "FR.Driver";
+
+    Ride mCurrentRide;
 
     // Wi-Fi Private - related members
     private final IntentFilter intentFilter = new IntentFilter();
@@ -147,14 +150,13 @@ public class DriverRoleActivity extends ActionBarActivity
             new AsyncTask<Void, Void, Void>() {
 
                 Exception mEx;
-                String mRideCode;
 
                 @Override
                 protected void onPostExecute(Void result){
 
                     if( mEx == null ) {
                         TextView txtRideCode = (TextView) findViewById(R.id.txtRideCode);
-                        txtRideCode.setText(mRideCode);
+                        txtRideCode.setText(mCurrentRide.getRideCode());
                     } else {
                         Toast.makeText(DriverRoleActivity.this,
                                 mEx.getMessage(), Toast.LENGTH_LONG).show();
@@ -165,10 +167,12 @@ public class DriverRoleActivity extends ActionBarActivity
                 protected Void doInBackground(Void... voids) {
 
                     try {
-                        Ride ride = new Ride();
-                        ride = ridesTable.insert(ride).get();
 
-                        mRideCode = ride.getRideCode();
+                        Ride ride = new Ride();
+                        ride.setCreated(new Date());
+                        ride.setCarNumber("77-555_99");
+                        mCurrentRide = ridesTable.insert(ride).get();
+
                     } catch(ExecutionException | InterruptedException ex ) {
                         mEx = ex;
                         Log.e(LOG_TAG, ex.getMessage());
@@ -184,6 +188,24 @@ public class DriverRoleActivity extends ActionBarActivity
     }
 
     public void onButtonSubmitRide(View v){
+        if( mCurrentRide == null )
+            return;
+
+        mCurrentRide.setApproved(true);
+
+        new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+
+                try {
+                    ridesTable.update(mCurrentRide).get();
+                } catch (InterruptedException | ExecutionException e) {
+                    Log.e(LOG_TAG, e.getMessage());
+                }
+                return null;
+            }
+        }.execute();
 
     }
 

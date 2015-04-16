@@ -30,6 +30,8 @@ public class DriverRoleActivity extends Activity {
 
     private static final String LOG_TAG = "FR.Driver";
 
+    Ride mCurrentRide;
+
     public static MobileServiceClient wamsClient;
     MobileServiceTable<Ride> ridesTable;
 
@@ -44,9 +46,6 @@ public class DriverRoleActivity extends Activity {
 
         mPassengersAdapter = new PassengersAdapter(DriverRoleActivity.this,
                 R.layout.passener_item_row);
-        for (String _passenger : Globals.passengers) {
-            mPassengersAdapter.add(_passenger);
-        }
         listView.setAdapter(mPassengersAdapter);
 
         wamsInit();
@@ -76,14 +75,13 @@ public class DriverRoleActivity extends Activity {
             new AsyncTask<Void, Void, Void>() {
 
                 Exception mEx;
-                String mRideCode;
 
                 @Override
                 protected void onPostExecute(Void result){
 
                     if( mEx == null ) {
                         TextView txtRideCode = (TextView) findViewById(R.id.txtRideCode);
-                        txtRideCode.setText(mRideCode);
+                        txtRideCode.setText(mCurrentRide.getRideCode());
                     } else {
                         Toast.makeText(DriverRoleActivity.this,
                                 mEx.getMessage(), Toast.LENGTH_LONG).show();
@@ -94,12 +92,12 @@ public class DriverRoleActivity extends Activity {
                 protected Void doInBackground(Void... voids) {
 
                     try {
+
                         Ride ride = new Ride();
                         ride.setCreated(new Date());
                         ride.setCarNumber("77-555_99");
-                        ride = ridesTable.insert(ride).get();
+                        mCurrentRide = ridesTable.insert(ride).get();
 
-                        mRideCode = ride.getRideCode();
                     } catch(ExecutionException | InterruptedException ex ) {
                         mEx = ex;
                         Log.e(LOG_TAG, ex.getMessage());
@@ -116,6 +114,24 @@ public class DriverRoleActivity extends Activity {
 
     public void onButtonSubmitRide(View v){
 
+        if( mCurrentRide == null )
+            return;
+
+        mCurrentRide.setApproved(true);
+
+        new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+
+                try {
+                    ridesTable.update(mCurrentRide).get();
+                } catch (InterruptedException | ExecutionException e) {
+                    Log.e(LOG_TAG, e.getMessage());
+                }
+                return null;
+            }
+        }.execute();
     }
 
     @Override

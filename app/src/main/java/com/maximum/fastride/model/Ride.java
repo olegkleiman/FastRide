@@ -26,4 +26,9 @@ public class Ride {
     private String carNumber;
     public String getCarNumber() { return carNumber; }
     public void setCarNumber(String value) { carNumber = value; }
+
+    @com.google.gson.annotations.SerializedName("approved")
+    private Boolean approved;
+    public Boolean getApproved() { return approved; }
+    public void setApproved(Boolean value) { approved = value; }
 }
