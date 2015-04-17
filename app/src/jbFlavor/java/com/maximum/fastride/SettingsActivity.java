@@ -9,6 +9,8 @@ import com.maximum.fastride.R;
 
 public class SettingsActivity extends ActionBarActivity {
 
+    private static final String LOG_TAG = "FR.Settings";
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

@@ -392,11 +392,12 @@ public class MainActivity extends Activity { //BaseActivity {
                 }
                 break;
 
-//                case 2: { // History
-//                    Intent intent = new Intent(MainActivity.this, HistoryActivity.class);
-//                    startActivity(intent);
-//                }
-//                break;
+                case 2: { // History
+                    Intent intent = new Intent(MainActivity.this, MyRidesActivity.class);
+                    startActivity(intent);
+                }
+                break;
+
 
                 case 3: { // About
                     Intent intent = new Intent(MainActivity.this, AboutActivity.class);

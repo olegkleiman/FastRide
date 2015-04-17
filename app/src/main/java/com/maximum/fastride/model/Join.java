@@ -16,7 +16,6 @@ public class Join {
     public Date getWhenJoined() {
         return whenJoined;
     }
-
     public void setWhenJoined(Date value) {
         whenJoined = value;
     }

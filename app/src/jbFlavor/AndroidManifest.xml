@@ -35,6 +35,14 @@
             android:parentActivityName="com.maximum.fastride.MainActivity"
             >
         </activity>
+
+        <activity android:name="com.maximum.fastride.MyRidesActivity"
+            android:theme="@style/Theme.AppCompat.Light"
+            android:label="@string/title_activity_my_rides"
+            android:parentActivityName="com.maximum.fastride.MainActivity"
+            >
+        </activity>
     </application>
 
 </manifest>
+

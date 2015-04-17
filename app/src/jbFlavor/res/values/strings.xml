@@ -5,5 +5,8 @@
     <string name="title_activity_driver_role">DriverRoleActivity</string>
     <string name="title_activity_settings">SettingsActivity</string>
     <string name="title_activity_passenger">PassengerActivity</string>
+    <string name="title_activity_my_rides">MyRidesActivity</string>
+
+    <string name="hello_world">Hello world!</string>
 
 </resources>
