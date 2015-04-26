@@ -15,10 +15,11 @@
         android:layout_gravity="center_horizontal" />
 
     <ListView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/listView"
-        android:layout_weight="1" />
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/listViewPeers"
+        android:layout_gravity="center_horizontal"
+        android:layout_weight="0.5" />
 
     <Button
         android:layout_width="wrap_content"
@@ -27,6 +28,13 @@
         android:onClick="onButtonSubmitRide"
         android:id="@+id/btnSubmitRide"
         android:layout_gravity="center_horizontal" />
+
+    <TextView
+        android:id="@+id/txtMe"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:text="ME"/>
 
 
 </LinearLayout>

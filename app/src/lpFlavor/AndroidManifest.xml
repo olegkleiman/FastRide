@@ -33,7 +33,11 @@
             android:theme="@style/AppTheme">
         </activity>
 
+        <activity android:name="com.maximum.fastride.MyRidesActivity"
+            android:label="@string/title_activity_my_rides"
+            >
+        </activity>
+
     </application>
 
 </manifest>
-

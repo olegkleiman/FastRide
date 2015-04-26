@@ -2,4 +2,7 @@
 <resources>
     <color name="user_profile_background">#607D8B</color>
     <color name="azure">#ff00a1f1</color>
+
+    <color name="ColorPrimary">#2196F3</color>
+    <color name="ColorPrimaryDark">#2196F3</color>
 </resources>

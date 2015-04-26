@@ -1,7 +1,17 @@
 package com.maximum.fastride;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.wifi.WpsInfo;
+import android.net.wifi.p2p.WifiP2pConfig;
+import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pInfo;
+import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
@@ -16,17 +26,29 @@ import android.widget.Toast;
 
 import com.maximum.fastride.R;
 import com.maximum.fastride.adapters.PassengersAdapter;
+import com.maximum.fastride.adapters.WiFiPeersAdapter;
 import com.maximum.fastride.model.Ride;
 import com.maximum.fastride.utils.Globals;
+import com.maximum.fastride.utils.WiFiUtil;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceUser;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.net.MalformedURLException;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class DriverRoleActivity extends Activity {
+public class DriverRoleActivity extends Activity
+                implements WiFiDirectBroadcastReceiver.IWiFiStateChanges,
+                           WifiP2pManager.PeerListListener,
+                           WifiP2pManager.ConnectionInfoListener {
 
     private static final String LOG_TAG = "FR.Driver";
 
@@ -35,20 +57,40 @@ public class DriverRoleActivity extends Activity {
     public static MobileServiceClient wamsClient;
     MobileServiceTable<Ride> ridesTable;
 
-    public static PassengersAdapter mPassengersAdapter;
+    WiFiPeersAdapter mPeersAdapter;
+    public List<WifiP2pDevice> peers = new ArrayList<>();
+
+    WiFiUtil wifiUtil;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_role);
 
-        ListView listView = (ListView)findViewById(R.id.listView);
-
-        mPassengersAdapter = new PassengersAdapter(DriverRoleActivity.this,
-                R.layout.passener_item_row);
-        listView.setAdapter(mPassengersAdapter);
-
         wamsInit();
+
+        final ListView peersListView = (ListView)findViewById(R.id.listViewPeers);
+        mPeersAdapter = new WiFiPeersAdapter(this, R.layout.row_devices, peers);
+        peersListView.setAdapter(mPeersAdapter);
+
+        wifiUtil = new WiFiUtil(this);
+        wifiUtil.deletePersistentGroups();
+
+        wifiUtil.discoverPeers();
+
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        wifiUtil.registerReceiver(this);
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        wifiUtil.unregisterReceiver();
     }
 
     private void wamsInit( ){
@@ -154,5 +196,123 @@ public class DriverRoleActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    // Implements WifiP2pManager.PeerListListener
+
+    @Override
+    public void onPeersAvailable(WifiP2pDeviceList wifiP2pDeviceList) {
+
+        String traceMessage = "Peers Available";
+
+        if( wifiP2pDeviceList.getDeviceList().size() == 0 )
+            traceMessage = "No peers discovered";
+
+        // Out with the old, in with the new.
+        peers.clear();
+        peers.addAll(wifiP2pDeviceList.getDeviceList());
+        mPeersAdapter.notifyDataSetChanged();
+
+        for(WifiP2pDevice device : wifiP2pDeviceList.getDeviceList()) {
+            if( device.status == WifiP2pDevice.AVAILABLE ) {
+
+                WifiP2pConfig config = new WifiP2pConfig();
+                config.deviceAddress = device.deviceAddress;
+                config.groupOwnerIntent = 15;
+                config.wps.setup = WpsInfo.PBC;
+                //config.wps.setup = WpsInfo.LABEL;
+
+                wifiUtil.connectToDevice(config);
+            }
+        }
+    }
+
+    //
+    // Implementation of WifiP2pManager.ConnectionInfoListener
+    //
+
+    @Override
+    public void onConnectionInfoAvailable(WifiP2pInfo p2pInfo) {
+        TextView txtMe = (TextView)findViewById(R.id.txtMe);
+
+         /*
+         * The group owner accepts connections using a server socket and then spawns a
+         * client socket for every client. This is handled by {@code
+         * GroupOwnerSocketHandler}
+         */
+        if (p2pInfo.isGroupOwner) {
+            txtMe.setText("ME: GroupOwner, Group Owner IP: " + p2pInfo.groupOwnerAddress.getHostAddress());
+        } else {
+            txtMe.setText("ME: NOT GroupOwner, Group Owner IP: " + p2pInfo.groupOwnerAddress.getHostAddress());
+        }
+
+        // Optionally may request group info
+        //mManager.requestGroupInfo(mChannel, this);
+    }
+
+    @Override
+    public void trace(String status) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                //appendStatus(status);
+            }
+        });
+    }
+
+    @Override
+    public void alert(final String strIntent) {
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which) {
+                if( which == DialogInterface.BUTTON_POSITIVE ) {
+                    startActivity(new Intent(strIntent));
+                }
+            }};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Enable Wi-Fi on your device?")
+                .setPositiveButton("Yes", dialogClickListener)
+                .setNegativeButton("No", dialogClickListener).show();
+    }
+
+    public static class ServerAsyncTask extends AsyncTask<Void, Void, String> {
+
+        Context mContext;
+
+        public ServerAsyncTask(Context context){
+            mContext = context;
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+
+            Log.d(LOG_TAG, "ServerAsyncTask:doBackground() called");
+
+            try {
+                ServerSocket serverSocket = new ServerSocket(Globals.SERVER_PORT);
+
+                String traceMessage = "Server: Socket opened on port " + Globals.SERVER_PORT;
+                Log.d(LOG_TAG, traceMessage);
+
+                Socket clientSocket = serverSocket.accept();
+
+                BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                traceMessage = reader.readLine();
+                Log.d(LOG_TAG, traceMessage);
+
+                serverSocket.close();
+
+                traceMessage = "Server socket closed";
+                Log.d(LOG_TAG, traceMessage);
+
+            } catch (IOException e) {
+                Log.e(LOG_TAG, e.getMessage());
+            }
+
+            return null;
+        }
     }
 }

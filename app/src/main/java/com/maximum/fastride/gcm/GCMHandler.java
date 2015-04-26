@@ -91,7 +91,7 @@ public class GCMHandler extends  com.microsoft.windowsazure.notifications.Notifi
             bSend = ( flag >> 3 == 0) ? false : true;
         }
 
-        DriverRoleActivity.mPassengersAdapter.add(message);
+        // TODO: DriverRoleActivity.mPassengersAdapter.add(message);
         if( bSend )
             sendNotification(message, title);
     }

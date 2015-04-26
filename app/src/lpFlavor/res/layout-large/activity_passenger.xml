@@ -32,5 +32,11 @@
         android:onClick="onSubmit"
         android:id="@+id/btnPassengerSubmit" />
 
+    <TextView
+        android:id="@+id/txtPassengerMe"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:text="ME"/>
 
 </LinearLayout>

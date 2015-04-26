@@ -35,6 +35,9 @@ public class Globals {
     public static float PICTURE_CORNER_RADIUS = 20;
     public static float PICTURE_BORDER_WIDTH = 4;
 
+    static final public int SERVER_PORT = 4545;
+    static final public int SOCKET_TIMEOUT = 12000;
+
     public static final String USERIDPREF = "userid";
     public static final String TOKENPREF = "accessToken";
     public static final String WAMSTOKENPREF = "wamsToken";

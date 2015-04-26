@@ -4,5 +4,13 @@
     <string name="action_settings">Settings</string>
     <string name="title_activity_passenger">PassengerActivity</string>
     <string name="title_activity_settings">SettingsActivity</string>
+    <string name="title_activity_my_rides">MyRidesActivity</string>
+
+    <string-array name="drawers_array_drawer">
+        <item>My rides</item>
+        <item>Rating</item>
+        <item>Logout</item>
+        <item>About</item>
+    </string-array>
 
 </resources>

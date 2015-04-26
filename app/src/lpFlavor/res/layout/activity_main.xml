@@ -18,6 +18,11 @@
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin">
 
+        <!-- We use a Toolbar so that our drawer can be displayed
+             in front of the action bar -->
+        <!--<include-->
+            <!--layout="@layout/tool_bar" />-->
+
 
         <ImageView
             android:layout_width="0dp"
@@ -62,7 +67,8 @@
     <ListView android:id="@+id/left_drawer"
         android:layout_width="240dp"
         android:layout_height="match_parent"
-        android:layout_gravity="start"
+        android:layout_gravity="left|start"
+        android:fitsSystemWindows="true"
         android:choiceMode="singleChoice"
         android:divider="@android:color/transparent"
         android:dividerHeight="0dp"

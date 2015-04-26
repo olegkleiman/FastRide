@@ -1,28 +1,19 @@
 package com.maximum.fastride;
 
 import android.annotation.SuppressLint;
-
 import android.content.ContentQueryMap;
-import android.content.ContentResolver;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -50,14 +41,12 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Observable;
-import java.util.Observer;
 import java.util.concurrent.ExecutionException;
 
 //import org.apache.commons.codec.digest.DigestUtils;
 
 
-public class MainActivity extends ActionBarActivity { //BaseActivity {
+public class MainActivity extends ActionBarActivity {
 
     static final int REGISTER_USER_REQUEST = 1;
 

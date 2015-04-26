@@ -16,11 +16,19 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.StrictMode;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ActionBarDrawerToggle;
+import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -30,6 +38,7 @@ import android.widget.Toast;
 
 import com.facebook.Settings;
 import com.google.gson.JsonObject;
+import com.maximum.fastride.adapters.DrawerRecyclerAdapter;
 import com.maximum.fastride.gcm.GCMHandler;
 import com.maximum.fastride.model.User;
 import com.maximum.fastride.utils.Globals;
@@ -47,10 +56,8 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
-//import org.apache.commons.codec.digest.DigestUtils;
-
-
-public class MainActivity extends Activity { //BaseActivity {
+//public class MainActivity extends Activity { //BaseActivity {
+public class MainActivity extends ActionBarActivity { //BaseActivity {
 
     static final int REGISTER_USER_REQUEST = 1;
 
@@ -58,11 +65,13 @@ public class MainActivity extends Activity { //BaseActivity {
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
-    private ListView mDrawerList;
+    private RecyclerView mDrawerRecyclerView;
     private String[] mDrawerTitles;
-
-    private CharSequence mDrawerTitle;
-    private CharSequence mTitle;
+    int DRAWER_ICONS[] = {
+            R.drawable.ic_action_myrides,
+            R.drawable.ic_action_rating,
+            R.drawable.ic_action_logout,
+            R.drawable.ic_action_about};
 
     public static MobileServiceClient wamsClient;
 
@@ -99,23 +108,24 @@ public class MainActivity extends Activity { //BaseActivity {
         Log.i(LOG_TAG, "onCreate");
 
         setContentView(R.layout.activity_main);
+
         setupView();
 
-        // Intended to be executed only once per app life-time
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        if( sharedPrefs.getString(Globals.USERIDPREF, "").isEmpty() ) {
-
-            Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
-            startActivityForResult(intent, REGISTER_USER_REQUEST);
-
-        } else {
-            NotificationsManager.handleNotifications(this, Globals.SENDER_ID,
-                                                    GCMHandler.class);
-
-            String accessToken = sharedPrefs.getString(Globals.TOKENPREF, "");
-            wamsInit(accessToken);
-
-        }
+//        // Intended to be executed only once per app life-time
+//        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+//        if( sharedPrefs.getString(Globals.USERIDPREF, "").isEmpty() ) {
+//
+//            Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+//            startActivityForResult(intent, REGISTER_USER_REQUEST);
+//
+//        } else {
+//            NotificationsManager.handleNotifications(this, Globals.SENDER_ID,
+//                                                    GCMHandler.class);
+//
+//            String accessToken = sharedPrefs.getString(Globals.TOKENPREF, "");
+//            wamsInit(accessToken);
+//
+//        }
     }
 
     @Override
@@ -141,47 +151,70 @@ public class MainActivity extends Activity { //BaseActivity {
     }
 
     private void setupView(){
-        mTitle = mDrawerTitle = getTitle();
+
+        Toolbar toolbar = (Toolbar) findViewById(R.id.fastride_toolbar);
+        setSupportActionBar(toolbar);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         // set a custom shadow that overlays the main content when the drawer opens
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
-        mDrawerTitles = getResources().getStringArray(R.array.drawers_array);
+        mDrawerRecyclerView = (RecyclerView) findViewById(R.id.left_drawer);
+        mDrawerRecyclerView.setHasFixedSize(true);
+        mDrawerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mDrawerRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        // set up the drawer's list view with items and click listener
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.drawer_list_item, mDrawerTitles));
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
+        User currentUser = User.load(this);
 
-        // enable ActionBar app icon to behave as action to toggle nav drawer
-        ActionBar actionBar = getActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeButtonEnabled(true);
+        mDrawerTitles = getResources().getStringArray(R.array.drawers_array_drawer);
+        DrawerRecyclerAdapter drawerRecyclerAdapter =
+                new DrawerRecyclerAdapter(this,
+                        mDrawerTitles,
+                        DRAWER_ICONS,
+                        currentUser.getFirstName() + " " + currentUser.getLastName(),
+                        currentUser.getEmail(),
+                        currentUser.getPictureURL());
+
+        mDrawerRecyclerView.setAdapter(drawerRecyclerAdapter);
+//        mDrawerRecyclerView.addOnItemClickListener(
+//                new RecyclerView.OnItemTouchListener() {
+//
+//                    @Override
+//                    public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
+//                        return false;
+//                    }
+//
+//                    @Override
+//                    public void onTouchEvent(RecyclerView rv, MotionEvent e) {
+//
+//                    }
+//                }
+//        );
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        // set a custom shadow that overlays the main content when the drawer opens
+        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
         // ActionBarDrawerToggle ties together the the proper interactions
         // between the sliding drawer and the action bar app icon
         mDrawerToggle = new ActionBarDrawerToggle(
                 this,                  /* host Activity */
                 mDrawerLayout,         /* DrawerLayout object */
-                R.drawable.ic_drawer,  /* nav drawer image to replace 'Up' caret */
+                toolbar,  /* nav drawer image to replace 'Up' caret */
                 R.string.drawer_open,  /* "open drawer" description for accessibility */
                 R.string.drawer_close  /* "close drawer" description for accessibility */
         ) {
-            public void onDrawerClosed(View view) {
-                getActionBar().setTitle(mTitle);
-                // supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+            public void onDrawerClosed(View drawerView) {
+                super.onDrawerOpened(drawerView);
             }
 
             public void onDrawerOpened(View drawerView) {
-                getActionBar().setTitle(mDrawerTitle);
-                //supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
+                super.onDrawerClosed(drawerView);
             }
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
+        mDrawerToggle.syncState();
 
-        User currentUser = User.load(this);
         if( currentUser.isLoaded() ) {
             String pictureURL = currentUser.getPictureURL();
 
@@ -301,7 +334,7 @@ public class MainActivity extends Activity { //BaseActivity {
 //    public boolean onCreateOptionsMenu(Menu menu) {
 //        // Inflate the menu; this adds items to the action bar if it is present.
 //        getMenuInflater().inflate(R.menu.main, menu);
-//        return true;
+//        return super.onCreateOptionsMenu(menu);
 //    }
 //
 //    @Override
@@ -370,43 +403,6 @@ public class MainActivity extends Activity { //BaseActivity {
     public void onPassengerClicked(View v) {
         Intent intent = new Intent(this, PassengerRoleActivity.class);
         startActivity(intent);
-    }
-
-    /* The click listener for ListView in the navigation drawer */
-    private class DrawerItemClickListener implements ListView.OnItemClickListener {
-        @Override
-        public void onItemClick(AdapterView<?> parent,
-                                View view,
-                                int position,
-                                long id) {
-            switch ( position ){
-                case 0: { // Profile
-                    Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                    startActivity(intent);
-                }
-                break;
-
-                case 1: { // Settings
-                    Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                    startActivity(intent);
-                }
-                break;
-
-                case 2: { // History
-                    Intent intent = new Intent(MainActivity.this, MyRidesActivity.class);
-                    startActivity(intent);
-                }
-                break;
-
-
-                case 3: { // About
-                    Intent intent = new Intent(MainActivity.this, AboutActivity.class);
-                    startActivity(intent);
-                }
-                break;
-            }
-
-        }
     }
 
 }

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.v7.widget.Toolbar
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/fastride_toolbar"
+    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:elevation="4dp"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark"
+    android:minHeight="?attr/actionBarSize"
+    android:background="?attr/colorPrimary"
+    >
+    <!--<ImageView-->
+    <!--android:layout_width="match_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:src="@drawable/toolbar_bk2"-->
+    <!--android:scaleType="fitXY" />-->
+</android.support.v7.widget.Toolbar>
