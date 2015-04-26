@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
+import java.util.logging.Handler;
 
 public class PassengerRoleActivity extends ActionBarActivity
         implements WiFiDirectBroadcastReceiver.IWiFiStateChanges,
@@ -55,10 +56,14 @@ public class PassengerRoleActivity extends ActionBarActivity
     WiFiUtil wifiUtil;
     public List<WifiP2pDevice> peers = new ArrayList<>();
 
+    TextView mTxtStatus;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_passenger);
+
+        mTxtStatus = (TextView)findViewById(R.id.txtStatusPassenger);
 
         wamsInit();
 
@@ -186,11 +191,12 @@ public class PassengerRoleActivity extends ActionBarActivity
 
 
     @Override
-    public void trace(String status) {
+    public void trace(final String status) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                //appendStatus(status);
+                String current = mTxtStatus.getText().toString();
+                mTxtStatus.setText(current + "\n" + status);
             }
         });
     }
@@ -218,19 +224,28 @@ public class PassengerRoleActivity extends ActionBarActivity
     //
 
     @Override
-    public void onConnectionInfoAvailable(WifiP2pInfo p2pInfo) {
+    public void onConnectionInfoAvailable(final WifiP2pInfo p2pInfo) {
 
-        TextView txtMe = (TextView)findViewById(R.id.txtMe);
+        final Context context = this;
+
+        TextView txtMe = (TextView)findViewById(R.id.txtPassengerMe);
         if (p2pInfo.isGroupOwner) {
             txtMe.setText("ME: GroupOwner, Group Owner IP: " + p2pInfo.groupOwnerAddress.getHostAddress());
         } else {
             txtMe.setText("ME: NOT GroupOwner, Group Owner IP: " + p2pInfo.groupOwnerAddress.getHostAddress());
-        }
 
-        if ( !p2pInfo.isGroupOwner) {
+            android.os.Handler h = new android.os.Handler();
 
-            new ClientAsyncTask(this, p2pInfo.groupOwnerAddress,
-                    "From client").execute();
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+
+                    new WiFiUtil.ClientAsyncTask(context, p2pInfo.groupOwnerAddress,
+                            "From client").execute();
+                }
+            };
+
+            h.postDelayed(r, 2000); // let to server to open the socket in advance
         }
     }
 
@@ -250,71 +265,5 @@ public class PassengerRoleActivity extends ActionBarActivity
         //mPeersAdapter.notifyDataSetChanged();
     }
 
-    public static class ClientAsyncTask extends AsyncTask<Void, Void, String> {
 
-        Context mContext;
-        String mMessage;
-        InetAddress mGroupHostAddress;
-
-        public ClientAsyncTask(Context context,
-                               InetAddress groupOwnerAddress,
-                               String message){
-            this.mContext = context;
-            this.mGroupHostAddress = groupOwnerAddress;
-            this.mMessage = message;
-        }
-
-        @Override
-        protected String doInBackground(Void... voids) {
-
-            Log.d(LOG_TAG, "ClientAsyncTask:doBackground() called");
-
-            Socket socket = new Socket();
-            try {
-
-                String traceMessage = "Client socket created";
-                Log.d(LOG_TAG, traceMessage);
-
-                // binds this socket to the local address.
-                // Because the parameter is null, this socket will  be bound
-                // to an available local address and free port
-                socket.bind(null);
-                InetAddress localAddress = socket.getLocalAddress();
-
-                traceMessage = String.format("Local socket. Address: %s. Port: %d",
-                        localAddress.getHostAddress(),
-                        socket.getLocalPort());
-                Log.d(LOG_TAG, traceMessage);
-
-                traceMessage = String.format("Server socket. Address: %s. Port: %d",
-                        mGroupHostAddress.getHostAddress(),
-                        Globals.SERVER_PORT);
-                Log.d(LOG_TAG, traceMessage);
-
-                socket.connect(
-                        new InetSocketAddress(mGroupHostAddress.getHostAddress(),
-                                Globals.SERVER_PORT),
-                        Globals.SOCKET_TIMEOUT);
-
-                traceMessage = "Client socket connected";
-                Log.d(LOG_TAG, traceMessage);
-
-                OutputStream os = socket.getOutputStream();
-                os.write(mMessage.getBytes());
-
-                os.close();
-
-            } catch (IOException ex) {
-                Log.e(LOG_TAG, ex.getMessage());
-            } finally {
-                try {
-                    socket.close();
-                } catch(Exception e) {
-                    Log.e(LOG_TAG, e.getMessage());
-                }
-            }
-
-            return null;
-        }
-    }
 }

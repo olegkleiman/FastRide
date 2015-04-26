@@ -1,8 +1,13 @@
 package com.maximum.fastride;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
@@ -15,6 +20,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.maximum.fastride.R;
@@ -31,11 +37,15 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 public class PassengerRoleActivity extends Activity
-    implements WifiP2pManager.ConnectionInfoListener {
+    implements WiFiDirectBroadcastReceiver.IWiFiStateChanges,
+        WifiP2pManager.PeerListListener,
+        WifiP2pManager.ConnectionInfoListener {
 
     private static final String LOG_TAG = "FR.Passenger";
 
@@ -43,11 +53,16 @@ public class PassengerRoleActivity extends Activity
     MobileServiceTable<Join> joinsTable;
 
     WiFiUtil wifiUtil;
+    public List<WifiP2pDevice> peers = new ArrayList<>();
+
+    TextView mTxtStatus;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_passenger);
+
+        mTxtStatus = (TextView)findViewById(R.id.txtStatusPassenger);
 
         wamsInit();
 
@@ -173,80 +188,76 @@ public class PassengerRoleActivity extends Activity
     //
 
     @Override
-    public void onConnectionInfoAvailable(WifiP2pInfo p2pInfo) {
-        if ( !p2pInfo.isGroupOwner) {
+    public void onConnectionInfoAvailable(final WifiP2pInfo p2pInfo) {
 
-            new ClientAsyncTask(this, p2pInfo.groupOwnerAddress,
-                                "From client").execute();
-        }
-    }
+        final Context context = this;
 
+        TextView txtMe = (TextView)findViewById(R.id.txtPassengerMe);
+        if (p2pInfo.isGroupOwner) {
+            txtMe.setText("ME: GroupOwner, Group Owner IP: " + p2pInfo.groupOwnerAddress.getHostAddress());
+        } else {
+            txtMe.setText("ME: NOT GroupOwner, Group Owner IP: " + p2pInfo.groupOwnerAddress.getHostAddress());
 
-    public static class ClientAsyncTask extends AsyncTask<Void, Void, String> {
+            android.os.Handler h = new android.os.Handler();
 
-        Context mContext;
-        String mMessage;
-        InetAddress mGroupHostAddress;
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
 
-        public ClientAsyncTask(Context context,
-                               InetAddress groupOwnerAddress,
-                               String message){
-            this.mContext = context;
-            this.mGroupHostAddress = groupOwnerAddress;
-            this.mMessage = message;
-        }
-
-        @Override
-        protected String doInBackground(Void... voids) {
-
-            Log.d(LOG_TAG, "ClientAsyncTask:doBackground() called");
-
-            Socket socket = new Socket();
-            try {
-
-                String traceMessage = "Client socket created";
-                Log.d(LOG_TAG, traceMessage);
-
-                // binds this socket to the local address.
-                // Because the parameter is null, this socket will  be bound
-                // to an available local address and free port
-                socket.bind(null);
-                InetAddress localAddress = socket.getLocalAddress();
-
-                traceMessage = String.format("Local socket. Address: %s. Port: %d",
-                        localAddress.getHostAddress(),
-                        socket.getLocalPort());
-                Log.d(LOG_TAG, traceMessage);
-
-                traceMessage = String.format("Server socket. Address: %s. Port: %d",
-                        mGroupHostAddress.getHostAddress(),
-                        Globals.SERVER_PORT);
-                Log.d(LOG_TAG, traceMessage);
-
-                socket.connect(
-                        new InetSocketAddress(mGroupHostAddress.getHostAddress(),
-                                              Globals.SERVER_PORT),
-                        Globals.SOCKET_TIMEOUT);
-
-                traceMessage = "Client socket connected";
-                Log.d(LOG_TAG, traceMessage);
-
-                OutputStream os = socket.getOutputStream();
-                os.write(mMessage.getBytes());
-
-                os.close();
-
-            } catch (IOException ex) {
-                Log.e(LOG_TAG, ex.getMessage());
-            } finally {
-                try {
-                    socket.close();
-                } catch(Exception e) {
-                    Log.e(LOG_TAG, e.getMessage());
+                    new WiFiUtil.ClientAsyncTask(context, p2pInfo.groupOwnerAddress,
+                                        "From client").execute();
                 }
-            }
+            };
 
-            return null;
+            h.postDelayed(r, 2000); // let to server to open the socket in advance
+
         }
+
     }
+
+    // WiFiDirectBroadcastReceiver.IWiFiStateChanges implementation
+
+    @Override
+    public void trace(final String status) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                String current = mTxtStatus.getText().toString();
+                mTxtStatus.setText(current + "\n" + status);
+            }
+        });
+    }
+
+    @Override
+    public void alert(final String strIntent) {
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which) {
+                if( which == DialogInterface.BUTTON_POSITIVE ) {
+                    startActivity(new Intent(strIntent));
+                }
+            }};
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage("Enable Wi-Fi on your device?")
+                .setPositiveButton("Yes", dialogClickListener)
+                .setNegativeButton("No", dialogClickListener).show();
+    }
+
+    // Implements WifiP2pManager.PeerListListener
+
+    @Override
+    public void onPeersAvailable(WifiP2pDeviceList wifiP2pDeviceList) {
+        String traceMessage = "Peers Available";
+
+        if( wifiP2pDeviceList.getDeviceList().size() == 0 )
+            traceMessage = "No peers discovered";
+
+        // Out with the old, in with the new.
+        peers.clear();
+        peers.addAll(wifiP2pDeviceList.getDeviceList());
+        //mPeersAdapter.notifyDataSetChanged();
+    }
+
 }

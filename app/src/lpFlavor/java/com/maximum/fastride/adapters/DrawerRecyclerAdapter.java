@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.maximum.fastride.MyRidesActivity;
 import com.maximum.fastride.R;
 import com.maximum.fastride.SettingsActivity;
+import com.maximum.fastride.TutorialActivity;
 import com.maximum.fastride.utils.Globals;
 import com.maximum.fastride.utils.RoundedDrawable;
 
@@ -84,7 +85,7 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<DrawerRecyclerAd
 
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(mContext, MyRidesActivity.class);
+                    Intent intent = new Intent(mContext, TutorialActivity.class);
                     mContext.startActivity(intent);
                 }
             },

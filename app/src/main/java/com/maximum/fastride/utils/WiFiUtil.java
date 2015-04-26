@@ -5,12 +5,21 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
 
 import com.maximum.fastride.WiFiDirectBroadcastReceiver;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.lang.reflect.Method;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 /**
  * Created by Oleg Kleiman on 26-Apr-15.
@@ -88,19 +97,25 @@ public class WiFiUtil {
         mManager.discoverPeers(mChannel, new TaggedActionListener("discover peers request"));
     }
 
-    public void connectToDevice(final WifiP2pConfig config){
+    public void connectToDevice(final WifiP2pConfig config, int delay){
 
-        Handler h = new Handler();
+        if( delay == 0) {
+            mManager.connect(mChannel, config,
+                    new TaggedActionListener("Connected request"));
+        } else {
 
-        Runnable r = new Runnable() {
-            @Override
-            public void run() {
-                mManager.connect(mChannel, config,
-                        new TaggedActionListener("Connected request"));
-            }
-        };
+            Handler h = new Handler();
 
-        h.postDelayed(r, 2000); // 2 second delay
+            Runnable r = new Runnable() {
+                @Override
+                public void run() {
+                    mManager.connect(mChannel, config,
+                            new TaggedActionListener("Connected request"));
+                }
+            };
+
+            h.postDelayed(r, delay); // with delay
+        }
     }
 
     class TaggedActionListener implements WifiP2pManager.ActionListener{
@@ -143,6 +158,133 @@ public class WiFiUtil {
                 default:
                     return "Unknown";
             }
+        }
+    }
+
+    public static class ClientAsyncTask extends AsyncTask<Void, Void, String> {
+
+        Context mContext;
+        String mMessage;
+        InetAddress mGroupHostAddress;
+
+        public ClientAsyncTask(Context context,
+                               InetAddress groupOwnerAddress,
+                               String message){
+            this.mContext = context;
+            this.mGroupHostAddress = groupOwnerAddress;
+            this.mMessage = message;
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+
+            Log.d(LOG_TAG, "ClientAsyncTask:doBackground() called");
+
+            Socket socket = new Socket();
+            String traceMessage = "Client socket created";
+            Log.d(LOG_TAG, traceMessage);
+            ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+
+            try {
+
+                // binds this socket to the local address.
+                // Because the parameter is null, this socket will  be bound
+                // to an available local address and free port
+                socket.bind(null);
+                InetAddress localAddress = socket.getLocalAddress();
+
+                traceMessage = String.format("Local socket. Address: %s. Port: %d",
+                        localAddress.getHostAddress(),
+                        socket.getLocalPort());
+                Log.d(LOG_TAG, traceMessage);
+                ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+
+                traceMessage = String.format("Server socket. Address: %s. Port: %d",
+                        mGroupHostAddress.getHostAddress(),
+                        Globals.SERVER_PORT);
+                Log.d(LOG_TAG, traceMessage);
+                ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+
+                socket.connect(
+                        new InetSocketAddress(mGroupHostAddress.getHostAddress(),
+                                Globals.SERVER_PORT),
+                        Globals.SOCKET_TIMEOUT);
+
+                traceMessage = "Client socket connected";
+                Log.d(LOG_TAG, traceMessage);
+                ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+
+                OutputStream os = socket.getOutputStream();
+                os.write(mMessage.getBytes());
+
+                os.close();
+
+                traceMessage = "!!! message written. output closed";
+                Log.d(LOG_TAG, traceMessage);
+                ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+
+            } catch (IOException ex) {
+                ex.printStackTrace();
+                traceMessage = ex.getMessage();
+                Log.e(LOG_TAG, traceMessage);
+                ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+            } finally {
+                try {
+                    socket.close();
+                    traceMessage = "client socket closed";
+                    Log.d(LOG_TAG, traceMessage);
+                    ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+                } catch(Exception e) {
+                    traceMessage = e.getMessage();
+                    Log.e(LOG_TAG, traceMessage);
+                    ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+                }
+            }
+
+            return null;
+        }
+    }
+
+    public static class ServerAsyncTask extends AsyncTask<Void, Void, String> {
+
+        Context mContext;
+
+        public ServerAsyncTask(Context context){
+            mContext = context;
+        }
+
+        @Override
+        protected String doInBackground(Void... voids) {
+
+            Log.d(LOG_TAG, "ServerAsyncTask:doBackground() called");
+
+            String traceMessage = "Server: Socket opened on port " + Globals.SERVER_PORT;
+            try {
+                ServerSocket serverSocket = new ServerSocket(Globals.SERVER_PORT);
+
+                Log.d(LOG_TAG, traceMessage);
+                ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+
+                Socket clientSocket = serverSocket.accept();
+
+                BufferedReader reader =
+                        new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
+                traceMessage = reader.readLine();
+                Log.d(LOG_TAG, traceMessage);
+                ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+
+                serverSocket.close();
+
+                traceMessage = "Server socket closed";
+                Log.d(LOG_TAG, traceMessage);
+                ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+
+            } catch (IOException e) {
+                Log.e(LOG_TAG, e.getMessage());
+                ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+            }
+
+            return null;
         }
     }
 }

@@ -99,7 +99,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             // we are connected with the other device, request connection
             // info to find group owner IP
 
-            traceMessage = "BR: Network connected";
+            traceMessage = "Network connected";
             _log(traceMessage);
 
             mManager.requestConnectionInfo(mChannel,

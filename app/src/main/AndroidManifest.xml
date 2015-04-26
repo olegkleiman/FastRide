@@ -43,7 +43,6 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
-
         <activity
             android:name=".CameraActivity"
             android:label="@string/title_activity_camera"
@@ -73,15 +72,21 @@
             android:parentActivityName=".MainActivity"
             android:theme="@style/Theme.AppCompat.Light" >
         </activity>
+        <activity
+            android:name=".TutorialActivity"
+            android:label="@string/title_activity_tutorial"
+            android:parentActivityName=".MainActivity" >
+        </activity>
 
-        <receiver android:name="com.microsoft.windowsazure.notifications.NotificationsBroadcastReceiver"
-            android:permission="com.google.android.c2dm.permission.SEND">
+        <receiver
+            android:name="com.microsoft.windowsazure.notifications.NotificationsBroadcastReceiver"
+            android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
                 <category android:name="com.maximum.fastride" />
             </intent-filter>
         </receiver>
-
         <receiver
             android:name=".WiFiDirectBroadcastReceiver"
             android:enabled="true"
@@ -89,9 +94,8 @@
         </receiver>
 
         <service
-            android:name=".P2PService"
-            android:enabled="true"
-            android:exported="true" >
+            android:name=".TransferService"
+            android:exported="false" >
         </service>
     </application>
 

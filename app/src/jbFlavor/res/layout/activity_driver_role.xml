@@ -36,5 +36,20 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
+        android:textStyle="bold"
         android:text="ME"/>
+
+    <ScrollView
+        android:id="@+id/SCROLLER_ID"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:scrollbars="vertical"
+        android:layout_weight="0.5"
+        android:fillViewport="true">
+        <TextView
+            android:id="@+id/txtStatus"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="left" />
+    </ScrollView>
 </LinearLayout>
