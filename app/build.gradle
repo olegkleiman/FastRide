@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 'Google Inc.:Google APIs:21'
-    buildToolsVersion "21.1.2"
+    compileSdkVersion 'Google Inc.:Google APIs:22'
+    buildToolsVersion "22.0.1"
     defaultConfig {
         applicationId "com.maximum.fastride"
         minSdkVersion 16
-        targetSdkVersion 21
+        targetSdkVersion 22
         versionCode 1
         versionName "1.0"
     }
@@ -34,7 +34,6 @@ dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile files('libs/mobileservices-2.0.1-beta.jar')
     compile files('libs/notifications-1.0.1.jar')
-
     compile 'com.google.code.gson:gson:2.+'
     //compile 'com.android.support:appcompat-v7:21.0.3'
     compile 'com.android.support:appcompat-v7:22.0.0'
@@ -44,6 +43,5 @@ dependencies {
     compile 'com.facebook.android:facebook-android-sdk:3.21.1'
     //compile 'com.facebook.android:facebook-android-sdk:4.0.0'
     compile 'com.google.android.gms:play-services:6.+'
-
-
+    compile project(':viewflow')
 }

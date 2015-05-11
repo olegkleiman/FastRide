@@ -2,6 +2,7 @@ package com.maximum.fastride.utils;
 
 import android.content.ContentQueryMap;
 import android.content.Context;
+import android.content.Intent;
 import android.database.Observable;
 import android.os.Build;
 
@@ -17,7 +18,7 @@ import java.util.Arrays;
  */
 public class Globals {
 
-    public static final boolean DEVELOPER_MODE = true;
+    public static final boolean DEVELOPER_MODE = false;
 
     private static class DManClassFactory {
 
@@ -35,8 +36,11 @@ public class Globals {
     public static float PICTURE_CORNER_RADIUS = 20;
     public static float PICTURE_BORDER_WIDTH = 4;
 
-    static final public int SERVER_PORT = 5454;
+    static final public int SERVER_PORT = 4545;
     static final public int SOCKET_TIMEOUT = 5000;
+    public static final String TXTRECORD_PROP_AVAILABLE = "available";
+    public static final String SERVICE_INSTANCE = "_wififastride";
+    public static final String SERVICE_REG_TYPE = "_presence._tcp";
 
     public static final String USERIDPREF = "userid";
     public static final String TOKENPREF = "accessToken";
@@ -68,4 +72,8 @@ public class Globals {
     public static final String PHONE_PREF = "phone";
     public static final String USE_PHONE_PFER = "usephone";
 
+    // Driver/passenger 'chat' messages
+    public static final int MESSAGE_READ = 0x400 + 1;
+    public static final int MY_HANDLE = 0x400 + 2;
+    public static final int TRACE_MESSAGE = 0x400 + 3;
 }

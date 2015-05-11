@@ -7,9 +7,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
+import android.net.wifi.p2p.WifiP2pGroup;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v7.app.ActionBarActivity;
@@ -25,7 +28,11 @@ import android.widget.Toast;
 import com.maximum.fastride.R;
 import com.maximum.fastride.model.Join;
 import com.maximum.fastride.model.Ride;
+import com.maximum.fastride.utils.ClientSocketHandler;
 import com.maximum.fastride.utils.Globals;
+import com.maximum.fastride.utils.GroupOwnerSocketHandler;
+import com.maximum.fastride.utils.IMessageTarget;
+import com.maximum.fastride.utils.ITrace;
 import com.maximum.fastride.utils.WiFiUtil;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceUser;
@@ -41,12 +48,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
-import java.util.logging.Handler;
 
 public class PassengerRoleActivity extends ActionBarActivity
-        implements WiFiDirectBroadcastReceiver.IWiFiStateChanges,
-                   WifiP2pManager.PeerListListener,
-                   WifiP2pManager.ConnectionInfoListener {
+        implements ITrace,
+                   IMessageTarget,
+                   Handler.Callback,
+                   WifiP2pManager.ConnectionInfoListener,
+                   WifiP2pManager.GroupInfoListener{
 
     private static final String LOG_TAG = "FR.Passenger";
 
@@ -55,6 +63,11 @@ public class PassengerRoleActivity extends ActionBarActivity
 
     WiFiUtil wifiUtil;
     public List<WifiP2pDevice> peers = new ArrayList<>();
+
+    private android.os.Handler handler = new android.os.Handler(this);
+    public android.os.Handler getHandler() {
+        return handler;
+    }
 
     TextView mTxtStatus;
 
@@ -68,7 +81,10 @@ public class PassengerRoleActivity extends ActionBarActivity
         wamsInit();
 
         wifiUtil = new WiFiUtil(this);
-        wifiUtil.discoverPeers();
+
+        // This will start serviceDiscovery
+        // for (hopefully) already published service
+        wifiUtil.startRegistrationAndDiscovery(null);
     }
 
     private void wamsInit( ) {
@@ -164,6 +180,27 @@ public class PassengerRoleActivity extends ActionBarActivity
     }
 
     @Override
+    protected void onStop() {
+        wifiUtil.removeGroup();
+        super.onStop();
+    }
+
+    @Override
+    public boolean handleMessage(Message msg) {
+
+        switch (msg.what) {
+            case Globals.TRACE_MESSAGE:
+                Bundle bundle = msg.getData();
+                String strMessage = bundle.getString("message");
+                trace(strMessage);
+                break;
+
+        }
+
+        return true;
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_passenger, menu);
@@ -225,45 +262,99 @@ public class PassengerRoleActivity extends ActionBarActivity
 
     @Override
     public void onConnectionInfoAvailable(final WifiP2pInfo p2pInfo) {
+        TextView txtMe = (TextView)findViewById(R.id.txtPassengerMe);
+        Thread handler = null;
+
+        if( !p2pInfo.groupFormed ) {
+            trace("Group not formed yet");
+            return;
+        }
 
         final Context context = this;
 
-        TextView txtMe = (TextView)findViewById(R.id.txtPassengerMe);
+
         if (p2pInfo.isGroupOwner) {
             txtMe.setText("ME: GroupOwner, Group Owner IP: " + p2pInfo.groupOwnerAddress.getHostAddress());
+
+            try {
+                handler = new GroupOwnerSocketHandler(this.getHandler());
+                handler.start();
+            } catch (IOException e){
+                trace("Failed to create a server thread - " + e.getMessage());
+            }
+
         } else {
             txtMe.setText("ME: NOT GroupOwner, Group Owner IP: " + p2pInfo.groupOwnerAddress.getHostAddress());
 
-            android.os.Handler h = new android.os.Handler();
-
-            Runnable r = new Runnable() {
-                @Override
-                public void run() {
-
-                    new WiFiUtil.ClientAsyncTask(context, p2pInfo.groupOwnerAddress,
-                            "From client").execute();
-                }
-            };
-
-            h.postDelayed(r, 2000); // let to server to open the socket in advance
+            handler = new ClientSocketHandler(
+                    this.getHandler(),
+                    p2pInfo.groupOwnerAddress,
+                    this,
+                    "!!!Message from PASSENGER!!!");
+            handler.start();
+            trace("Client socket opened.");
+//            android.os.Handler h = new android.os.Handler();
+//
+//            Runnable r = new Runnable() {
+//                @Override
+//                public void run() {
+//
+//                    new WiFiUtil.ClientAsyncTask(context,
+//                            p2pInfo.groupOwnerAddress,
+//                            "From client").execute();
+//                }
+//            };
+//
+//            h.postDelayed(r, 2000); // let to server to open the socket in advance
         }
-    }
 
-    // Implements WifiP2pManager.PeerListListener
+        // Optionally may request group info
+        //wifiUtil.requestGroupInfo(this) ;
+    }
 
     @Override
-    public void onPeersAvailable(WifiP2pDeviceList wifiP2pDeviceList) {
+    public void onGroupInfoAvailable(WifiP2pGroup group) {
+        String message;
 
-        String traceMessage = "Peers Available";
+        if (group != null) {
+            trace("Group SSID: " + group.getNetworkName());
+            trace("Group Size: " + group.getClientList().size());
+            trace("Group Network Interface: " + group.getInterface());
+            trace("Group Passphrase: " + group.getPassphrase());
+            trace("Group Owner: " + group.getOwner().deviceAddress);
 
-        if( wifiP2pDeviceList.getDeviceList().size() == 0 )
-            traceMessage = "No peers discovered";
+            //EnumerateNetworkInterfaces();
 
-        // Out with the old, in with the new.
-        peers.clear();
-        peers.addAll(wifiP2pDeviceList.getDeviceList());
-        //mPeersAdapter.notifyDataSetChanged();
+            for( WifiP2pDevice client : group.getClientList() ){
+                trace("Client: " + client.deviceName);
+            }
+
+            WifiP2pDevice p2pDevice = group.getOwner();
+            message = "serviceDiscoveryCapable: " +
+                    ((p2pDevice.isServiceDiscoveryCapable()) ? true : false);
+            trace(message);
+            Log.d(LOG_TAG, message);
+
+            message = "wpsDisplaySupported: " +
+                    ((p2pDevice.wpsDisplaySupported()) ? true : false);
+            trace(message);
+            Log.d(LOG_TAG, message);
+
+            message = "wpsKeypadSupported: " +
+                    ((p2pDevice.wpsKeypadSupported()) ? true : false);
+            trace(message);
+            Log.d(LOG_TAG, message);
+
+            message = "wpsPbcSupported: " +
+                    ((p2pDevice.wpsPbcSupported()) ? true : false);
+            trace(message);
+            Log.d(LOG_TAG, message);
+        } else {
+            message = "Group is NULL";
+            trace(message);
+            Log.d(LOG_TAG, message);
+        }
+
     }
-
 
 }

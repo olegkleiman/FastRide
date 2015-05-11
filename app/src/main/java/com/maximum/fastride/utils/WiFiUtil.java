@@ -3,8 +3,12 @@ package com.maximum.fastride.utils;
 import android.app.Activity;
 import android.content.Context;
 import android.content.IntentFilter;
+import android.net.wifi.WpsInfo;
 import android.net.wifi.p2p.WifiP2pConfig;
+import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceInfo;
+import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceRequest;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.util.Log;
@@ -20,6 +24,8 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Created by Oleg Kleiman on 26-Apr-15.
@@ -33,8 +39,13 @@ public class WiFiUtil {
     private final IntentFilter intentFilter = new IntentFilter();
     WifiP2pManager mManager;
     WifiP2pManager.Channel mChannel;
+    WifiP2pDnsSdServiceRequest mServiceRequest;
 
     WiFiDirectBroadcastReceiver mReceiver;
+
+    public interface IPeersChangedListener {
+        public void add(WifiP2pDevice device);
+    }
 
     public WiFiUtil(Context context) {
 
@@ -94,14 +105,120 @@ public class WiFiUtil {
     }
 
     public void discoverPeers() {
-        mManager.discoverPeers(mChannel, new TaggedActionListener("discover peers request"));
+        mManager.discoverPeers(mChannel,
+                new TaggedActionListener((ITrace)mContext, "discover peers request"));
     }
 
-    public void connectToDevice(final WifiP2pConfig config, int delay){
+    /**
+     * Registers a local service and then initiates a service discovery
+     */
+    public void startRegistrationAndDiscovery(final IPeersChangedListener peersChangedListener) {
+
+        Map<String, String> record = new HashMap<>();
+        record.put(Globals.TXTRECORD_PROP_AVAILABLE, "visible");
+
+        // Service information.  Pass it an instance name, service type
+        // _protocol._transportlayer , and the map containing
+        // information other devices will want once they connect to this one.
+        WifiP2pDnsSdServiceInfo service = WifiP2pDnsSdServiceInfo.newInstance(
+                Globals.SERVICE_INSTANCE,
+                Globals.SERVICE_REG_TYPE, record);
+        mManager.addLocalService(mChannel, service,
+                new TaggedActionListener((ITrace)mContext, "Add Local Service"));
+
+        discoverService(peersChangedListener);
+    }
+
+    public void discoverService(final IPeersChangedListener peersChangedListener) {
+
+          /*
+         * Register listeners for DNS-SD services. These are callbacks invoked
+         * by the system when a service is actually discovered.
+         */
+
+        mManager.setDnsSdResponseListeners(mChannel,
+                new WifiP2pManager.DnsSdServiceResponseListener() {
+
+                    @Override
+                    public void onDnsSdServiceAvailable(String instanceName,
+                                                        String registrationType,
+                                                        WifiP2pDevice device) {
+
+                        // A service has been discovered. Is this our app?
+                        if (instanceName.equalsIgnoreCase(Globals.SERVICE_INSTANCE)) {
+                            String traceMessage = "DNS-SD SRV Record: " + instanceName;
+                            ((ITrace) mContext).trace(traceMessage);
+                            Log.d(LOG_TAG, traceMessage);
+
+                            if (peersChangedListener != null) {
+                                peersChangedListener.add(device);
+                            }
+                        }
+                    }
+                },
+                new WifiP2pManager.DnsSdTxtRecordListener() {
+
+                    @Override
+                     /* Callback includes:
+                     * fullDomain: full domain name: e.g "printer._ipp._tcp.local."
+                     * record: TXT record dta as a map of key/value pairs.
+                     * device: The device running the advertised service.
+                     */
+                    public void onDnsSdTxtRecordAvailable(String fullDomainName,
+                                                          Map<String, String> record,
+                                                          WifiP2pDevice device) {
+
+                        String traceMessage = "DNS-SD TXT Record: " +
+                                device.deviceName + " is " + record.get(Globals.TXTRECORD_PROP_AVAILABLE);
+                        ((ITrace) mContext).trace(traceMessage);
+                        Log.d(LOG_TAG, traceMessage);
+                    }
+                });
+
+        // After attaching listeners, create a new service request and initiate
+        // discovery.
+        mServiceRequest = WifiP2pDnsSdServiceRequest.newInstance();
+
+        mManager.addServiceRequest(mChannel, mServiceRequest,
+                new TaggedActionListener((ITrace)mContext, "add service discovery request"));
+
+        mManager.discoverServices(mChannel,
+                new TaggedActionListener((ITrace) mContext, "service discovery init"));
+
+        ((ITrace)mContext).trace("discovery started");
+
+    }
+
+    public void removeServiceRequest(){
+        if( mServiceRequest != null ) {
+            mManager.removeServiceRequest(mChannel, mServiceRequest,
+                    new TaggedActionListener((ITrace)mContext, "remove service request"));
+        }
+    }
+
+    public void removeGroup() {
+        mManager.removeGroup(mChannel,
+                new TaggedActionListener((ITrace)mContext, "remove group request"));
+    }
+
+    public void disconnect(){
+        mManager.cancelConnect(mChannel,
+                new TaggedActionListener((ITrace)mContext, "cancel connect request"));
+    }
+
+    public void connectToDevice(WifiP2pDevice device, int delay){
+
+        removeServiceRequest();
+
+        final WifiP2pConfig config = new WifiP2pConfig();
+        config.deviceAddress = device.deviceAddress;
+        //config.groupOwnerIntent = 15;
+        config.wps.setup = WpsInfo.PBC;
+        //config.wps.setup = WpsInfo.LABEL;
 
         if( delay == 0) {
             mManager.connect(mChannel, config,
-                    new TaggedActionListener("Connected request"));
+                    new TaggedActionListener((ITrace)mContext, "Connected request"));
         } else {
 
             Handler h = new Handler();
@@ -110,7 +227,7 @@ public class WiFiUtil {
                 @Override
                 public void run() {
                     mManager.connect(mChannel, config,
-                            new TaggedActionListener("Connected request"));
+                            new TaggedActionListener((ITrace)mContext, "Connected request"));
                 }
             };
 
@@ -118,11 +235,17 @@ public class WiFiUtil {
         }
     }
 
+    public void requestGroupInfo(WifiP2pManager.GroupInfoListener listener) {
+        if( mManager != null && mChannel != null )
+            mManager.requestGroupInfo(mChannel, listener);
+    }
+
     class TaggedActionListener implements WifiP2pManager.ActionListener{
 
         String tag;
+        ITrace mTracer;
 
-        TaggedActionListener(String tag){
+        TaggedActionListener(ITrace tracer, String tag){
             this.tag = tag;
         }
 
@@ -135,6 +258,8 @@ public class WiFiUtil {
         @Override
         public void onFailure(int reasonCode) {
             String message = tag + " failed. Reason :" + failureReasonToString(reasonCode);
+            if( mTracer != null )
+                mTracer.trace(message);
             Log.d(LOG_TAG, message);
         }
 
@@ -183,7 +308,7 @@ public class WiFiUtil {
             Socket socket = new Socket();
             String traceMessage = "Client socket created";
             Log.d(LOG_TAG, traceMessage);
-            ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+            ((ITrace)mContext).trace(traceMessage);
 
             try {
 
@@ -197,47 +322,47 @@ public class WiFiUtil {
                         localAddress.getHostAddress(),
                         socket.getLocalPort());
                 Log.d(LOG_TAG, traceMessage);
-                ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+                ((ITrace)mContext).trace(traceMessage);
 
                 traceMessage = String.format("Server socket. Address: %s. Port: %d",
                         mGroupHostAddress.getHostAddress(),
                         Globals.SERVER_PORT);
                 Log.d(LOG_TAG, traceMessage);
-                ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+                ((ITrace)mContext).trace(traceMessage);
 
                 socket.connect(
                         new InetSocketAddress(mGroupHostAddress.getHostAddress(),
-                                Globals.SERVER_PORT),
+                                              Globals.SERVER_PORT),
                         Globals.SOCKET_TIMEOUT);
 
                 traceMessage = "Client socket connected";
                 Log.d(LOG_TAG, traceMessage);
-                ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+                ((ITrace)mContext).trace(traceMessage);
 
                 OutputStream os = socket.getOutputStream();
                 os.write(mMessage.getBytes());
 
                 os.close();
 
-                traceMessage = "!!! message written. output closed";
+                traceMessage = "!!! MESSAGE WRITTEN.\noutput closed";
                 Log.d(LOG_TAG, traceMessage);
-                ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+                ((ITrace)mContext).trace(traceMessage);
 
-            } catch (IOException ex) {
+            } catch (Exception ex) {
                 ex.printStackTrace();
                 traceMessage = ex.getMessage();
                 Log.e(LOG_TAG, traceMessage);
-                ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+                ((ITrace)mContext).trace(traceMessage);
             } finally {
                 try {
                     socket.close();
                     traceMessage = "client socket closed";
                     Log.d(LOG_TAG, traceMessage);
-                    ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+                    ((ITrace)mContext).trace(traceMessage);
                 } catch(Exception e) {
                     traceMessage = e.getMessage();
                     Log.e(LOG_TAG, traceMessage);
-                    ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+                    ((ITrace)mContext).trace(traceMessage);
                 }
             }
 
@@ -263,7 +388,7 @@ public class WiFiUtil {
                 ServerSocket serverSocket = new ServerSocket(Globals.SERVER_PORT);
 
                 Log.d(LOG_TAG, traceMessage);
-                ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+                ((ITrace)mContext).trace(traceMessage);
 
                 Socket clientSocket = serverSocket.accept();
 
@@ -271,17 +396,20 @@ public class WiFiUtil {
                         new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
                 traceMessage = reader.readLine();
                 Log.d(LOG_TAG, traceMessage);
-                ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+                ((ITrace)mContext).trace(traceMessage);
+
+                clientSocket.close();
+                traceMessage = "Client socket closed";
+                Log.d(LOG_TAG, traceMessage);
 
                 serverSocket.close();
-
                 traceMessage = "Server socket closed";
                 Log.d(LOG_TAG, traceMessage);
-                ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+                ((ITrace)mContext).trace(traceMessage);
 
             } catch (IOException e) {
                 Log.e(LOG_TAG, e.getMessage());
-                ((WiFiDirectBroadcastReceiver.IWiFiStateChanges)mContext).trace(traceMessage);
+                ((ITrace)mContext).trace(traceMessage);
             }
 
             return null;

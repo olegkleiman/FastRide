@@ -14,17 +14,16 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.provider.Settings;
 import android.util.Log;
 
+import com.maximum.fastride.utils.ITrace;
+
 import java.util.ArrayList;
 import java.util.List;
 
 public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
 
-    public interface IWiFiStateChanges{
-        public void trace(String status);
-        public void alert(String intent);
-    }
 
-    private static final String LOG_TAG = "FR.WiFiReceiver";
+
+    private static final String LOG_TAG = "FR.BR";
 
     Activity mActivityListener;
 
@@ -43,7 +42,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
 
     private void _log(String message){
         Log.d(LOG_TAG, message);
-        ((IWiFiStateChanges)mActivityListener).trace(LOG_TAG + message);
+        ((ITrace)mActivityListener).trace(LOG_TAG + message);
     }
 
     @Override
@@ -51,8 +50,9 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
         String action = intent.getAction();
         if (WifiP2pManager.WIFI_P2P_STATE_CHANGED_ACTION.equals(action)) {
             onStateChanged(intent);
-        } else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
-            onPeersChanged(intent);
+        //      Peers will be obtained from DNS-SD listeners
+        //} else if (WifiP2pManager.WIFI_P2P_PEERS_CHANGED_ACTION.equals(action)) {
+        //    onPeersChanged(intent);
         } else if (WifiP2pManager.WIFI_P2P_CONNECTION_CHANGED_ACTION.equals(action)) {
             onConnectionChanged(intent);
         } else if (WifiP2pManager.WIFI_P2P_THIS_DEVICE_CHANGED_ACTION.equals(action)) {
@@ -70,7 +70,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
             traceMessage = "P2P state changed to enabled";
         } else {
             traceMessage = "P2P state changed to disabled";
-            ((IWiFiStateChanges)mActivityListener).alert(Settings.ACTION_WIFI_SETTINGS);
+            ((ITrace)mActivityListener).alert(Settings.ACTION_WIFI_SETTINGS);
         }
 
         _log(traceMessage);
@@ -106,7 +106,7 @@ public class WiFiDirectBroadcastReceiver extends BroadcastReceiver {
                     (WifiP2pManager.ConnectionInfoListener) mActivityListener);
 
         } else {
-            traceMessage = "BR: Network disconnected";
+            traceMessage = "Network disconnected";
             _log(traceMessage);
         }
     }

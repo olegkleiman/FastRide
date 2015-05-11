@@ -13,6 +13,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 import com.maximum.fastride.R;
+import com.maximum.fastride.adapters.ImageAdapter;
+
+import org.taptwo.android.widget.CircleFlowIndicator;
+import org.taptwo.android.widget.ViewFlow;
 
 public class TutorialActivity extends ActionBarActivity
         implements ActionBar.TabListener{
@@ -25,28 +29,32 @@ public class TutorialActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tutorial);
 
-        // Create the adapter that will return a fragment for each of the three primary sections
-        // of the app.
-        mAppSectionsPagerAdapter = new AppSectionsPagerAdapter(getSupportFragmentManager());
-
         Toolbar toolbar = (Toolbar) findViewById(R.id.fastride_toolbar);
         setSupportActionBar(toolbar);
+
+//        ViewFlow viewFlow = (ViewFlow) findViewById(R.id.viewflow);
+//        viewFlow.setAdapter(new ImageAdapter(this), 5);
+//        CircleFlowIndicator indic = (CircleFlowIndicator) findViewById(R.id.viewflowindic);
+//        viewFlow.setFlowIndicator(indic);
 
         // Set up the ViewPager, attaching the adapter and setting up a listener for when the
         // user swipes between sections.
         mViewPager = (ViewPager) findViewById(R.id.pager);
-        mViewPager.setAdapter(mAppSectionsPagerAdapter);
-        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-            @Override
-            public void onPageSelected(int position) {
-                // When swiping between different app sections, select the corresponding tab.
-                // We can also use ActionBar.Tab#select() to do this if we have a reference to the
-                // Tab.
-                //toolbar.setSelectedNavigationItem(position);
-            }
-        });
+        // Create the adapter that will return a fragment for each of the three primary sections
+        // of the app.
+        mAppSectionsPagerAdapter = new AppSectionsPagerAdapter(getSupportFragmentManager());
+//        mViewPager.setAdapter(mAppSectionsPagerAdapter);
+//        mViewPager.setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+//            @Override
+//            public void onPageSelected(int position) {
+////                 When swiping between different app sections, select the corresponding tab.
+////                 We can also use ActionBar.Tab#select() to do this if we have a reference to the
+////                 Tab.
+////                toolbar.setSelectedNavigationItem(position);
+//            }
+//        });
 
-//        // For each of the sections in the app, add a tab to the action bar.
+        // For each of the sections in the app, add a tab to the action bar.
 //        for (int i = 0; i < mAppSectionsPagerAdapter.getCount(); i++) {
 //            // Create a tab with text corresponding to the page title defined by the adapter.
 //            // Also specify this Activity object, which implements the TabListener interface, as the

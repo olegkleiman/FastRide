@@ -15,6 +15,8 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceInfo;
 import android.net.wifi.p2p.nsd.WifiP2pServiceInfo;
 import android.os.AsyncTask;
+import android.os.Handler;
+import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -22,6 +24,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -32,7 +35,10 @@ import com.maximum.fastride.adapters.PassengersAdapter;
 import com.maximum.fastride.adapters.WiFiPeersAdapter;
 import com.maximum.fastride.model.Ride;
 import com.maximum.fastride.model.User;
+import com.maximum.fastride.utils.ClientSocketHandler;
 import com.maximum.fastride.utils.Globals;
+import com.maximum.fastride.utils.GroupOwnerSocketHandler;
+import com.maximum.fastride.utils.ITrace;
 import com.maximum.fastride.utils.WiFiUtil;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceAuthenticationProvider;
@@ -53,8 +59,9 @@ import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
 public class DriverRoleActivity extends ActionBarActivity
-        implements WiFiDirectBroadcastReceiver.IWiFiStateChanges,
-        WifiP2pManager.PeerListListener,
+        implements ITrace,
+        Handler.Callback,
+        WiFiUtil.IPeersChangedListener,
         WifiP2pManager.ConnectionInfoListener {
 
     private static final String LOG_TAG = "FR.Driver";
@@ -71,6 +78,11 @@ public class DriverRoleActivity extends ActionBarActivity
 
     TextView mTxtStatus;
 
+    private Handler handler = new Handler(this);
+    public Handler getHandler() {
+        return handler;
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -83,11 +95,32 @@ public class DriverRoleActivity extends ActionBarActivity
         final ListView peersListView = (ListView)findViewById(R.id.listViewPeers);
         mPeersAdapter = new WiFiPeersAdapter(this, R.layout.row_devices, peers);
         peersListView.setAdapter(mPeersAdapter);
+        peersListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long l) {
+                WifiP2pDevice device = (WifiP2pDevice) parent.getItemAtPosition(position);
+
+                if (device.status == WifiP2pDevice.AVAILABLE) {
+                    wifiUtil.connectToDevice(device, 0);
+                } else {
+                    Toast.makeText(DriverRoleActivity.this,
+                            "Device should be in connected state",
+                            Toast.LENGTH_LONG).show();
+                }
+
+            }
+        });
 
         wifiUtil = new WiFiUtil(this);
         wifiUtil.deletePersistentGroups();
 
-        wifiUtil.discoverPeers();
+        peers.clear();
+        mPeersAdapter.notifyDataSetChanged();
+
+        //wifiUtil.discoverPeers();
+
+        // This will publish the service in DNS-SD and start serviceDiscovery()
+        wifiUtil.startRegistrationAndDiscovery(this);
 
     }
 
@@ -189,6 +222,28 @@ public class DriverRoleActivity extends ActionBarActivity
     }
 
     @Override
+    protected void onStop() {
+        wifiUtil.removeGroup();
+        super.onStop();
+    }
+
+    @Override
+    public boolean handleMessage(Message msg) {
+
+        switch (msg.what) {
+            case Globals.TRACE_MESSAGE:
+                Bundle bundle = msg.getData();
+                String strMessage = bundle.getString("message");
+                trace(strMessage);
+                break;
+
+        }
+
+        return true;
+    }
+
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_driver_role, menu);
@@ -239,41 +294,13 @@ public class DriverRoleActivity extends ActionBarActivity
                 .setNegativeButton("No", dialogClickListener).show();
     }
 
-    // Implements WifiP2pManager.PeerListListener
-
-    @Override
-    public void onPeersAvailable(WifiP2pDeviceList wifiP2pDeviceList) {
-
-        String traceMessage = "Peers Available";
-
-        if( wifiP2pDeviceList.getDeviceList().size() == 0 )
-            traceMessage = "No peers discovered";
-
-        // Out with the old, in with the new.
-        peers.clear();
-        peers.addAll(wifiP2pDeviceList.getDeviceList());
-        mPeersAdapter.notifyDataSetChanged();
-
-        for(WifiP2pDevice device : wifiP2pDeviceList.getDeviceList()) {
-            if( device.status == WifiP2pDevice.AVAILABLE ) {
-
-                WifiP2pConfig config = new WifiP2pConfig();
-                config.deviceAddress = device.deviceAddress;
-                config.groupOwnerIntent = 15;
-                config.wps.setup = WpsInfo.PBC;
-                //config.wps.setup = WpsInfo.LABEL;
-
-                wifiUtil.connectToDevice(config, 2000); // 2 sec delay
-            }
-        }
-    }
-
     //
     // Implementation of WifiP2pManager.ConnectionInfoListener
     //
 
     @Override
     public void onConnectionInfoAvailable(WifiP2pInfo p2pInfo) {
+        Thread handler = null;
         TextView txtMe = (TextView)findViewById(R.id.txtMe);
 
          /*
@@ -283,9 +310,25 @@ public class DriverRoleActivity extends ActionBarActivity
          */
         if (p2pInfo.isGroupOwner) {
             txtMe.setText("ME: GroupOwner, Group Owner IP: " + p2pInfo.groupOwnerAddress.getHostAddress());
-            new WiFiUtil.ServerAsyncTask(this).execute();
+            try {
+                handler = new GroupOwnerSocketHandler(this.getHandler());
+                handler.start();
+            } catch (IOException e){
+                trace("Failed to create a server thread - " + e.getMessage());
+            }
         } else {
             txtMe.setText("ME: NOT GroupOwner, Group Owner IP: " + p2pInfo.groupOwnerAddress.getHostAddress());
+            handler = new ClientSocketHandler(
+                    this.getHandler(),
+                    p2pInfo.groupOwnerAddress,
+                    this,
+                    "!!!Message from DRIVER!!!");
+            handler.start();
+            trace("Client socket opened.");
+//            new WiFiUtil.ClientAsyncTask(this,
+//                    p2pInfo.groupOwnerAddress,
+//                    "From client").execute();
+//            trace("Client socket opened.");
         }
 
         // Optionally may request group info
@@ -293,4 +336,14 @@ public class DriverRoleActivity extends ActionBarActivity
     }
 
 
+    @Override
+    public void add(final WifiP2pDevice device) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mPeersAdapter.add(device);
+                mPeersAdapter.notifyDataSetChanged();
+            }
+        });
+    }
 }
