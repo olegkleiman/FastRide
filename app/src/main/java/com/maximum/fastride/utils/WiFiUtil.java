@@ -14,6 +14,7 @@ import android.os.Handler;
 import android.util.Log;
 
 import com.maximum.fastride.WiFiDirectBroadcastReceiver;
+import com.maximum.fastride.adapters.WifiP2pDeviceUser;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -44,7 +45,7 @@ public class WiFiUtil {
     WiFiDirectBroadcastReceiver mReceiver;
 
     public interface IPeersChangedListener {
-        public void add(WifiP2pDevice device);
+        public void add(WifiP2pDeviceUser device);
     }
 
     public WiFiUtil(Context context) {
@@ -106,16 +107,37 @@ public class WiFiUtil {
 
     public void discoverPeers() {
         mManager.discoverPeers(mChannel,
-                new TaggedActionListener((ITrace)mContext, "discover peers request"));
+                new TaggedActionListener((ITrace) mContext, "discover peers request"));
     }
 
     /**
      * Registers a local service and then initiates a service discovery
      */
-    public void startRegistrationAndDiscovery(final IPeersChangedListener peersChangedListener) {
+    public void startRegistrationAndDiscovery(final IPeersChangedListener peersChangedListener,
+                                              final String userName) {
 
+        mManager.clearLocalServices(mChannel,
+                new WifiP2pManager.ActionListener() {
+
+                    @Override
+                    public void onSuccess() {
+                        registerDnsSdService(userName);
+                        discoverService(peersChangedListener);
+                    }
+
+                    @Override
+                    public void onFailure(int errCode) {
+                        Log.e(LOG_TAG, "Failed to clear previous registration of local service");
+                    }
+                });
+
+    }
+
+    public void registerDnsSdService(String userName) {
         Map<String, String> record = new HashMap<>();
         record.put(Globals.TXTRECORD_PROP_AVAILABLE, "visible");
+        record.put(Globals.TXTRECORD_PROP_USERNAME, userName);
+        record.put(Globals.TXTRECORD_PROP_PORT, Integer.toString(Globals.SERVER_PORT));
 
         // Service information.  Pass it an instance name, service type
         // _protocol._transportlayer , and the map containing
@@ -123,13 +145,14 @@ public class WiFiUtil {
         WifiP2pDnsSdServiceInfo service = WifiP2pDnsSdServiceInfo.newInstance(
                 Globals.SERVICE_INSTANCE,
                 Globals.SERVICE_REG_TYPE, record);
-        mManager.addLocalService(mChannel, service,
-                new TaggedActionListener((ITrace)mContext, "Add Local Service"));
 
-        discoverService(peersChangedListener);
+        mManager.addLocalService(mChannel, service,
+                new TaggedActionListener((ITrace) mContext, "Add Local Service"));
     }
 
     public void discoverService(final IPeersChangedListener peersChangedListener) {
+
+        final HashMap<String, String> buddies = new HashMap<>();
 
           /*
          * Register listeners for DNS-SD services. These are callbacks invoked
@@ -151,8 +174,15 @@ public class WiFiUtil {
                             Log.d(LOG_TAG, traceMessage);
 
                             if (peersChangedListener != null) {
-                                peersChangedListener.add(device);
+                                WifiP2pDeviceUser deviceUser =
+                                        new WifiP2pDeviceUser(device);
+                                String userName = buddies.get(device.deviceName);
+                                deviceUser.setUserName(userName);
+                                peersChangedListener.add(deviceUser);
                             }
+                        } else {
+                            Log.d(LOG_TAG, "Other DNS_SD service discovered: "
+                                    + instanceName);
                         }
                     }
                 },
@@ -168,10 +198,13 @@ public class WiFiUtil {
                                                           Map<String, String> record,
                                                           WifiP2pDevice device) {
 
-                        String traceMessage = "DNS-SD TXT Record: " +
+                        String traceMessage = "DNS-SD TXT Records: " +
                                 device.deviceName + " is " + record.get(Globals.TXTRECORD_PROP_AVAILABLE);
+                        traceMessage += "\nUser Name:" + record.get(Globals.TXTRECORD_PROP_USERNAME);
                         ((ITrace) mContext).trace(traceMessage);
                         Log.d(LOG_TAG, traceMessage);
+
+                        buddies.put(device.deviceName, record.get(Globals.TXTRECORD_PROP_USERNAME));
                     }
                 });
 
@@ -214,7 +247,6 @@ public class WiFiUtil {
         config.deviceAddress = device.deviceAddress;
         //config.groupOwnerIntent = 15;
         config.wps.setup = WpsInfo.PBC;
-        //config.wps.setup = WpsInfo.LABEL;
 
         if( delay == 0) {
             mManager.connect(mChannel, config,

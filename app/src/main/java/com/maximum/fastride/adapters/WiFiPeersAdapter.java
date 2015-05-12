@@ -15,16 +15,16 @@ import java.util.List;
 /**
  * Created by Oleg Kleiman on 26-Apr-15.
  */
-public class WiFiPeersAdapter extends ArrayAdapter<WifiP2pDevice> {
+public class WiFiPeersAdapter extends ArrayAdapter<WifiP2pDeviceUser> {
 
 
-    private List<WifiP2pDevice> items;
+    private List<WifiP2pDeviceUser> items;
     Context mContext;
 
     LayoutInflater m_inflater = null;
 
     public WiFiPeersAdapter(Context context, int textViewResourceId,
-                            List<WifiP2pDevice> objects){
+                            List<WifiP2pDeviceUser> objects){
         super(context, textViewResourceId, objects);
 
         mContext = context;
@@ -50,6 +50,7 @@ public class WiFiPeersAdapter extends ArrayAdapter<WifiP2pDevice> {
             holder.deviceDetails = (TextView)row.findViewById(R.id.device_details);
             holder.deviceType = (TextView)row.findViewById(R.id.device_type);
             holder.deviceStatus = (TextView)row.findViewById(R.id.device_status);
+            holder.deviceUser = (TextView)row.findViewById(R.id.device_user);
 
             row.setTag(holder);
 
@@ -57,11 +58,12 @@ public class WiFiPeersAdapter extends ArrayAdapter<WifiP2pDevice> {
             holder = (DeviceHolder)row.getTag();
         }
 
-        WifiP2pDevice device = items.get(position);
+        WifiP2pDeviceUser device = items.get(position);
         holder.deviceName.setText(device.deviceName);
         holder.deviceDetails.setText(device.deviceAddress);
         holder.deviceType.setText(device.primaryDeviceType);
         holder.deviceStatus.setText(getDeviceStatus(device.status));
+        holder.deviceUser.setText(device.getUserName());
 
         return row;
     }
@@ -89,5 +91,6 @@ public class WiFiPeersAdapter extends ArrayAdapter<WifiP2pDevice> {
         TextView deviceDetails;
         TextView deviceType;
         TextView deviceStatus;
+        TextView deviceUser;
     }
 }

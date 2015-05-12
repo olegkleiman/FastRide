@@ -62,7 +62,6 @@ public class PassengerRoleActivity extends ActionBarActivity
     MobileServiceTable<Join> joinsTable;
 
     WiFiUtil wifiUtil;
-    public List<WifiP2pDevice> peers = new ArrayList<>();
 
     private android.os.Handler handler = new android.os.Handler(this);
     public android.os.Handler getHandler() {
@@ -82,9 +81,15 @@ public class PassengerRoleActivity extends ActionBarActivity
 
         wifiUtil = new WiFiUtil(this);
 
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String userID = sharedPrefs.getString(Globals.USERIDPREF, "");
+
         // This will start serviceDiscovery
         // for (hopefully) already published service
-        wifiUtil.startRegistrationAndDiscovery(null);
+        wifiUtil.startRegistrationAndDiscovery(null, userID);
+
+        // Only register the service that will be discovered from server's side
+        //wifiUtil.registerDnsSdService(userID);
     }
 
     private void wamsInit( ) {
@@ -95,8 +100,8 @@ public class PassengerRoleActivity extends ActionBarActivity
                     this);
 
             SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-
             String userID = sharedPrefs.getString(Globals.USERIDPREF, "");
+
             MobileServiceUser wamsUser = new MobileServiceUser(userID);
 
             String token = sharedPrefs.getString(Globals.WAMSTOKENPREF, "");
@@ -192,6 +197,12 @@ public class PassengerRoleActivity extends ActionBarActivity
             case Globals.TRACE_MESSAGE:
                 Bundle bundle = msg.getData();
                 String strMessage = bundle.getString("message");
+                trace(strMessage);
+                break;
+
+            case Globals.MESSAGE_READ:
+                byte[] buffer = (byte[] )msg.obj;
+                strMessage = new String(buffer);
                 trace(strMessage);
                 break;
 

@@ -39,6 +39,8 @@ public class Globals {
     static final public int SERVER_PORT = 4545;
     static final public int SOCKET_TIMEOUT = 5000;
     public static final String TXTRECORD_PROP_AVAILABLE = "available";
+    public static final String TXTRECORD_PROP_USERNAME = "username";
+    public static final String TXTRECORD_PROP_PORT = "port";
     public static final String SERVICE_INSTANCE = "_wififastride";
     public static final String SERVICE_REG_TYPE = "_presence._tcp";
 

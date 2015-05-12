@@ -33,6 +33,7 @@ import com.google.gson.JsonObject;
 import com.maximum.fastride.R;
 import com.maximum.fastride.adapters.PassengersAdapter;
 import com.maximum.fastride.adapters.WiFiPeersAdapter;
+import com.maximum.fastride.adapters.WifiP2pDeviceUser;
 import com.maximum.fastride.model.Ride;
 import com.maximum.fastride.model.User;
 import com.maximum.fastride.utils.ClientSocketHandler;
@@ -71,7 +72,7 @@ public class DriverRoleActivity extends ActionBarActivity
     public static MobileServiceClient wamsClient;
     MobileServiceTable<Ride> ridesTable;
 
-    public List<WifiP2pDevice> peers = new ArrayList<>();
+    public List<WifiP2pDeviceUser> peers = new ArrayList<>();
     WiFiPeersAdapter mPeersAdapter;
 
     WiFiUtil wifiUtil;
@@ -117,10 +118,11 @@ public class DriverRoleActivity extends ActionBarActivity
         peers.clear();
         mPeersAdapter.notifyDataSetChanged();
 
-        //wifiUtil.discoverPeers();
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String userID = sharedPrefs.getString(Globals.USERIDPREF, "");
 
         // This will publish the service in DNS-SD and start serviceDiscovery()
-        wifiUtil.startRegistrationAndDiscovery(this);
+        wifiUtil.startRegistrationAndDiscovery(this, userID);
 
     }
 
@@ -237,6 +239,11 @@ public class DriverRoleActivity extends ActionBarActivity
                 trace(strMessage);
                 break;
 
+            case Globals.MESSAGE_READ:
+                byte[] buffer = (byte[] )msg.obj;
+                strMessage = new String(buffer);
+                trace(strMessage);
+                break;
         }
 
         return true;
@@ -337,7 +344,7 @@ public class DriverRoleActivity extends ActionBarActivity
 
 
     @Override
-    public void add(final WifiP2pDevice device) {
+    public void add(final WifiP2pDeviceUser device) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

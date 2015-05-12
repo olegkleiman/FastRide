@@ -1,0 +1,21 @@
+package com.maximum.fastride.adapters;
+
+import android.net.wifi.p2p.WifiP2pDevice;
+
+/**
+ * Created by Oleg Kleiman on 12-May-15.
+ */
+public class WifiP2pDeviceUser extends WifiP2pDevice {
+    private String _userName;
+    public String getUserName() {
+        return _userName;
+    }
+    public void setUserName(String value) {
+        _userName = value;
+    }
+
+    public WifiP2pDeviceUser(WifiP2pDevice device) {
+        super(device);
+    }
+
+}

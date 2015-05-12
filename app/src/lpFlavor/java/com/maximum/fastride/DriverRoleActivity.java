@@ -30,7 +30,9 @@ import android.widget.Toast;
 import com.maximum.fastride.R;
 import com.maximum.fastride.adapters.PassengersAdapter;
 import com.maximum.fastride.adapters.WiFiPeersAdapter;
+import com.maximum.fastride.adapters.WifiP2pDeviceUser;
 import com.maximum.fastride.model.Ride;
+import com.maximum.fastride.utils.ClientSocketHandler;
 import com.maximum.fastride.utils.Globals;
 import com.maximum.fastride.utils.GroupOwnerSocketHandler;
 import com.maximum.fastride.utils.IMessageTarget;
@@ -66,7 +68,7 @@ public class DriverRoleActivity extends Activity
     MobileServiceTable<Ride> ridesTable;
 
     WiFiPeersAdapter mPeersAdapter;
-    public List<WifiP2pDevice> peers = new ArrayList<>();
+    public List<WifiP2pDeviceUser> peers = new ArrayList<>();
 
     WiFiUtil wifiUtil;
     private Handler handler = new Handler(this);
@@ -110,8 +112,11 @@ public class DriverRoleActivity extends Activity
         peers.clear();
         mPeersAdapter.notifyDataSetChanged();
 
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String userID = sharedPrefs.getString(Globals.USERIDPREF, "");
+
         // This will publish the service in DNS-SD and start serviceDiscovery()
-        wifiUtil.startRegistrationAndDiscovery(this);
+        wifiUtil.startRegistrationAndDiscovery(this, userID);
 
     }
 
@@ -141,6 +146,12 @@ public class DriverRoleActivity extends Activity
             case Globals.TRACE_MESSAGE:
                 Bundle bundle = msg.getData();
                 String strMessage = bundle.getString("message");
+                trace(strMessage);
+                break;
+
+            case Globals.MESSAGE_READ:
+                byte[] buffer = (byte[] )msg.obj;
+                strMessage = new String(buffer);
                 trace(strMessage);
                 break;
 
@@ -272,8 +283,7 @@ public class DriverRoleActivity extends Activity
             txtMe.setText("ME: GroupOwner, Group Owner IP: " + p2pInfo.groupOwnerAddress.getHostAddress());
             //new WiFiUtil.ServerAsyncTask(this).execute();
             try {
-                handler = new GroupOwnerSocketHandler(
-                                ((IMessageTarget) this).getHandler());
+                handler = new GroupOwnerSocketHandler(getHandler());
                 handler.start();
                 trace("Server socket opened.");
             } catch (IOException e){
@@ -281,9 +291,12 @@ public class DriverRoleActivity extends Activity
             }
         } else {
             txtMe.setText("ME: NOT GroupOwner, Group Owner IP: " + p2pInfo.groupOwnerAddress.getHostAddress());
-            new WiFiUtil.ClientAsyncTask(this,
+            handler = new ClientSocketHandler(
+                    this.getHandler(),
                     p2pInfo.groupOwnerAddress,
-                    "!!!Message from DRIVER!!!").execute();
+                    this,
+                    "!!!Message from DRIVER!!!");
+            handler.start();
             trace("Client socket opened.");
         }
 
@@ -322,7 +335,7 @@ public class DriverRoleActivity extends Activity
     }
 
     @Override
-    public void add(final WifiP2pDevice device) {
+    public void add(final WifiP2pDeviceUser device) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {

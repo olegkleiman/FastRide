@@ -78,11 +78,13 @@ public class PassengerRoleActivity extends Activity
 
         wifiUtil = new WiFiUtil(this);
 
-        //wifiUtil.discoverPeers();
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String userID = sharedPrefs.getString(Globals.USERIDPREF, "");
 
         // This will start serviceDiscovery
         // for (hopefully) already published service
-        wifiUtil.discoverService(null);
+        wifiUtil.startRegistrationAndDiscovery(null, userID);
+
     }
 
     @Override
@@ -107,13 +109,20 @@ public class PassengerRoleActivity extends Activity
     @Override
     public boolean handleMessage(Message msg) {
 
+        String strMessage;
+
         switch (msg.what) {
             case Globals.TRACE_MESSAGE:
                 Bundle bundle = msg.getData();
-                String strMessage = bundle.getString("message");
+                strMessage = bundle.getString("message");
                 trace(strMessage);
                 break;
 
+            case Globals.MESSAGE_READ:
+                byte[] buffer = (byte[] )msg.obj;
+                strMessage = new String(buffer);
+                trace(strMessage);
+                break;
         }
 
         return true;
