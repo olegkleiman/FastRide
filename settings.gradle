@@ -1,1 +1,1 @@
-include ':app', ':viewflow'
+include ':app'

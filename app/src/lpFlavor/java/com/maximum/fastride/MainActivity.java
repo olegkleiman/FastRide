@@ -21,6 +21,7 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -56,10 +57,10 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
-//public class MainActivity extends Activity { //BaseActivity {
 public class MainActivity extends ActionBarActivity { //BaseActivity {
+//public class MainActivity extends AppCompatActivity {
 
-    static final int REGISTER_USER_REQUEST = 1;
+static final int REGISTER_USER_REQUEST = 1;
 
 	private static final String LOG_TAG = "FR.Main";
 
@@ -111,21 +112,21 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
 
         setupView();
 
-//        // Intended to be executed only once per app life-time
-//        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-//        if( sharedPrefs.getString(Globals.USERIDPREF, "").isEmpty() ) {
-//
-//            Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
-//            startActivityForResult(intent, REGISTER_USER_REQUEST);
-//
-//        } else {
-//            NotificationsManager.handleNotifications(this, Globals.SENDER_ID,
-//                                                    GCMHandler.class);
-//
-//            String accessToken = sharedPrefs.getString(Globals.TOKENPREF, "");
-//            wamsInit(accessToken);
-//
-//        }
+        // Intended to be executed only once per app life-time
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        if( sharedPrefs.getString(Globals.USERIDPREF, "").isEmpty() ) {
+
+            Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
+            startActivityForResult(intent, REGISTER_USER_REQUEST);
+
+        } else {
+            NotificationsManager.handleNotifications(this, Globals.SENDER_ID,
+                                                    GCMHandler.class);
+
+            String accessToken = sharedPrefs.getString(Globals.TOKENPREF, "");
+            wamsInit(accessToken);
+
+        }
     }
 
     @Override
@@ -135,8 +136,14 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
     }
 
     @Override
-    public void onConfigurationChanged(Configuration config){
-        super.onConfigurationChanged(config);
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig){
+        super.onConfigurationChanged(newConfig);
         Log.i(LOG_TAG, "onConfigurationChanged");
 
 //        if( config.orientation == Configuration.ORIENTATION_LANDSCAPE) {
@@ -148,18 +155,22 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
         setContentView(R.layout.activity_main);
         setupView();
 
+        mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
     private void setupView(){
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.fastride_toolbar);
-        setSupportActionBar(toolbar);
+        if( toolbar != null ) {
+            setSupportActionBar(toolbar);
+            toolbar.setNavigationIcon(R.drawable.ic_ab_drawer);
+        }
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         // set a custom shadow that overlays the main content when the drawer opens
         mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
 
-        mDrawerRecyclerView = (RecyclerView) findViewById(R.id.left_drawer);
+        mDrawerRecyclerView = (RecyclerView)findViewById(R.id.left_drawer);
         mDrawerRecyclerView.setHasFixedSize(true);
         mDrawerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mDrawerRecyclerView.setItemAnimator(new DefaultItemAnimator());
@@ -191,10 +202,6 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
 //                }
 //        );
 
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        // set a custom shadow that overlays the main content when the drawer opens
-        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-
         // ActionBarDrawerToggle ties together the the proper interactions
         // between the sliding drawer and the action bar app icon
         mDrawerToggle = new ActionBarDrawerToggle(
@@ -203,17 +210,18 @@ public class MainActivity extends ActionBarActivity { //BaseActivity {
                 toolbar,  /* nav drawer image to replace 'Up' caret */
                 R.string.drawer_open,  /* "open drawer" description for accessibility */
                 R.string.drawer_close  /* "close drawer" description for accessibility */
-        ) {
-            public void onDrawerClosed(View drawerView) {
-                super.onDrawerOpened(drawerView);
-            }
-
-            public void onDrawerOpened(View drawerView) {
-                super.onDrawerClosed(drawerView);
-            }
-        };
+        );
+//        {
+//            public void onDrawerClosed(View drawerView) {
+//                super.onDrawerOpened(drawerView);
+//            }
+//
+//            public void onDrawerOpened(View drawerView) {
+//                super.onDrawerClosed(drawerView);
+//            }
+//        };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
-        mDrawerToggle.syncState();
+        //mDrawerToggle.syncState();
 
         if( currentUser.isLoaded() ) {
             String pictureURL = currentUser.getPictureURL();

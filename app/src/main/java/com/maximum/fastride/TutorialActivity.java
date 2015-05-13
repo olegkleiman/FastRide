@@ -15,9 +15,6 @@ import android.view.MenuItem;
 import com.maximum.fastride.R;
 import com.maximum.fastride.adapters.ImageAdapter;
 
-import org.taptwo.android.widget.CircleFlowIndicator;
-import org.taptwo.android.widget.ViewFlow;
-
 public class TutorialActivity extends ActionBarActivity
         implements ActionBar.TabListener{
 

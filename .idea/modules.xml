@@ -4,7 +4,6 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/FastRide.iml" filepath="$PROJECT_DIR$/FastRide.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
-      <module fileurl="file://$PROJECT_DIR$/viewflow/viewflow.iml" filepath="$PROJECT_DIR$/viewflow/viewflow.iml" />
     </modules>
   </component>
 </project>

@@ -63,6 +63,7 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<DrawerRecyclerAd
                 public void onClick(View view) {
                     Intent intent = new Intent(mContext, SettingsActivity.class);
                     mContext.startActivity(intent);
+                    // mDrawerLayout.closeDrawer(Gravity.START);
                 }
             },
             new View.OnClickListener(){
@@ -71,6 +72,7 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<DrawerRecyclerAd
                 public void onClick(View view) {
                     Intent intent = new Intent(mContext, MyRidesActivity.class);
                     mContext.startActivity(intent);
+                    // mDrawerLayout.closeDrawer(Gravity.START);
                 }
             },
             new View.OnClickListener(){
@@ -79,6 +81,7 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<DrawerRecyclerAd
                 public void onClick(View view) {
                     Intent intent = new Intent(mContext, MyRidesActivity.class);
                     mContext.startActivity(intent);
+                    // mDrawerLayout.closeDrawer(Gravity.START);
                 }
             },
             new View.OnClickListener(){
@@ -87,6 +90,7 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<DrawerRecyclerAd
                 public void onClick(View view) {
                     Intent intent = new Intent(mContext, TutorialActivity.class);
                     mContext.startActivity(intent);
+                    // mDrawerLayout.closeDrawer(Gravity.START);
                 }
             },
             new View.OnClickListener(){
@@ -95,6 +99,7 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<DrawerRecyclerAd
                 public void onClick(View view) {
                     Intent intent = new Intent(mContext, MyRidesActivity.class);
                     mContext.startActivity(intent);
+                    // mDrawerLayout.closeDrawer(Gravity.START);
                 }
             }
     };
