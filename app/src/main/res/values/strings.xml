@@ -31,8 +31,8 @@
     <string name="btnDriverText">Driver</string>
     <string name="btnPassengerText">Passenger</string>
     <string name="btnFindRide">Find a ride</string>
-    <string name="title_activity_driver_role">DriverRoleActivity</string>
-    <string name="title_activity_tutorial">TutorialActivity</string>
+    <string name="title_activity_driver_role">Fast Ride: Driver</string>
+    <string name="title_activity_tutorial">Fast Ride: Tutorials</string>
     <string-array name="drawers_array">
         <item>Profile</item>
         <item>Settings</item>

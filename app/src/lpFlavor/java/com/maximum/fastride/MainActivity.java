@@ -1,43 +1,31 @@
 package com.maximum.fastride;
 
 import android.annotation.SuppressLint;
-import android.app.ActionBar;
-import android.app.Activity;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
-import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 
 import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.Toast;
 
-import com.facebook.Settings;
 import com.google.gson.JsonObject;
 import com.maximum.fastride.adapters.DrawerRecyclerAdapter;
 import com.maximum.fastride.gcm.GCMHandler;
@@ -71,7 +59,7 @@ static final int REGISTER_USER_REQUEST = 1;
     int DRAWER_ICONS[] = {
             R.drawable.ic_action_myrides,
             R.drawable.ic_action_rating,
-            R.drawable.ic_action_logout,
+            R.drawable.ic_action_tutorial,
             R.drawable.ic_action_about};
 
     public static MobileServiceClient wamsClient;
@@ -167,8 +155,10 @@ static final int REGISTER_USER_REQUEST = 1;
         }
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        // set a custom shadow that overlays the main content when the drawer opens
-        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // set a custom shadow that overlays the main content when the drawer opens
+            mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        }
 
         mDrawerRecyclerView = (RecyclerView)findViewById(R.id.left_drawer);
         mDrawerRecyclerView.setHasFixedSize(true);

@@ -11,12 +11,20 @@ import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.v4.view.GravityCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -26,7 +34,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.maximum.fastride.R;
+import com.maximum.fastride.adapters.DrawerRecyclerAdapter;
 import com.maximum.fastride.model.Join;
+import com.maximum.fastride.model.User;
 import com.maximum.fastride.utils.ClientSocketHandler;
 import com.maximum.fastride.utils.Globals;
 import com.maximum.fastride.utils.GroupOwnerSocketHandler;
@@ -47,7 +57,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class PassengerRoleActivity extends Activity
+public class PassengerRoleActivity extends ActionBarActivity
     implements ITrace,
         Handler.Callback,
         WifiP2pManager.ConnectionInfoListener {
@@ -59,6 +69,17 @@ public class PassengerRoleActivity extends Activity
 
     WiFiUtil wifiUtil;
     public List<WifiP2pDevice> peers = new ArrayList<>();
+
+    private DrawerLayout mDrawerLayout;
+    private RecyclerView mDrawerRecyclerView;
+    private String[] mDrawerTitles;
+    int DRAWER_ICONS[] = {
+            R.drawable.ic_action_myrides,
+            R.drawable.ic_action_rating,
+            R.drawable.ic_action_tutorial,
+            R.drawable.ic_action_about};
+    private ActionBarDrawerToggle mDrawerToggle;
+
 
     TextView mTxtStatus;
 
@@ -72,6 +93,8 @@ public class PassengerRoleActivity extends Activity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_passenger);
 
+        setupView();
+
         mTxtStatus = (TextView)findViewById(R.id.txtStatusPassenger);
 
         wamsInit();
@@ -84,6 +107,49 @@ public class PassengerRoleActivity extends Activity
         // This will start serviceDiscovery
         // for (hopefully) already published service
         wifiUtil.startRegistrationAndDiscovery(null, userID);
+
+    }
+
+    private void setupView() {
+        Toolbar toolbar = (Toolbar) findViewById(R.id.fastride_toolbar);
+        if (toolbar != null) {
+            setSupportActionBar(toolbar);
+            toolbar.setNavigationIcon(R.drawable.ic_ab_drawer);
+        }
+
+        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+            // set a custom shadow that overlays the main content when the drawer opens
+            mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
+        }
+
+        mDrawerRecyclerView = (RecyclerView)findViewById(R.id.left_drawer);
+        mDrawerRecyclerView.setHasFixedSize(true);
+        mDrawerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mDrawerRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        User currentUser = User.load(this);
+
+        mDrawerTitles = getResources().getStringArray(R.array.drawers_array_drawer);
+        DrawerRecyclerAdapter drawerRecyclerAdapter =
+                new DrawerRecyclerAdapter(this,
+                        mDrawerTitles,
+                        DRAWER_ICONS,
+                        currentUser.getFirstName() + " " + currentUser.getLastName(),
+                        currentUser.getEmail(),
+                        currentUser.getPictureURL());
+
+        mDrawerRecyclerView.setAdapter(drawerRecyclerAdapter);
+
+        mDrawerToggle = new ActionBarDrawerToggle(
+                this,                  /* host Activity */
+                mDrawerLayout,         /* DrawerLayout object */
+                toolbar,  /* nav drawer image to replace 'Up' caret */
+                R.string.drawer_open,  /* "open drawer" description for accessibility */
+                R.string.drawer_close  /* "close drawer" description for accessibility */
+        );
+
+        mDrawerLayout.setDrawerListener(mDrawerToggle);
 
     }
 
@@ -104,6 +170,12 @@ public class PassengerRoleActivity extends Activity
     protected void onStop() {
         wifiUtil.removeGroup();
         super.onStop();
+    }
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        mDrawerToggle.syncState();
     }
 
     @Override
@@ -204,28 +276,6 @@ public class PassengerRoleActivity extends Activity
                 return null;
             }
         }.execute();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_passenger, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
     }
 
     //

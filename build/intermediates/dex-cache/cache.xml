@@ -72,13 +72,6 @@
         <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\lpFlavor\debug\classes-7f84a3a96e4a2dde111da828951ce4a0071c02de.jar" />
     </item>
     <item
-        jar="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\exploded-aar\FastRide\viewflow\unspecified\classes.jar"
-        jumboMode="false"
-        revision="22.0.1"
-        sha1="e793838c405791a006560c0f69a2c39ac2e64386">
-        <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\lpFlavor\debug\classes-971ed71a3e43ee15503ba8e5c818d719c6b38615.jar" />
-    </item>
-    <item
         jar="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\22.1.1\classes.jar"
         jumboMode="false"
         revision="22.0.1"
