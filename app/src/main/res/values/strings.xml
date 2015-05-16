@@ -39,6 +39,12 @@
         <item>History</item>
         <item>About</item>
     </string-array>
+    <string-array name="tutorial_titles">
+        <item>Intro</item>
+        <item>Driver</item>
+        <item>Passenger</item>
+        <item>Reclamation</item>
+    </string-array>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="title_activity_about">FastRide ver. Alpha 0.1</string>
@@ -60,4 +66,9 @@ limitations under the License.</string>
     <string name="driverTabCaption">Driver</string>
     <string name="passengerTabCaption">Passenger</string>
     <string name="action_refresh">Refresh</string>
+
+    <string name="passenger_tutorial_fragment">Passenger tutorial</string>
+    <string name="driver_tutorial_fragment">Driver tutorial</string>
+    <string name="reclaim_tutorial_fragment">Reclamation tutorial</string>
+    <string name="intro_tutorial_fragment">Introduction tutorial</string>
 </resources>

@@ -1,0 +1,13 @@
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/material_blue_grey_800"
+    tools:context="com.maximum.fastride.tutorials.PassengerTutorialFragment">
+
+    <TextView android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:text="@string/passenger_tutorial_fragment"
+        android:textColor="@android:color/white"/>
+
+</FrameLayout>
