@@ -72,6 +72,7 @@ public class DriverRoleActivity extends ActionBarActivity
                            IMessageTarget,
                            Handler.Callback,
                            WiFiUtil.IPeersChangedListener,
+                           WifiP2pManager.PeerListListener,
                            WifiP2pManager.ConnectionInfoListener {
 
     private static final String LOG_TAG = "FR.Driver";
@@ -102,6 +103,8 @@ public class DriverRoleActivity extends ActionBarActivity
 
     TextView mTxtStatus;
 
+    String mUserID;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -119,13 +122,14 @@ public class DriverRoleActivity extends ActionBarActivity
         peersListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long l) {
-                WifiP2pDevice device = (WifiP2pDevice) parent.getItemAtPosition(position);
+                WifiP2pDeviceUser device =
+                        (WifiP2pDeviceUser)parent.getItemAtPosition(position);
 
                 if( device.status == WifiP2pDevice.AVAILABLE) {
                     wifiUtil.connectToDevice(device, 0);
                 } else {
                     Toast.makeText(DriverRoleActivity.this,
-                                    "Device should be in connected state",
+                                    "Device should be in available state",
                                     Toast.LENGTH_LONG).show();
                 }
 
@@ -139,10 +143,10 @@ public class DriverRoleActivity extends ActionBarActivity
         mPeersAdapter.notifyDataSetChanged();
 
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        String userID = sharedPrefs.getString(Globals.USERIDPREF, "");
+        mUserID = sharedPrefs.getString(Globals.USERIDPREF, "");
 
         // This will publish the service in DNS-SD and start serviceDiscovery()
-        wifiUtil.startRegistrationAndDiscovery(this, userID);
+        wifiUtil.startRegistrationAndDiscovery(this, mUserID);
 
     }
 
@@ -316,27 +320,55 @@ public class DriverRoleActivity extends ActionBarActivity
         }.execute();
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.menu_driver_role, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//        int id = item.getItemId();
-//
-//        //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_settings) {
-//            return true;
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_driver_role, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.action_refresh) {
+            item.setActionView(R.layout.action_progress);
+
+            peers.clear();
+            mPeersAdapter.notifyDataSetChanged();
+
+            wifiUtil.startRegistrationAndDiscovery(this, mUserID);
+
+            getHandler().postDelayed(
+                    new Runnable() {
+                        @Override
+                        public void run() {
+                            invalidateOptionsMenu();
+                        }
+                    },
+                    5000);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    //
+    // Implementation of WifiP2pManager.PeerListListenere
+    // Used to synchronize peers statuses after connection
+
+    @Override
+    public void onPeersAvailable(WifiP2pDeviceList list){
+        for(WifiP2pDevice device : list.getDeviceList()) {
+            WifiP2pDeviceUser d = new WifiP2pDeviceUser(device);
+            d.setUserId(mUserID);
+            mPeersAdapter.updateItem(d);
+        }
+    }
 
     //
     // Implementation of WifiP2pManager.ConnectionInfoListener
@@ -346,6 +378,8 @@ public class DriverRoleActivity extends ActionBarActivity
     public void onConnectionInfoAvailable(WifiP2pInfo p2pInfo) {
         TextView txtMe = (TextView)findViewById(R.id.txtMe);
         Thread handler = null;
+
+        wifiUtil.requestPeers(this);
 
          /*
          * The group owner accepts connections using a server socket and then spawns a

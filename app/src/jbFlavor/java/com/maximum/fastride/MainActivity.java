@@ -171,29 +171,6 @@ public class MainActivity extends ActionBarActivity {
         };
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-        User currentUser = User.load(this);
-        if( currentUser.isLoaded() ) {
-            String pictureURL = currentUser.getPictureURL();
-
-            ImageView imageView = (ImageView) findViewById(R.id.profileImageView);
-            Drawable drawable = null;
-            try {
-                drawable = (Globals.drawMan.userDrawable(this,
-                        "1",
-                        pictureURL)).get();
-                drawable = RoundedDrawable.fromDrawable(drawable);
-                ((RoundedDrawable) drawable)
-                        .setCornerRadius(Globals.PICTURE_CORNER_RADIUS)
-                        .setBorderColor(Color.LTGRAY)
-                        .setBorderWidth(Globals.PICTURE_BORDER_WIDTH)
-                        .setOval(true);
-
-                imageView.setImageDrawable(drawable);
-            } catch (InterruptedException | ExecutionException ex) {
-                Log.e(LOG_TAG, ex.getMessage());
-            }
-        }
-
     }
 
     @Override

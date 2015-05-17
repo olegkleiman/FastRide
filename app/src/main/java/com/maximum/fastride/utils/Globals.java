@@ -48,6 +48,7 @@ public class Globals {
     public static final String TOKENPREF = "accessToken";
     public static final String WAMSTOKENPREF = "wamsToken";
 
+    public static final String FB_PROVIDER = "Facebook";
     public static final String FB_PROVIDER_FOR_STORE = "Facebook:";
     public static final String GOOGLE_PROVIDER_FOR_STORE = "Google:";
     public static final String MS_PROVIDER_FOR_STORE = "MS:";

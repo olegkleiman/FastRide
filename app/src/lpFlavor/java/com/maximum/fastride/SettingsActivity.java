@@ -25,15 +25,19 @@ public class SettingsActivity extends ActionBarActivity {
 //        getSupportActionBar().setHomeButtonEnabled(true);
 
         View addButton = findViewById(R.id.add_button);
-        addButton.setOutlineProvider(new ViewOutlineProvider() {
-            @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-            @Override
-            public void getOutline(View view, Outline outline) {
-                int diameter = getResources().getDimensionPixelSize(R.dimen.diameter);
-                outline.setOval(0, 0, diameter, diameter);
-            }
-        });
-        addButton.setClipToOutline(true);
+//        addButton.setOutlineProvider(new ViewOutlineProvider() {
+//            @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+//            @Override
+//            public void getOutline(View view, Outline outline) {
+//                int diameter = getResources().getDimensionPixelSize(R.dimen.diameter);
+//                outline.setOval(0, 0, diameter, diameter);
+//            }
+//        });
+//        addButton.setClipToOutline(true);
+    }
+
+    public void onButtonAdd(View view){
+
     }
 
 }

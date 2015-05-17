@@ -40,25 +40,27 @@
             android:orientation="vertical"
             android:weightSum="1">
             <Button
-                android:layout_width="160dp"
-                android:layout_height="wrap_content"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:background="@drawable/round_button"
                 android:text="@string/btnDriverText"
+                android:textColor="@color/white"
                 android:id="@+id/btnDriver"
                 android:onClick="onDriverClicked"
-                android:layout_gravity="center_horizontal" />
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="20dp" />
+
             <Button
-                android:layout_width="160dp"
-                android:layout_height="wrap_content"
+                android:layout_width="110dp"
+                android:layout_height="110dp"
+                android:background="@drawable/round_button"
                 android:text="@string/btnPassengerText"
+                android:textColor="@color/white"
                 android:id="@+id/btnPassenger"
                 android:onClick="onPassengerClicked"
-                android:layout_gravity="center_horizontal" />
-            <Button
-                android:layout_width="160dp"
-                android:layout_height="wrap_content"
-                android:text="@string/btnFindRide"
-                android:id="@+id/btnFindRide"
-                android:layout_gravity="center_horizontal" />
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="20dp" />
+
         </LinearLayout>
 
 

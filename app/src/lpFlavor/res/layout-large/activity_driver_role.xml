@@ -29,7 +29,8 @@
         android:layout_height="wrap_content"
         android:id="@+id/listViewPeers"
         android:layout_gravity="center_horizontal"
-        android:layout_weight="0.5" />
+        android:layout_weight="0.5"
+        android:layout_marginTop="4dp"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -47,12 +48,19 @@
         android:textStyle="bold"
         android:text="ME"/>
 
-    <TextView
-        android:id="@+id/txtStatus"
+    <ScrollView
+        android:id="@+id/SCROLLER_ID"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="left" />
-
+        android:layout_height="fill_parent"
+        android:scrollbars="vertical"
+        android:layout_weight="0.5"
+        android:fillViewport="true">
+        <TextView
+            android:id="@+id/txtStatus"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="start" />
+    </ScrollView>
 
 </LinearLayout>
 

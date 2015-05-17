@@ -176,8 +176,8 @@ public class WiFiUtil {
                             if (peersChangedListener != null) {
                                 WifiP2pDeviceUser deviceUser =
                                         new WifiP2pDeviceUser(device);
-                                String userName = buddies.get(device.deviceName);
-                                deviceUser.setUserName(userName);
+                                String userId = buddies.get(device.deviceName);
+                                deviceUser.setUserId(userId);
                                 peersChangedListener.add(deviceUser);
                             }
                         } else {
@@ -236,7 +236,7 @@ public class WiFiUtil {
 
     public void disconnect(){
         mManager.cancelConnect(mChannel,
-                new TaggedActionListener((ITrace)mContext, "cancel connect request"));
+                new TaggedActionListener((ITrace) mContext, "cancel connect request"));
     }
 
     public void connectToDevice(WifiP2pDevice device, int delay){
@@ -264,6 +264,12 @@ public class WiFiUtil {
             };
 
             h.postDelayed(r, delay); // with delay
+        }
+    }
+
+    public void requestPeers(WifiP2pManager.PeerListListener listener){
+        if( mManager != null && mChannel != null) {
+            mManager.requestPeers(mChannel, listener);
         }
     }
 
