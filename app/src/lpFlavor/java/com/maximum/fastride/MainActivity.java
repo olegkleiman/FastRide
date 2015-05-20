@@ -152,6 +152,7 @@ static final int REGISTER_USER_REQUEST = 1;
         if( toolbar != null ) {
             setSupportActionBar(toolbar);
             toolbar.setNavigationIcon(R.drawable.ic_ab_drawer);
+
         }
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);

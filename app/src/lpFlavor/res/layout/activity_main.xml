@@ -50,8 +50,7 @@
                 <Button
                     android:layout_width="110dp"
                     android:layout_height="110dp"
-                    android:background="@drawable/round_button"
-                    android:text="@string/btnDriverText"
+                    android:background="@drawable/ic_driver"
                     android:textColor="@color/white"
                     android:id="@+id/btnDriver"
                     android:onClick="onDriverClicked"
@@ -61,8 +60,7 @@
                 <Button
                     android:layout_width="110dp"
                     android:layout_height="110dp"
-                    android:background="@drawable/round_button"
-                    android:text="@string/btnPassengerText"
+                    android:background="@drawable/ic_passenger"
                     android:textColor="@color/white"
                     android:id="@+id/btnPassenger"
                     android:onClick="onPassengerClicked"

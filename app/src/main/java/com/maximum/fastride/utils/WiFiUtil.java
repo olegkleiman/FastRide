@@ -249,8 +249,9 @@ public class WiFiUtil {
         config.wps.setup = WpsInfo.PBC;
 
         if( delay == 0) {
+            ITrace tracer = (ITrace)mContext;
             mManager.connect(mChannel, config,
-                    new TaggedActionListener((ITrace)mContext, "Connected request"));
+                    new TaggedActionListener(tracer, "Connected request"));
         } else {
 
             Handler h = new Handler();
@@ -285,6 +286,7 @@ public class WiFiUtil {
 
         TaggedActionListener(ITrace tracer, String tag){
             this.tag = tag;
+            mTracer = tracer;
         }
 
         @Override
