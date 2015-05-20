@@ -2,19 +2,12 @@ package com.maximum.fastride;
 
 import android.graphics.Color;
 import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 
 import com.maximum.fastride.adapters.TutorialTabsAdapter;
-import com.maximum.fastride.tutorials.DriverTutorialFragment;
-import com.maximum.fastride.tutorials.IntroTutorialFragment;
-import com.maximum.fastride.tutorials.PassengerTutorialFragment;
-import com.maximum.fastride.tutorials.ReclaimTutorialFragment;
 import com.maximum.fastride.views.SlidingTabLayout;
 
 public class TutorialActivity extends ActionBarActivity

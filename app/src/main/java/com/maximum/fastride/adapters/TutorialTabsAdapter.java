@@ -6,7 +6,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import com.maximum.fastride.tutorials.DriverTutorialFragment;
 import com.maximum.fastride.tutorials.IntroTutorialFragment;
-import com.maximum.fastride.tutorials.PassengerTutorialFragment;
+import com.maximum.fastride.tutorials.PassengerRoleTutorialFragment;
 import com.maximum.fastride.tutorials.ReclaimTutorialFragment;
 
 /**
@@ -32,7 +32,7 @@ public class TutorialTabsAdapter extends FragmentPagerAdapter {
                 return DriverTutorialFragment.newInstance(position);
 
             case 2:
-                return PassengerTutorialFragment.newInstance(position);
+                return PassengerRoleTutorialFragment.newInstance(position);
 
             case 3:
                 return ReclaimTutorialFragment.newInstance(position);
