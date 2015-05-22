@@ -45,8 +45,7 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
-public class MainActivity extends ActionBarActivity { //BaseActivity {
-//public class MainActivity extends AppCompatActivity {
+public class MainActivity extends ActionBarActivity {
 
 static final int REGISTER_USER_REQUEST = 1;
 
@@ -178,41 +177,15 @@ static final int REGISTER_USER_REQUEST = 1;
                         currentUser.getPictureURL());
 
         mDrawerRecyclerView.setAdapter(drawerRecyclerAdapter);
-//        mDrawerRecyclerView.addOnItemClickListener(
-//                new RecyclerView.OnItemTouchListener() {
-//
-//                    @Override
-//                    public boolean onInterceptTouchEvent(RecyclerView rv, MotionEvent e) {
-//                        return false;
-//                    }
-//
-//                    @Override
-//                    public void onTouchEvent(RecyclerView rv, MotionEvent e) {
-//
-//                    }
-//                }
-//        );
 
         // ActionBarDrawerToggle ties together the the proper interactions
         // between the sliding drawer and the action bar app icon
-        mDrawerToggle = new ActionBarDrawerToggle(
-                this,                  /* host Activity */
-                mDrawerLayout,         /* DrawerLayout object */
-                toolbar,  /* nav drawer image to replace 'Up' caret */
-                R.string.drawer_open,  /* "open drawer" description for accessibility */
-                R.string.drawer_close  /* "close drawer" description for accessibility */
-        );
-//        {
-//            public void onDrawerClosed(View drawerView) {
-//                super.onDrawerOpened(drawerView);
-//            }
-//
-//            public void onDrawerOpened(View drawerView) {
-//                super.onDrawerClosed(drawerView);
-//            }
-//        };
+        mDrawerToggle =
+                new ActionBarDrawerToggle(this, mDrawerLayout, toolbar,
+                                            R.string.drawer_open,
+                                            R.string.drawer_close);
+
         mDrawerLayout.setDrawerListener(mDrawerToggle);
-        //mDrawerToggle.syncState();
 
     }
 

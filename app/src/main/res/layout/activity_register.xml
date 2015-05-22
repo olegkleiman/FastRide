@@ -9,17 +9,15 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.maximum.fastride.RegisterActivity" >
 
-    <!-- Login progress -->
-    <ProgressBar android:id="@+id/login_progress" style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp" android:visibility="gone" />
-
-    <LinearLayout android:id="@+id/fb_login_form" android:layout_width="match_parent"
-        android:layout_height="wrap_content" android:orientation="vertical">
+    <LinearLayout android:id="@+id/fb_login_form"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical">
 
             <com.facebook.widget.LoginButton
                 android:id="@+id/loginButton"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
                 android:layout_marginTop="16dp" />

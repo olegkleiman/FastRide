@@ -47,6 +47,8 @@
     </string-array>
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
+    <string name="fb_error">No network access</string>
+    <string name="fb_error_msg">The error was: </string>
     <string name="title_activity_about">FastRide ver. Alpha 0.1</string>
     <string name="dialog_confirm_registration">Replace previous registration?</string>
 

@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
@@ -133,11 +134,22 @@ public class RegisterActivity extends FragmentActivity
                     new AsyncTask<Void, Void, Void>() {
 
                         Exception mEx;
+                        ProgressDialog progress;
+
+                        @Override
+                        protected void onPreExecute(){
+
+                            progress = ProgressDialog.show(RegisterActivity.this,
+                                    "Almost there", "Making things ready");
+                        }
 
                         @Override
                         protected void onPostExecute(Void result){
+                            progress.dismiss();
+
                             if( mEx == null )
                                 showRegistrationForm();
+
                         }
 
                         @Override
@@ -182,9 +194,14 @@ public class RegisterActivity extends FragmentActivity
 			
 			@Override
 			public void onError(FacebookException error) {
-				String msg = error.getMessage();
-				msg.trim();
-                Log.e(LOG_TAG, msg);
+                String msg = getResources().getString(R.string.fb_error_msg)
+                        + error.getMessage().trim();
+
+                new AlertDialog.Builder(RegisterActivity.this)
+                        .setTitle(getResources().getString(R.string.fb_error))
+                        .setMessage(msg)
+                        .setPositiveButton("OK", null)
+                        .show();
 				
 			}
 		});

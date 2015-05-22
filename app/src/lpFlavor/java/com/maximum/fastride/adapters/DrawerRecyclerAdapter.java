@@ -15,6 +15,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.maximum.fastride.AboutActivity;
 import com.maximum.fastride.MyRidesActivity;
 import com.maximum.fastride.R;
 import com.maximum.fastride.SettingsActivity;
@@ -97,7 +98,7 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<DrawerRecyclerAd
 
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(mContext, MyRidesActivity.class);
+                    Intent intent = new Intent(mContext, AboutActivity.class);
                     mContext.startActivity(intent);
                     // mDrawerLayout.closeDrawer(Gravity.START);
                 }

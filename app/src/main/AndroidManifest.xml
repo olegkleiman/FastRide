@@ -66,12 +66,7 @@
             android:name=".ConfirmRideActivity"
             android:label="@string/title_activity_confirm_ride" >
         </activity>
-        <activity
-            android:name=".AboutActivity"
-            android:label="@string/title_activity_about"
-            android:parentActivityName=".MainActivity"
-            android:theme="@style/Theme.AppCompat.Light" >
-        </activity>
+
         <activity
             android:name=".TutorialActivity"
             android:label="@string/title_activity_tutorial"
