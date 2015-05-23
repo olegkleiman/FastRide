@@ -6,32 +6,16 @@ import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.res.Configuration;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.View;
-import android.widget.ImageView;
 import android.widget.Toast;
 
 import com.google.gson.JsonObject;
-import com.maximum.fastride.adapters.DrawerRecyclerAdapter;
 import com.maximum.fastride.gcm.GCMHandler;
-import com.maximum.fastride.model.User;
 import com.maximum.fastride.utils.Globals;
-import com.maximum.fastride.utils.RoundedDrawable;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceAuthenticationProvider;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceUser;
@@ -45,21 +29,21 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.concurrent.ExecutionException;
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends BaseActivity{ // ActionBarActivity {
 
 static final int REGISTER_USER_REQUEST = 1;
 
 	private static final String LOG_TAG = "FR.Main";
 
-    private DrawerLayout mDrawerLayout;
-    private ActionBarDrawerToggle mDrawerToggle;
-    private RecyclerView mDrawerRecyclerView;
-    private String[] mDrawerTitles;
-    int DRAWER_ICONS[] = {
-            R.drawable.ic_action_myrides,
-            R.drawable.ic_action_rating,
-            R.drawable.ic_action_tutorial,
-            R.drawable.ic_action_about};
+//    private DrawerLayout mDrawerLayout;
+//    private ActionBarDrawerToggle mDrawerToggle;
+//    private RecyclerView mDrawerRecyclerView;
+//    private String[] mDrawerTitles;
+//    int DRAWER_ICONS[] = {
+//            R.drawable.ic_action_myrides,
+//            R.drawable.ic_action_rating,
+//            R.drawable.ic_action_tutorial,
+//            R.drawable.ic_action_about};
 
     public static MobileServiceClient wamsClient;
 
@@ -97,7 +81,7 @@ static final int REGISTER_USER_REQUEST = 1;
 
         setContentView(R.layout.activity_main);
 
-        setupView();
+        setupUI("");
 
         // Intended to be executed only once per app life-time
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -123,12 +107,6 @@ static final int REGISTER_USER_REQUEST = 1;
     }
 
     @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        mDrawerToggle.syncState();
-    }
-
-    @Override
     public void onConfigurationChanged(Configuration newConfig){
         super.onConfigurationChanged(newConfig);
         Log.i(LOG_TAG, "onConfigurationChanged");
@@ -140,54 +118,11 @@ static final int REGISTER_USER_REQUEST = 1;
 //        }
 
         setContentView(R.layout.activity_main);
-        setupView();
+        setupUI("");
 
-        mDrawerToggle.onConfigurationChanged(newConfig);
+        //mDrawerToggle.onConfigurationChanged(newConfig);
     }
 
-    private void setupView(){
-
-        Toolbar toolbar = (Toolbar) findViewById(R.id.fastride_toolbar);
-        if( toolbar != null ) {
-            setSupportActionBar(toolbar);
-            toolbar.setNavigationIcon(R.drawable.ic_ab_drawer);
-
-        }
-
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            // set a custom shadow that overlays the main content when the drawer opens
-            mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-        }
-
-        mDrawerRecyclerView = (RecyclerView)findViewById(R.id.left_drawer);
-        mDrawerRecyclerView.setHasFixedSize(true);
-        mDrawerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mDrawerRecyclerView.setItemAnimator(new DefaultItemAnimator());
-
-        User currentUser = User.load(this);
-
-        mDrawerTitles = getResources().getStringArray(R.array.drawers_array_drawer);
-        DrawerRecyclerAdapter drawerRecyclerAdapter =
-                new DrawerRecyclerAdapter(this,
-                        mDrawerTitles,
-                        DRAWER_ICONS,
-                        currentUser.getFirstName() + " " + currentUser.getLastName(),
-                        currentUser.getEmail(),
-                        currentUser.getPictureURL());
-
-        mDrawerRecyclerView.setAdapter(drawerRecyclerAdapter);
-
-        // ActionBarDrawerToggle ties together the the proper interactions
-        // between the sliding drawer and the action bar app icon
-        mDrawerToggle =
-                new ActionBarDrawerToggle(this, mDrawerLayout, toolbar,
-                                            R.string.drawer_open,
-                                            R.string.drawer_close);
-
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
-
-    }
 
     @Override
     protected void onDestroy(){

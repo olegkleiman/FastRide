@@ -1,73 +1,48 @@
 package com.maximum.fastride;
 
-import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
-import android.net.wifi.WpsInfo;
-import android.net.wifi.p2p.WifiP2pConfig;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
-import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.support.v4.view.GravityCompat;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
-import android.support.v7.app.ActionBarDrawerToggle;
-import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.maximum.fastride.R;
-import com.maximum.fastride.adapters.DrawerRecyclerAdapter;
-import com.maximum.fastride.adapters.PassengersAdapter;
 import com.maximum.fastride.adapters.WiFiPeersAdapter;
 import com.maximum.fastride.adapters.WifiP2pDeviceUser;
 import com.maximum.fastride.model.Ride;
-import com.maximum.fastride.model.User;
 import com.maximum.fastride.utils.ClientSocketHandler;
 import com.maximum.fastride.utils.Globals;
 import com.maximum.fastride.utils.GroupOwnerSocketHandler;
 import com.maximum.fastride.utils.IMessageTarget;
 import com.maximum.fastride.utils.ITrace;
-import com.maximum.fastride.utils.RoundedDrawable;
 import com.maximum.fastride.utils.WiFiUtil;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceUser;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.MalformedURLException;
-import java.net.ServerSocket;
-import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class DriverRoleActivity extends ActionBarActivity
+public class DriverRoleActivity extends BaseActivity
                 implements ITrace,
                            IMessageTarget,
                            Handler.Callback,
@@ -81,16 +56,6 @@ public class DriverRoleActivity extends ActionBarActivity
 
     public static MobileServiceClient wamsClient;
     MobileServiceTable<Ride> ridesTable;
-
-    private DrawerLayout mDrawerLayout;
-    private RecyclerView mDrawerRecyclerView;
-    private String[] mDrawerTitles;
-    int DRAWER_ICONS[] = {
-            R.drawable.ic_action_myrides,
-            R.drawable.ic_action_rating,
-            R.drawable.ic_action_tutorial,
-            R.drawable.ic_action_about};
-    private ActionBarDrawerToggle mDrawerToggle;
 
     WiFiPeersAdapter mPeersAdapter;
     public List<WifiP2pDeviceUser> peers = new ArrayList<>();
@@ -110,7 +75,7 @@ public class DriverRoleActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_role);
 
-        setupView();
+        setupUI(getResources().getString(R.string.subtitle_activity_driver_role));
 
         mTxtStatus = (TextView)findViewById(R.id.txtStatus);
 
@@ -150,47 +115,6 @@ public class DriverRoleActivity extends ActionBarActivity
 
     }
 
-    private void setupView(){
-        Toolbar toolbar = (Toolbar) findViewById(R.id.fastride_toolbar);
-        if( toolbar != null ) {
-            setSupportActionBar(toolbar);
-            toolbar.setNavigationIcon(R.drawable.ic_ab_drawer);
-        }
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-            // set a custom shadow that overlays the main content when the drawer opens
-            mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-        }
-
-        mDrawerRecyclerView = (RecyclerView)findViewById(R.id.left_drawer);
-        mDrawerRecyclerView.setHasFixedSize(true);
-        mDrawerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mDrawerRecyclerView.setItemAnimator(new DefaultItemAnimator());
-
-        User currentUser = User.load(this);
-
-        mDrawerTitles = getResources().getStringArray(R.array.drawers_array_drawer);
-        DrawerRecyclerAdapter drawerRecyclerAdapter =
-                new DrawerRecyclerAdapter(this,
-                        mDrawerTitles,
-                        DRAWER_ICONS,
-                        currentUser.getFirstName() + " " + currentUser.getLastName(),
-                        currentUser.getEmail(),
-                        currentUser.getPictureURL());
-
-        mDrawerRecyclerView.setAdapter(drawerRecyclerAdapter);
-
-        mDrawerToggle = new ActionBarDrawerToggle(
-                this,                  /* host Activity */
-                mDrawerLayout,         /* DrawerLayout object */
-                toolbar,  /* nav drawer image to replace 'Up' caret */
-                R.string.drawer_open,  /* "open drawer" description for accessibility */
-                R.string.drawer_close  /* "close drawer" description for accessibility */
-        );
-
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
-    }
-
     @Override
     public void onResume() {
         super.onResume();
@@ -208,12 +132,6 @@ public class DriverRoleActivity extends ActionBarActivity
     protected void onStop() {
         wifiUtil.removeGroup();
         super.onStop();
-    }
-
-    @Override
-    protected void onPostCreate(Bundle savedInstanceState) {
-        super.onPostCreate(savedInstanceState);
-        mDrawerToggle.syncState();
     }
 
     @Override

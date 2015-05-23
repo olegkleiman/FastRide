@@ -24,7 +24,7 @@
 
         <activity android:name="com.maximum.fastride.PassengerRoleActivity"
             android:parentActivityName="com.maximum.fastride.MainActivity"
-            android:label="@string/title_activity_passenger"
+            android:label="@string/title_activity_passenger_role"
             android:theme="@style/AppTheme">
         </activity>
 
@@ -39,8 +39,7 @@
             android:theme="@style/AppTheme">
         </activity>
 
-        <activity
-            android:name="com.maximum.fastride.AboutActivity"
+        <activity android:name="com.maximum.fastride.AboutActivity"
             android:label="@string/title_activity_about"
             android:theme="@style/AppTheme" >
         </activity>

@@ -59,7 +59,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
-public class DriverRoleActivity extends ActionBarActivity
+public class DriverRoleActivity extends BaseActivity
         implements ITrace,
         Handler.Callback,
         WiFiUtil.IPeersChangedListener,
@@ -88,6 +88,7 @@ public class DriverRoleActivity extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_role);
+        setupUI(getResources().getString(R.string.subtitle_activity_driver_role));
 
         mTxtStatus = (TextView)findViewById(R.id.txtStatus);
 

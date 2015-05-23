@@ -17,7 +17,7 @@
 
         <activity android:name="com.maximum.fastride.DriverRoleActivity"
             android:label="@string/title_activity_driver_role"
-            android:theme="@style/Theme.AppCompat.Light"
+            android:theme="@style/AppTheme"
             android:parentActivityName="com.maximum.fastride.MainActivity"
             >
         </activity>
@@ -30,8 +30,8 @@
         </activity>
 
         <activity android:name="com.maximum.fastride.PassengerRoleActivity"
-            android:label="@string/title_activity_passenger"
-            android:theme="@style/Theme.AppCompat.Light"
+            android:label="@string/title_activity_passenger_role"
+            android:theme="@style/AppTheme"
             android:parentActivityName="com.maximum.fastride.MainActivity"
             >
         </activity>
@@ -42,6 +42,13 @@
             android:parentActivityName="com.maximum.fastride.MainActivity"
             >
         </activity>
+
+        <activity
+            android:name="com.maximum.fastride.AboutActivity"
+            android:label="@string/title_activity_about"
+            android:theme="@style/AppTheme" >
+        </activity>
+
     </application>
 
 </manifest>

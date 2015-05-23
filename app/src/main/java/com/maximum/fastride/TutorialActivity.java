@@ -10,7 +10,7 @@ import android.support.v7.widget.Toolbar;
 import com.maximum.fastride.adapters.TutorialTabsAdapter;
 import com.maximum.fastride.views.SlidingTabLayout;
 
-public class TutorialActivity extends ActionBarActivity
+public class TutorialActivity extends BaseActivity
         implements ActionBar.TabListener{
 
     TutorialTabsAdapter mAppSectionsPagerAdapter;
@@ -23,8 +23,7 @@ public class TutorialActivity extends ActionBarActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tutorial);
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.fastride_toolbar);
-        setSupportActionBar(toolbar);
+        setupUI(getResources().getString(R.string.subtitle_activity_tutorial));
 
         titles = getResources().getStringArray(R.array.tutorial_titles);
 

@@ -8,74 +8,96 @@
     tools:context="com.maximum.fastride.MainActivity" >
 
     <!-- The main content view -->
-    <!-- The main content view -->
     <LinearLayout
         android:orientation="vertical"
         android:id="@+id/content_frame"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
-    <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:orientation="horizontal"
-        android:weightSum="1">
-
-        <View
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.3"/>
-
-        <!--<ImageView-->
-            <!--android:layout_width="0dp"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:layout_weight="0.5"-->
-            <!--android:id="@+id/profileImageView"-->
-            <!--android:layout_gravity="center_horizontal" />-->
+        <include
+            layout="@layout/tool_bar" />
 
         <LinearLayout
-            android:layout_width="0dp"
+            android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:layout_weight="0.7"
-            android:orientation="vertical"
+            android:orientation="horizontal"
             android:weightSum="1">
 
-            <Button
-                android:layout_width="110dp"
-                android:layout_height="110dp"
-                android:background="@drawable/round_button"
-                android:text="@string/btnDriverText"
-                android:id="@+id/btnDriver"
-                android:textColor="@color/white"
-                android:onClick="onDriverClicked"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="20dp" />
+            <View
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.3"/>
 
-            <Button
-                android:layout_width="110dp"
-                android:layout_height="110dp"
-                android:background="@drawable/round_button"
-                android:text="@string/btnPassengerText"
-                android:id="@+id/btnPassenger"
-                android:textColor="@color/white"
-                android:onClick="onPassengerClicked"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="20dp" />
+            <!--<ImageView-->
+                <!--android:layout_width="0dp"-->
+                <!--android:layout_height="wrap_content"-->
+                <!--android:layout_weight="0.5"-->
+                <!--android:id="@+id/profileImageView"-->
+                <!--android:layout_gravity="center_horizontal" />-->
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="fill_parent"
+                android:layout_weight="0.7"
+                android:orientation="vertical"
+                android:weightSum="1">
+
+                <!--<Button-->
+                    <!--android:layout_width="110dp"-->
+                    <!--android:layout_height="110dp"-->
+                    <!--android:background="@drawable/round_button"-->
+                    <!--android:text="@string/btnDriverText"-->
+                    <!--android:id="@+id/btnDriver"-->
+                    <!--android:textColor="@color/white"-->
+                    <!--android:onClick="onDriverClicked"-->
+                    <!--android:layout_gravity="center_horizontal"-->
+                    <!--android:layout_marginTop="20dp" />-->
+
+                <Button
+                    android:layout_width="110dp"
+                    android:layout_height="110dp"
+                    android:background="@drawable/ic_driver"
+                    android:textColor="@color/white"
+                    android:id="@+id/btnDriver"
+                    android:onClick="onDriverClicked"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="20dp" />
+
+                <!--<Button-->
+                    <!--android:layout_width="110dp"-->
+                    <!--android:layout_height="110dp"-->
+                    <!--android:background="@drawable/round_button"-->
+                    <!--android:text="@string/btnPassengerText"-->
+                    <!--android:id="@+id/btnPassenger"-->
+                    <!--android:textColor="@color/white"-->
+                    <!--android:onClick="onPassengerClicked"-->
+                    <!--android:layout_gravity="center_horizontal"-->
+                    <!--android:layout_marginTop="20dp" />-->
+
+                <Button
+                    android:layout_width="110dp"
+                    android:layout_height="110dp"
+                    android:background="@drawable/ic_passenger"
+                    android:textColor="@color/white"
+                    android:id="@+id/btnPassenger"
+                    android:onClick="onPassengerClicked"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginTop="20dp" />
+
+            </LinearLayout>
 
         </LinearLayout>
 
-
-     </LinearLayout>
     </LinearLayout>
 
     <!-- The navigation drawer -->
-    <ListView android:id="@+id/left_drawer"
-        android:layout_width="240dp"
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/left_drawer"
+        android:layout_width="@dimen/navdrawer_width"
         android:layout_height="match_parent"
+        android:layout_marginTop="?attr/actionBarSize"
         android:layout_gravity="start"
-        android:choiceMode="singleChoice"
-        android:divider="@android:color/transparent"
-        android:dividerHeight="0dp"
-        android:background="#111"/>
+        android:background="?attr/colorPrimaryDark"
+        android:scrollbars="vertical" />
 
 </android.support.v4.widget.DrawerLayout>

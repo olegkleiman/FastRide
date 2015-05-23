@@ -5,31 +5,22 @@ import android.content.ContentQueryMap;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.graphics.Color;
-import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.preference.PreferenceManager;
 import android.support.v4.app.ActionBarDrawerToggle;
-import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Toast;
 
 import com.facebook.Settings;
 import com.google.gson.JsonObject;
 import com.maximum.fastride.gcm.GCMHandler;
-import com.maximum.fastride.model.User;
 import com.maximum.fastride.utils.Globals;
-import com.maximum.fastride.utils.RoundedDrawable;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceAuthenticationProvider;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceUser;
@@ -46,7 +37,7 @@ import java.util.concurrent.ExecutionException;
 //import org.apache.commons.codec.digest.DigestUtils;
 
 
-public class MainActivity extends ActionBarActivity {
+public class MainActivity extends BaseActivity {// ActionBarActivity {
 
     static final int REGISTER_USER_REQUEST = 1;
 
@@ -54,11 +45,13 @@ public class MainActivity extends ActionBarActivity {
 
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
-    private ListView mDrawerList;
+    RecyclerView mDrawerRecyclerView;
     private String[] mDrawerTitles;
-
-    private CharSequence mDrawerTitle;
-    private CharSequence mTitle;
+    protected int DRAWER_ICONS[] = {
+            R.drawable.ic_action_myrides,
+            R.drawable.ic_action_rating,
+            R.drawable.ic_action_tutorial,
+            R.drawable.ic_action_about};
 
     public static MobileServiceClient wamsClient;
 
@@ -67,29 +60,30 @@ public class MainActivity extends ActionBarActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
-        if (Globals.DEVELOPER_MODE) {
-            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
-                    .detectDiskReads()
-                    .detectDiskWrites()
-                    .detectNetwork()
-                    .penaltyLog()
-                    .build());
-
-            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
-                    .detectActivityLeaks()
-                    .detectLeakedSqlLiteObjects()
-                    .detectLeakedClosableObjects()
-                    .penaltyLog()
-                    .build());
-        }
+//        if (Globals.DEVELOPER_MODE) {
+//            StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder()
+//                    .detectDiskReads()
+//                    .detectDiskWrites()
+//                    .detectNetwork()
+//                    .penaltyLog()
+//                    .build());
+//
+//            StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder()
+//                    .detectActivityLeaks()
+//                    .detectLeakedSqlLiteObjects()
+//                    .detectLeakedClosableObjects()
+//                    .penaltyLog()
+//                    .build());
+//        }
 
         // Needed for FB HashKey registration
         String hashKey = Settings.getApplicationSignature(this);
 
         super.onCreate(savedInstanceState);
         Log.i(LOG_TAG, "onCreate");
+
         setContentView(R.layout.activity_main);
-        setupView();
+        setupUI("");
 
         // Intended to be executed only once per app life-time
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -126,50 +120,7 @@ public class MainActivity extends ActionBarActivity {
 //        }
 
         setContentView(R.layout.activity_main);
-        setupView();
-
-    }
-
-    private void setupView(){
-        mTitle = mDrawerTitle = getTitle();
-
-        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-        // set a custom shadow that overlays the main content when the drawer opens
-        mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-
-        mDrawerList = (ListView) findViewById(R.id.left_drawer);
-        mDrawerTitles = getResources().getStringArray(R.array.drawers_array);
-
-        // set up the drawer's list view with items and click listener
-        mDrawerList.setAdapter(new ArrayAdapter<String>(this,
-                R.layout.drawer_list_item, mDrawerTitles));
-        mDrawerList.setOnItemClickListener(new DrawerItemClickListener());
-
-        // enable ActionBar app icon to behave as action to toggle nav drawer
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setDisplayHomeAsUpEnabled(true);
-        actionBar.setHomeButtonEnabled(true);
-
-        // ActionBarDrawerToggle ties together the the proper interactions
-        // between the sliding drawer and the action bar app icon
-        mDrawerToggle = new ActionBarDrawerToggle(
-                this,                  /* host Activity */
-                mDrawerLayout,         /* DrawerLayout object */
-                R.drawable.ic_drawer,  /* nav drawer image to replace 'Up' caret */
-                R.string.drawer_open,  /* "open drawer" description for accessibility */
-                R.string.drawer_close  /* "close drawer" description for accessibility */
-        ) {
-            public void onDrawerClosed(View view) {
-                getSupportActionBar().setTitle(mTitle);
-                supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-
-            public void onDrawerOpened(View drawerView) {
-                getSupportActionBar().setTitle(mDrawerTitle);
-                supportInvalidateOptionsMenu(); // creates call to onPrepareOptionsMenu()
-            }
-        };
-        mDrawerLayout.setDrawerListener(mDrawerToggle);
+        setupUI("");
 
     }
 
@@ -263,28 +214,6 @@ public class MainActivity extends ActionBarActivity {
         }
         return new String( hexChars );
     }
-
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.main, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//        int id = item.getItemId();
-//        if (id == R.id.action_settings) {
-//            Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-//            startActivity(intent);
-//
-//            return true;
-//        }
-//        return super.onOptionsItemSelected(item);
-//    }
 
     @Override
     protected void onStart() {

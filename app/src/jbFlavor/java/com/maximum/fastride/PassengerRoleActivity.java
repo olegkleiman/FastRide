@@ -49,7 +49,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class PassengerRoleActivity extends ActionBarActivity
+public class PassengerRoleActivity extends BaseActivity // ActionBarActivity
         implements ITrace,
                    IMessageTarget,
                    Handler.Callback,
@@ -74,6 +74,8 @@ public class PassengerRoleActivity extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_passenger);
+        String subTitle = getResources().getString(R.string.subtitle_activity_passenger_role);
+        setupUI(subTitle);
 
         mTxtStatus = (TextView)findViewById(R.id.txtStatusPassenger);
 

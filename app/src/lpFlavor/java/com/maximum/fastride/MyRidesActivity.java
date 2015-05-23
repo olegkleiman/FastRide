@@ -7,12 +7,14 @@ import android.view.MenuItem;
 
 import com.maximum.fastride.R;
 
-public class MyRidesActivity extends ActionBarActivity {
+public class MyRidesActivity extends BaseActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_rides);
+
+        setupUI(getResources().getString(R.string.subtitle_activity_my_rides));
     }
 
 
@@ -25,16 +27,6 @@ public class MyRidesActivity extends ActionBarActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
         return super.onOptionsItemSelected(item);
     }
 }
