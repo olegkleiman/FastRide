@@ -6,16 +6,40 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.maximum.fastride.MainActivity" >
+    tools:context="com.maximum.fastride.DriverRoleActivity" >
 
 <LinearLayout
-    xmlns:tools="http://schemas.android.com/tools" android:layout_width="match_parent"
+    android:id="@+id/content_frame"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.maximum.fastride.DriverRoleActivity">
+    android:orientation="vertical">
 
     <include
         layout="@layout/tool_bar" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/card_backpanel_height"
+        android:background="?attr/colorPrimary" />
+
+    <LinearLayout
+        android:layout_width="fill_parent"
+        android:layout_height="350dp"
+        android:layout_gravity="center_horizontal"
+        android:background="@color/ColorBackground"
+        android:layout_weight="0.5"
+        android:elevation="8dp"
+        android:layout_marginLeft="@dimen/card_horizontal_margin"
+        android:layout_marginRight="@dimen/card_horizontal_margin"
+        android:layout_marginTop="@dimen/negativeActionBarSize">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/recyclerViewPeers"
+            android:layout_height="match_parent"
+            android:layout_width="fill_parent"
+            android:background="@color/ColorBackground" />
+
+    </LinearLayout>
 
     <TextView android:text="Ride Code"
         android:id="@+id/txtRideCode"
@@ -23,14 +47,6 @@
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:layout_gravity="center_horizontal" />
-
-    <ListView
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/listViewPeers"
-        android:layout_gravity="center_horizontal"
-        android:layout_weight="0.5"
-        android:layout_marginTop="4dp"/>
 
     <Button
         android:layout_width="wrap_content"
@@ -40,27 +56,38 @@
         android:id="@+id/btnSubmitRide"
         android:layout_gravity="center_horizontal" />
 
-    <TextView
-        android:id="@+id/txtMe"
+
+    <LinearLayout
+        android:id="@+id/debugLayout"
+        android:animateLayoutChanges="true"
+        android:orientation="vertical"
+        android:layout_weight="0.5"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
-        android:textStyle="bold"
-        android:text="ME"/>
+        android:visibility="gone">
 
-    <ScrollView
-        android:id="@+id/SCROLLER_ID"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:scrollbars="vertical"
-        android:layout_weight="0.5"
-        android:fillViewport="true">
         <TextView
-            android:id="@+id/txtStatus"
+            android:id="@+id/txtMe"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="start" />
-    </ScrollView>
+            android:gravity="center_vertical"
+            android:textStyle="bold"
+            android:text="ME"/>
+
+        <ScrollView
+            android:id="@+id/SCROLLER_ID"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:scrollbars="vertical"
+            android:fillViewport="true">
+            <TextView
+                android:id="@+id/txtStatus"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="start" />
+        </ScrollView>
+
+    </LinearLayout>
 
 </LinearLayout>
 

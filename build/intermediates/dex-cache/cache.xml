@@ -2,11 +2,25 @@
 <items version="2" >
 
     <item
+        jar="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\exploded-aar\com.android.support\cardview-v7\22.1.1\classes.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="22886d910315028a2b34b1ba068c265534ade87a">
+        <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\lpFlavor\debug\classes-a26cf4da9b321bf63466ba6d690d87ac14ba6758.jar" />
+    </item>
+    <item
         jar="C:\Users\Oleg\.gradle\caches\modules-2\files-2.1\com.google.guava\guava\17.0\9c6ef172e8de35fd8d4d8783e4821e57cdef7445\guava-17.0.jar"
         jumboMode="false"
         revision="22.0.1"
         sha1="9c6ef172e8de35fd8d4d8783e4821e57cdef7445">
         <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\jbFlavor\debug\guava-17.0-1baef9d6ae5ce8288eaa18b66b3b99949adf86cc.jar" />
+    </item>
+    <item
+        jar="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\libs\mobileservices-2.0.1-beta.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="f225d9c34f93107ee9f5e53f329ce3bb0438545c">
+        <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\jbFlavor\debug\mobileservices-2.0.1-beta-2aedba9c6d2b0d8b19322a33c72ddb42d37b95f4.jar" />
     </item>
     <item
         jar="C:\Users\Oleg\.gradle\caches\modules-2\files-2.1\com.google.code.gson\gson\2.3.1\ecb6e1f8e4b0e84c4b886c2f14a1500caf309757\gson-2.3.1.jar"
@@ -44,27 +58,6 @@
         <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\jbFlavor\debug\notifications-1.0.1-19566e11e7f3ac891239793d1748c47048666581.jar" />
     </item>
     <item
-        jar="C:\Users\Oleg\.gradle\caches\modules-2\files-2.1\com.parse.bolts\bolts-android\1.1.2\91c20388c9a45f62b5ed8fe0502bb76ff6251fc7\bolts-android-1.1.2.jar"
-        jumboMode="false"
-        revision="22.0.1"
-        sha1="91c20388c9a45f62b5ed8fe0502bb76ff6251fc7">
-        <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\jbFlavor\debug\bolts-android-1.1.2-bb3d05a707c08a1ad1c2a589cdd2be80bcfbe130.jar" />
-    </item>
-    <item
-        jar="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\exploded-aar\com.android.support\support-v4\22.1.1\libs\internal_impl-22.1.1.jar"
-        jumboMode="false"
-        revision="22.0.1"
-        sha1="9e070ad32b2700b0343e8e0cccc437733d91ba3a">
-        <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\jbFlavor\debug\internal_impl-22.1.1-e85500b88ed09125cd779a80f50ac6b083da692f.jar" />
-    </item>
-    <item
-        jar="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\libs\mobileservices-2.0.1-beta.jar"
-        jumboMode="false"
-        revision="22.0.1"
-        sha1="f225d9c34f93107ee9f5e53f329ce3bb0438545c">
-        <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\jbFlavor\debug\mobileservices-2.0.1-beta-2aedba9c6d2b0d8b19322a33c72ddb42d37b95f4.jar" />
-    </item>
-    <item
         jar="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\exploded-aar\com.microsoft.azure.android\azure-storage-android\0.3.0\classes.jar"
         jumboMode="false"
         revision="22.0.1"
@@ -72,11 +65,25 @@
         <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\jbFlavor\debug\classes-7f84a3a96e4a2dde111da828951ce4a0071c02de.jar" />
     </item>
     <item
+        jar="C:\Users\Oleg\.gradle\caches\modules-2\files-2.1\com.parse.bolts\bolts-android\1.1.2\91c20388c9a45f62b5ed8fe0502bb76ff6251fc7\bolts-android-1.1.2.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="91c20388c9a45f62b5ed8fe0502bb76ff6251fc7">
+        <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\jbFlavor\debug\bolts-android-1.1.2-bb3d05a707c08a1ad1c2a589cdd2be80bcfbe130.jar" />
+    </item>
+    <item
         jar="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\exploded-aar\com.android.support\appcompat-v7\22.1.1\classes.jar"
         jumboMode="false"
         revision="22.0.1"
         sha1="a3ff3c506644c820eb2bdf06e8339f72be578551">
         <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\jbFlavor\debug\classes-990510817acb8fde64f6157883f77add6f8fcf52.jar" />
+    </item>
+    <item
+        jar="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\exploded-aar\com.android.support\support-v4\22.1.1\libs\internal_impl-22.1.1.jar"
+        jumboMode="false"
+        revision="22.0.1"
+        sha1="9e070ad32b2700b0343e8e0cccc437733d91ba3a">
+        <dex dex="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\pre-dexed\jbFlavor\debug\internal_impl-22.1.1-e85500b88ed09125cd779a80f50ac6b083da692f.jar" />
     </item>
     <item
         jar="C:\Users\Oleg\AndroidstudioProjects\FastRide\app\build\intermediates\exploded-aar\com.android.support\support-v4\22.1.1\classes.jar"

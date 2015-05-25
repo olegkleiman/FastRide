@@ -13,22 +13,28 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
-import android.widget.ListView;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.maximum.fastride.adapters.WiFiPeersAdapter;
+import com.maximum.fastride.adapters.WiFiPeersAdapter2;
 import com.maximum.fastride.adapters.WifiP2pDeviceUser;
 import com.maximum.fastride.model.Ride;
 import com.maximum.fastride.utils.ClientSocketHandler;
 import com.maximum.fastride.utils.Globals;
 import com.maximum.fastride.utils.GroupOwnerSocketHandler;
 import com.maximum.fastride.utils.IMessageTarget;
+import com.maximum.fastride.utils.IPeerClickListener;
+import com.maximum.fastride.utils.IRefreshable;
 import com.maximum.fastride.utils.ITrace;
 import com.maximum.fastride.utils.WiFiUtil;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
@@ -46,6 +52,8 @@ public class DriverRoleActivity extends BaseActivity
                 implements ITrace,
                            IMessageTarget,
                            Handler.Callback,
+                           IRefreshable,
+                           IPeerClickListener,
                            WiFiUtil.IPeersChangedListener,
                            WifiP2pManager.PeerListListener,
                            WifiP2pManager.ConnectionInfoListener {
@@ -57,7 +65,8 @@ public class DriverRoleActivity extends BaseActivity
     public static MobileServiceClient wamsClient;
     MobileServiceTable<Ride> ridesTable;
 
-    WiFiPeersAdapter mPeersAdapter;
+    RecyclerView mPeersRecyclerView;
+    WiFiPeersAdapter2 mPeersAdapter;
     public List<WifiP2pDeviceUser> peers = new ArrayList<>();
 
     WiFiUtil wifiUtil;
@@ -81,31 +90,15 @@ public class DriverRoleActivity extends BaseActivity
 
         wamsInit();
 
-        final ListView peersListView = (ListView)findViewById(R.id.listViewPeers);
-        mPeersAdapter = new WiFiPeersAdapter(this, R.layout.row_devices, peers);
-        peersListView.setAdapter(mPeersAdapter);
-        peersListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long l) {
-                WifiP2pDeviceUser device =
-                        (WifiP2pDeviceUser)parent.getItemAtPosition(position);
-
-                if( device.status == WifiP2pDevice.AVAILABLE) {
-                    wifiUtil.connectToDevice(device, 0);
-                } else {
-                    Toast.makeText(DriverRoleActivity.this,
-                                    "Device should be in available state",
-                                    Toast.LENGTH_LONG).show();
-                }
-
-            }
-        });
+        mPeersRecyclerView = (RecyclerView)findViewById(R.id.recyclerViewPeers);
+        mPeersAdapter = new WiFiPeersAdapter2(this, peers);
+        mPeersRecyclerView.setHasFixedSize(true);
+        mPeersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mPeersRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mPeersRecyclerView.setAdapter(mPeersAdapter);
 
         wifiUtil = new WiFiUtil(this);
         wifiUtil.deletePersistentGroups();
-
-        peers.clear();
-        mPeersAdapter.notifyDataSetChanged();
 
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         mUserID = sharedPrefs.getString(Globals.USERIDPREF, "");
@@ -132,6 +125,15 @@ public class DriverRoleActivity extends BaseActivity
     protected void onStop() {
         wifiUtil.removeGroup();
         super.onStop();
+    }
+
+    public void onDebug(View view){
+        LinearLayout layout = (LinearLayout) findViewById(R.id.debugLayout);
+        int visibility = layout.getVisibility();
+        if( visibility == View.VISIBLE )
+            layout.setVisibility(View.GONE);
+        else
+            layout.setVisibility(View.VISIBLE);
     }
 
     @Override
@@ -247,32 +249,61 @@ public class DriverRoleActivity extends BaseActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
+
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_refresh) {
-            item.setActionView(R.layout.action_progress);
-
-            peers.clear();
-            mPeersAdapter.notifyDataSetChanged();
-
-            wifiUtil.startRegistrationAndDiscovery(this, mUserID);
-
-            getHandler().postDelayed(
-                    new Runnable() {
-                        @Override
-                        public void run() {
-                            invalidateOptionsMenu();
-                        }
-                    },
-                    5000);
+        if (id == R.id.action_debug) {
+            onDebug(null);
             return true;
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    //
+    // Implementation of IPeerClickListener
+    //
+    public void clicked(View view, int position) {
+
+        try {
+
+            WifiP2pDeviceUser device = peers.get(position);
+
+            if (device.status == WifiP2pDevice.AVAILABLE) {
+                wifiUtil.connectToDevice(device, 0);
+            } else {
+                Toast.makeText(this,
+                        "Device should be in available state",
+                        Toast.LENGTH_LONG).show();
+            }
+        }
+        catch(Exception ex){
+            Log.e(LOG_TAG, ex.getMessage());
+        }
+    }
+
+    //
+    // Implementation of IRefreshable
+    //
+    public void refresh() {
+        peers.clear();
+        mPeersAdapter.notifyDataSetChanged();
+
+        final ImageButton btnRefresh = (ImageButton)findViewById(R.id.btnRefresh);
+        btnRefresh.setVisibility(View.GONE);
+        final ProgressBar progress_refresh = (ProgressBar)findViewById(R.id.progress_refresh);
+        progress_refresh.setVisibility(View.VISIBLE);
+
+        wifiUtil.startRegistrationAndDiscovery(this, mUserID);
+
+        getHandler().postDelayed(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        btnRefresh.setVisibility(View.VISIBLE);
+                        progress_refresh.setVisibility(View.GONE);
+                    }
+                },
+                5000);
     }
 
     //

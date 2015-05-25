@@ -8,5 +8,8 @@
         <item>Tutorial</item>
         <item>About</item>
     </string-array>
+    <string name="title_activity_test_driver">TestDriverActivity</string>
+
+    <string name="hello_world">Hello world!</string>
 
 </resources>

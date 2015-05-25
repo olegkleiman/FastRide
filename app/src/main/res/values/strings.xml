@@ -33,10 +33,10 @@
     <string name="btnFindRide">Find a ride</string>
 
     <string name="title_activity_driver_role">Fast Ride</string>
-    <string name="subtitle_activity_driver_role">Driver</string>
+    <string name="subtitle_activity_driver_role">Driver Mode</string>
 
     <string name="title_activity_passenger_role">Fast Ride</string>
-    <string name="subtitle_activity_passenger_role">Passenger</string>
+    <string name="subtitle_activity_passenger_role">Passenger Mode</string>
 
     <string name="title_activity_tutorial">Fast Ride</string>
     <string name="subtitle_activity_tutorial">Tutorials</string>
@@ -91,6 +91,7 @@ limitations under the License.</string>
     <string name="driverTabCaption">Driver</string>
     <string name="passengerTabCaption">Passenger</string>
     <string name="action_refresh">Refresh</string>
+    <string name="action_debug">Debug</string>
 
     <string name="passenger_tutorial_fragment">Passenger tutorial</string>
     <string name="driver_tutorial_fragment">Driver tutorial</string>

@@ -13,6 +13,7 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -66,8 +67,13 @@ public class BaseActivity extends ActionBarActivity
             setSupportActionBar(toolbar);
             toolbar.setNavigationIcon(R.drawable.ic_ab_drawer);
 
-            if( !subTitle.isEmpty() )
+            if( !subTitle.isEmpty() ) {
                 toolbar.setSubtitle(subTitle);
+                TextView txtSubTitle = (TextView) findViewById(R.id.toolbar_subtitle);
+                if( txtSubTitle != null )
+                    txtSubTitle.setText(subTitle);
+            }
+
         }
 
         mDrawerRecyclerView = (RecyclerView) findViewById(R.id.left_drawer);

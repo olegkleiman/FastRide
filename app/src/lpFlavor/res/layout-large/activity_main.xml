@@ -15,7 +15,10 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
+        <!-- Override height from original toolbar -->
         <include
+            android:layout_height="164dp"
+            android:layout_width="match_parent"
             layout="@layout/tool_bar" />
 
         <LinearLayout

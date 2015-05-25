@@ -60,13 +60,13 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<DrawerRecyclerAd
 
     View.OnClickListener[] mListeners = new View.OnClickListener[] {
             new View.OnClickListener() {
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(mContext, SettingsActivity.class);
-                    mContext.startActivity(intent);
-                    // mDrawerLayout.closeDrawer(Gravity.START);
-                }
-            },
+        @Override
+        public void onClick(View view) {
+            Intent intent = new Intent(mContext, SettingsActivity.class);
+            mContext.startActivity(intent);
+            // mDrawerLayout.closeDrawer(Gravity.START);
+        }
+    },
             new View.OnClickListener(){
 
                 @Override

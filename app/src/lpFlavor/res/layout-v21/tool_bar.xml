@@ -5,8 +5,37 @@
     android:id="@+id/fastride_toolbar"
     android:layout_height="wrap_content"
     android:layout_width="match_parent"
-    android:elevation="4dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark"
     android:minHeight="?attr/actionBarSize"
     android:background="?attr/colorPrimary">
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_marginRight="12dp"
+        android:orientation="vertical"
+        android:layout_width="fill_parent"
+        android:layout_height="?attr/actionBarSize">
+
+        <TextView
+            android:id="@+id/toolbar_title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="16dp"
+            android:gravity="start"
+            android:text="Fast Ride"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark"
+            android:textSize="20sp"
+            android:layout_gravity="top" />
+
+        <TextView
+            android:id="@+id/toolbar_subtitle"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="start"
+            android:layout_marginStart="16dp"
+            android:theme="@style/ThemeOverlay.AppCompat.Dark"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Welcome 21"/>
+
+    </LinearLayout>
+
 </android.support.v7.widget.Toolbar>
