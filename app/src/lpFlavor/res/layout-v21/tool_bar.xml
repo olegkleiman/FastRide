@@ -33,8 +33,7 @@
             android:gravity="start"
             android:layout_marginStart="16dp"
             android:theme="@style/ThemeOverlay.AppCompat.Dark"
-            android:textAppearance="?android:attr/textAppearanceMedium"
-            android:text="Welcome 21"/>
+            android:textAppearance="?android:attr/textAppearanceMedium"/>
 
     </LinearLayout>
 

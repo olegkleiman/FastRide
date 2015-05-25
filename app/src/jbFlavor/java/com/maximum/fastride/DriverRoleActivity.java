@@ -15,17 +15,24 @@ import android.net.wifi.p2p.WifiP2pManager;
 import android.net.wifi.p2p.nsd.WifiP2pDnsSdServiceInfo;
 import android.net.wifi.p2p.nsd.WifiP2pServiceInfo;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,12 +40,16 @@ import com.google.gson.JsonObject;
 import com.maximum.fastride.R;
 import com.maximum.fastride.adapters.PassengersAdapter;
 import com.maximum.fastride.adapters.WiFiPeersAdapter;
+import com.maximum.fastride.adapters.WiFiPeersAdapter2;
 import com.maximum.fastride.adapters.WifiP2pDeviceUser;
 import com.maximum.fastride.model.Ride;
 import com.maximum.fastride.model.User;
 import com.maximum.fastride.utils.ClientSocketHandler;
+import com.maximum.fastride.utils.FloatingActionButton;
 import com.maximum.fastride.utils.Globals;
 import com.maximum.fastride.utils.GroupOwnerSocketHandler;
+import com.maximum.fastride.utils.IPeerClickListener;
+import com.maximum.fastride.utils.IRefreshable;
 import com.maximum.fastride.utils.ITrace;
 import com.maximum.fastride.utils.WiFiUtil;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
@@ -62,6 +73,8 @@ import java.util.concurrent.ExecutionException;
 public class DriverRoleActivity extends BaseActivity
         implements ITrace,
         Handler.Callback,
+        IRefreshable,
+        IPeerClickListener,
         WiFiUtil.IPeersChangedListener,
         WifiP2pManager.ConnectionInfoListener {
 
@@ -72,12 +85,14 @@ public class DriverRoleActivity extends BaseActivity
     public static MobileServiceClient wamsClient;
     MobileServiceTable<Ride> ridesTable;
 
+    WiFiPeersAdapter2 mPeersAdapter;
+    RecyclerView mPeersRecyclerView;
     public List<WifiP2pDeviceUser> peers = new ArrayList<>();
-    WiFiPeersAdapter mPeersAdapter;
 
     WiFiUtil wifiUtil;
 
     TextView mTxtStatus;
+    String mUserID;
 
     private Handler handler = new Handler(this);
     public Handler getHandler() {
@@ -88,42 +103,37 @@ public class DriverRoleActivity extends BaseActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_role);
-        setupUI(getResources().getString(R.string.subtitle_activity_driver_role));
+        try {
+            setupUI(getResources().getString(R.string.subtitle_activity_driver_role));
+        } catch (Exception ex) {
+            Log.e(LOG_TAG, ex.getMessage());
+        }
 
         mTxtStatus = (TextView)findViewById(R.id.txtStatus);
 
         wamsInit();
 
-        final ListView peersListView = (ListView)findViewById(R.id.listViewPeers);
-        mPeersAdapter = new WiFiPeersAdapter(this, R.layout.row_devices, peers);
-        peersListView.setAdapter(mPeersAdapter);
-        peersListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long l) {
-                WifiP2pDevice device = (WifiP2pDevice) parent.getItemAtPosition(position);
+        mPeersRecyclerView = (RecyclerView)findViewById(R.id.recyclerViewPeers);
+        mPeersAdapter = new WiFiPeersAdapter2(this, peers);
+        mPeersRecyclerView.setHasFixedSize(true);
+        mPeersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mPeersRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mPeersRecyclerView.setAdapter(mPeersAdapter);
 
-                if (device.status == WifiP2pDevice.AVAILABLE) {
-                    wifiUtil.connectToDevice(device, 0);
-                } else {
-                    Toast.makeText(DriverRoleActivity.this,
-                            "Device should be in connected state",
-                            Toast.LENGTH_LONG).show();
-                }
-
-            }
-        });
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.submit_ride_button);
+            fab.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_done));
+            fab.setBackgroundColor(getResources().getColor(R.color.ColorAccent));
+        }
 
         wifiUtil = new WiFiUtil(this);
         wifiUtil.deletePersistentGroups();
 
-        peers.clear();
-        mPeersAdapter.notifyDataSetChanged();
-
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        String userID = sharedPrefs.getString(Globals.USERIDPREF, "");
+        mUserID = sharedPrefs.getString(Globals.USERIDPREF, "");
 
         // This will publish the service in DNS-SD and start serviceDiscovery()
-        wifiUtil.startRegistrationAndDiscovery(this, userID);
+        wifiUtil.startRegistrationAndDiscovery(this, mUserID);
 
     }
 
@@ -230,6 +240,16 @@ public class DriverRoleActivity extends BaseActivity
         super.onStop();
     }
 
+    public void onDebug(View view){
+        LinearLayout layout = (LinearLayout) findViewById(R.id.debugLayout);
+        int visibility = layout.getVisibility();
+        if( visibility == View.VISIBLE )
+            layout.setVisibility(View.GONE);
+        else
+            layout.setVisibility(View.VISIBLE);
+    }
+
+
     @Override
     public boolean handleMessage(Message msg) {
 
@@ -260,13 +280,9 @@ public class DriverRoleActivity extends BaseActivity
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
+        if (id == R.id.action_debug) {
+            onDebug(null);
             return true;
         }
 
@@ -300,6 +316,53 @@ public class DriverRoleActivity extends BaseActivity
         builder.setMessage("Enable Wi-Fi on your device?")
                 .setPositiveButton("Yes", dialogClickListener)
                 .setNegativeButton("No", dialogClickListener).show();
+    }
+
+    //
+    // Implementation of IPeerClickListener
+    //
+    public void clicked(View view, int position) {
+
+        try {
+
+            WifiP2pDeviceUser device = peers.get(position);
+
+            if (device.status == WifiP2pDevice.AVAILABLE) {
+                wifiUtil.connectToDevice(device, 0);
+            } else {
+                Toast.makeText(this,
+                        "Device should be in available state",
+                        Toast.LENGTH_LONG).show();
+            }
+        }
+        catch(Exception ex){
+            Log.e(LOG_TAG, ex.getMessage());
+        }
+    }
+
+    //
+    // Implementation of IRefreshable
+    //
+    public void refresh() {
+        peers.clear();
+        mPeersAdapter.notifyDataSetChanged();
+
+        final ImageButton btnRefresh = (ImageButton)findViewById(R.id.btnRefresh);
+        btnRefresh.setVisibility(View.GONE);
+        final ProgressBar progress_refresh = (ProgressBar)findViewById(R.id.progress_refresh);
+        progress_refresh.setVisibility(View.VISIBLE);
+
+        wifiUtil.startRegistrationAndDiscovery(this, mUserID);
+
+        getHandler().postDelayed(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        btnRefresh.setVisibility(View.VISIBLE);
+                        progress_refresh.setVisibility(View.GONE);
+                    }
+                },
+                5000);
     }
 
     //

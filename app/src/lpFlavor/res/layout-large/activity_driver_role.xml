@@ -22,7 +22,7 @@
         android:layout_height="@dimen/card_backpanel_height"
         android:background="?attr/colorPrimary" />
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="fill_parent"
         android:layout_height="350dp"
         android:layout_gravity="center_horizontal"
@@ -39,7 +39,20 @@
             android:layout_width="fill_parent"
             android:background="@color/ColorBackground" />
 
-    </LinearLayout>
+        <com.maximum.fastride.utils.FloatingActionButton
+            android:id="@+id/submit_ride_button"
+            android:layout_width="@dimen/diameter"
+            android:layout_height="@dimen/diameter"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="16dp"
+            android:textSize="24sp"
+            android:onClick="onButtonSubmitRide"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentEnd="true"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="16dp" />
+
+    </RelativeLayout>
 
     <TextView android:text="Ride Code"
         android:id="@+id/txtRideCode"
@@ -48,13 +61,13 @@
         android:textAppearance="?android:attr/textAppearanceLarge"
         android:layout_gravity="center_horizontal" />
 
-    <Button
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/btnSubmitText"
-        android:onClick="onButtonSubmitRide"
-        android:id="@+id/btnSubmitRide"
-        android:layout_gravity="center_horizontal" />
+    <!--<Button-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="@string/btnSubmitText"-->
+        <!--android:onClick="onButtonSubmitRide"-->
+        <!--android:id="@+id/btnSubmitRide"-->
+        <!--android:layout_gravity="center_horizontal" />-->
 
 
     <LinearLayout

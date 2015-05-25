@@ -18,8 +18,7 @@
         <activity android:name="com.maximum.fastride.DriverRoleActivity"
             android:label="@string/title_activity_driver_role"
             android:theme="@style/AppTheme"
-            android:parentActivityName="com.maximum.fastride.MainActivity"
-            >
+            android:parentActivityName="com.maximum.fastride.MainActivity">
         </activity>
 
         <activity android:name="com.maximum.fastride.SettingsActivity"

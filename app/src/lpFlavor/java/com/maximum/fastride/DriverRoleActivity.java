@@ -9,6 +9,7 @@ import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -30,6 +31,7 @@ import com.maximum.fastride.adapters.WiFiPeersAdapter2;
 import com.maximum.fastride.adapters.WifiP2pDeviceUser;
 import com.maximum.fastride.model.Ride;
 import com.maximum.fastride.utils.ClientSocketHandler;
+import com.maximum.fastride.utils.FloatingActionButton;
 import com.maximum.fastride.utils.Globals;
 import com.maximum.fastride.utils.GroupOwnerSocketHandler;
 import com.maximum.fastride.utils.IMessageTarget;
@@ -96,6 +98,12 @@ public class DriverRoleActivity extends BaseActivity
         mPeersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mPeersRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mPeersRecyclerView.setAdapter(mPeersAdapter);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.submit_ride_button);
+            fab.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_done));
+            fab.setBackgroundColor(getResources().getColor(R.color.ColorAccent));
+        }
 
         wifiUtil = new WiFiUtil(this);
         wifiUtil.deletePersistentGroups();

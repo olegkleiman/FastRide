@@ -35,23 +35,24 @@
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/recyclerViewPeers"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_width="match_parent"
             android:scrollbars="vertical"/>
 
-        <com.maximum.fastride.utils.FloatingActionButton
-            android:id="@+id/submit_ride_button"
+        <ImageButton
+            android:id="@+id/add_button"
             android:layout_width="@dimen/diameter"
             android:layout_height="@dimen/diameter"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="16dp"
-            android:textSize="24sp"
+            android:background="@drawable/oval_ripple"
+            android:tint="@android:color/white"
+            android:stateListAnimator="@anim/button_elevation"
+            android:elevation="@dimen/elevation_high"
+            android:src="@android:drawable/ic_input_add"
+            android:layout_gravity="end|bottom"
             android:onClick="onButtonSubmitRide"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_alignParentRight="true"
+            android:layout_alignBottom="@+id/recyclerViewPeers"
+            android:layout_alignEnd="@+id/recyclerViewPeers"
             android:layout_marginEnd="16dp"
-            android:layout_marginRight="16dp"
             android:layout_marginBottom="16dp" />
 
     </RelativeLayout>
@@ -62,6 +63,14 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center_horizontal" />
+
+    <!--<Button-->
+        <!--android:layout_width="wrap_content"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="@string/btnSubmitText"-->
+        <!--android:onClick="onButtonSubmitRide"-->
+        <!--android:id="@+id/btnSubmitRide"-->
+        <!--android:layout_gravity="center_horizontal" />-->
 
     <LinearLayout
         android:id="@+id/debugLayout"
