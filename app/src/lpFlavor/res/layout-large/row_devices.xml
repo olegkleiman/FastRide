@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:ignore="MissingPrefix"
     app:cardElevation="4dp"
     app:cardCornerRadius="6dp"
     android:layout_marginTop="8dp"
@@ -30,6 +32,15 @@
                 android:id="@+id/userPicture"
                 android:src="@drawable/ic_launcher"/>
 
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/imgStatus"
+                android:src="@drawable/question24"
+                android:layout_gravity="center_vertical"
+                android:layout_marginTop="12dp"
+                android:layout_marginLeft="-16dp" />
+
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="fill_parent"
@@ -38,6 +49,7 @@
                 android:layout_gravity="center_vertical">
 
             <TextView
+                fontPath="fonts/Roboto-Regular.ttf"
                  android:layout_height="wrap_content"
                  android:layout_width="match_parent"
                  android:textAppearance="?android:attr/textAppearanceMedium"
@@ -45,20 +57,14 @@
                  android:gravity="center_vertical"/>
 
             <TextView
-                android:id="@+id/device_details"
-                android:layout_width="fill_parent"
-                android:layout_height="0dip"
-                android:layout_weight="1"
-                android:singleLine="true"
-                android:ellipsize="marquee"/>
+                 fontPath="fonts/Roboto-Regular.ttf"
+                 android:id="@+id/device_details"
+                 android:layout_width="fill_parent"
+                 android:layout_height="0dip"
+                 android:layout_weight="1"
+                 android:singleLine="true"
+                 android:ellipsize="marquee"/>
 
-            <TextView
-                android:id="@+id/device_status"
-                android:layout_width="fill_parent"
-                android:layout_height="0dip"
-                android:layout_weight="1"
-                android:singleLine="true"
-                android:ellipsize="marquee"/>
 
             </LinearLayout>
 

@@ -68,7 +68,6 @@ public class WiFiPeersAdapter extends ArrayAdapter<WifiP2pDeviceUser> {
 
             holder.deviceName = (TextView)row.findViewById(R.id.device_name);
             holder.deviceDetails = (TextView)row.findViewById(R.id.device_details);
-            holder.deviceStatus = (TextView)row.findViewById(R.id.device_status);
             holder.userPicture = (ImageView)row.findViewById(R.id.userPicture);
 
             row.setTag(holder);

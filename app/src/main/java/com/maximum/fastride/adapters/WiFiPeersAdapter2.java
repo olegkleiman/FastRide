@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.maximum.fastride.R;
@@ -26,7 +27,7 @@ import java.util.List;
 import java.util.concurrent.ExecutionException;
 
 /**
- * Created by Oleg on 23-May-15.
+ * Created by Oleg Kleiman on 23-May-15.
  */
 public class WiFiPeersAdapter2 extends RecyclerView.Adapter<WiFiPeersAdapter2.ViewHolder>{
 
@@ -42,6 +43,7 @@ public class WiFiPeersAdapter2 extends RecyclerView.Adapter<WiFiPeersAdapter2.Vi
     public WiFiPeersAdapter2(Context context,
                              List<WifiP2pDeviceUser> objects){
         mContext = context;
+        mContext.getResources();
         items = objects;
     }
 
@@ -74,7 +76,9 @@ public class WiFiPeersAdapter2 extends RecyclerView.Adapter<WiFiPeersAdapter2.Vi
                     inflate(R.layout.row_devices, parent, false);
         }
 
-        return new ViewHolder((IPeerClickListener)mContext, v, viewType, listener);
+        return new ViewHolder(mContext,
+                            (IPeerClickListener)mContext,
+                            v, viewType, listener);
 
     }
 
@@ -87,7 +91,8 @@ public class WiFiPeersAdapter2 extends RecyclerView.Adapter<WiFiPeersAdapter2.Vi
 
             holder.deviceName.setText(device.deviceName);
             holder.deviceDetails.setText(device.deviceAddress);
-            holder.deviceStatus.setText(getDeviceStatus(device.status));
+            //holder.deviceStatus.setText(getDeviceStatus(device.status));
+            holder.setImageStatus(device.status);
 
             String userId = device.getUserId();
             String pictureURL = getUserPictureURL(userId);
@@ -192,9 +197,14 @@ public class WiFiPeersAdapter2 extends RecyclerView.Adapter<WiFiPeersAdapter2.Vi
         TextView deviceDetails;
         TextView deviceStatus;
         ImageView userPicture;
-        LinearLayout rowLayout;
+        RelativeLayout rowLayout;
+        ImageView imageStatus;
 
-        public ViewHolder(IPeerClickListener clickListener,
+        Drawable drawableAvailable;
+        Drawable drawableConnected;
+
+        public ViewHolder(Context context,
+                          IPeerClickListener clickListener,
                           View itemLayoutView,
                           int viewType,
                           View.OnClickListener listener) {
@@ -212,10 +222,14 @@ public class WiFiPeersAdapter2 extends RecyclerView.Adapter<WiFiPeersAdapter2.Vi
 
                 deviceName = (TextView) itemLayoutView.findViewById(R.id.device_name);
                 deviceDetails = (TextView) itemLayoutView.findViewById(R.id.device_details);
-                deviceStatus = (TextView) itemLayoutView.findViewById(R.id.device_status);
                 userPicture = (ImageView) itemLayoutView.findViewById(R.id.userPicture);
-                rowLayout = (LinearLayout)itemLayoutView.findViewById(R.id.device_row);
+                rowLayout = (RelativeLayout)itemLayoutView.findViewById(R.id.device_row);
+                imageStatus = (ImageView) itemLayoutView.findViewById(R.id.imgStatus);
                 rowLayout.setOnClickListener(this);
+
+                drawableAvailable = context.getResources().getDrawable(R.drawable.ic_action_disconnected);
+                drawableConnected = context.getResources().getDrawable(R.drawable.accept_24);
+
             }
 
         }
@@ -226,6 +240,29 @@ public class WiFiPeersAdapter2 extends RecyclerView.Adapter<WiFiPeersAdapter2.Vi
             --position; // header starts at position 0
             if( mClickListener != null ) {
                 mClickListener.clicked(v, position);
+            }
+        }
+
+        public void setImageStatus(int deviceStatus) {
+
+            Drawable drawable;
+
+            switch (deviceStatus) {
+                case WifiP2pDevice.AVAILABLE:
+                    drawable = drawableAvailable;
+                    break;
+                case WifiP2pDevice.CONNECTED:
+                    drawable = drawableConnected;
+                    break;
+
+                default:
+                    drawable = null;
+
+            }
+
+            if( drawable != null
+                    && imageStatus != null ) {
+                imageStatus.setImageDrawable(drawable);
             }
         }
     }
