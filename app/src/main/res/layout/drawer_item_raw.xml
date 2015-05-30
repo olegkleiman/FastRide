@@ -4,34 +4,35 @@
     android:layout_height="wrap_content"
     android:orientation="vertical">
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:paddingTop="8dp"
-    android:paddingBottom="8dp"
-    android:layout_height="wrap_content"
-    android:background="?attr/colorPrimaryDark"
-    android:orientation="horizontal">
-
-    <ImageView
-        android:layout_width="48dp"
-        android:layout_height="48dp"
-        android:id="@+id/rowIcon"
-        android:paddingStart="16dp"
-        android:paddingLeft="16dp"
-        android:src="@drawable/ic_action_about"
-        android:layout_gravity="center_vertical" />
-
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="fill_parent"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
         android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Medium Text"
-        android:id="@+id/rowText"
-        android:layout_gravity="center_vertical"
-        android:layout_marginStart="6dp"
-        android:layout_marginLeft="6dp"
-        android:textColor="#ffffff" />
-</LinearLayout>
+        android:background="?attr/colorPrimaryDark"
+        android:orientation="horizontal">
+
+        <ImageView
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:id="@+id/rowIcon"
+            android:paddingStart="16dp"
+            android:paddingLeft="16dp"
+            android:src="@drawable/ic_action_about"
+            android:layout_gravity="center_vertical" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="Medium Text"
+            android:id="@+id/rowText"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="6dp"
+            android:layout_marginLeft="6dp"
+            android:textColor="#ffffff" />
+
+    </LinearLayout>
 
     <View style="@style/Divider"/>
 

@@ -35,14 +35,7 @@
     </RelativeLayout>
 
     <!-- The navigation drawer -->
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/left_drawer"
-        android:layout_width="@dimen/navdrawer_width"
-        android:layout_height="match_parent"
-        android:layout_marginTop="?attr/actionBarSize"
-        android:layout_gravity="start"
-        android:background="?attr/colorPrimaryDark"
-        android:scrollbars="vertical" />
-
+    <include
+        layout="@layout/nav_drawer" />
 
 </android.support.v4.widget.DrawerLayout>

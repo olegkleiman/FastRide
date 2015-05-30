@@ -51,15 +51,14 @@
         <item>My rides</item>
         <item>Rating</item>
         <item>Tutorial</item>
-        <item>About</item>
     </string-array>
 
-    <string-array name="drawers_array">
-        <item>My rides</item>
-        <item>Rating</item>
-        <item>Tutorial</item>
-        <item>About</item>
-    </string-array>
+    <!--<string-array name="drawers_array">-->
+        <!--<item>My rides</item>-->
+        <!--<item>Rating</item>-->
+        <!--<item>Tutorial</item>-->
+        <!--<item>About</item>-->
+    <!--</string-array>-->
 
     <string-array name="tutorial_titles">
         <item>Intro</item>

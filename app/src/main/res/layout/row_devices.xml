@@ -47,7 +47,7 @@
                 android:orientation="vertical"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginLeft="12dp"
+                android:layout_marginStart="12dp"
                 android:layout_gravity="center_vertical"
                 android:layout_alignParentTop="true"
                 android:layout_toEndOf="@+id/userPicture"
@@ -71,7 +71,6 @@
                     android:layout_weight="1"
                     android:singleLine="true"
                     android:ellipsize="marquee"/>
-
 
             </LinearLayout>
 

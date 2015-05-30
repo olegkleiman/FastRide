@@ -34,12 +34,25 @@
 
     </LinearLayout>
 
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Submit"
-            android:onClick="onSubmit"
-            android:id="@+id/btnPassengerSubmit" />
+    <com.maximum.fastride.utils.FloatingActionButton
+        android:id="@+id/btnPassengerSubmit"
+        android:layout_width="@dimen/diameter"
+        android:layout_height="@dimen/diameter"
+        android:layout_gravity="bottom|end"
+        android:layout_margin="16dp"
+        android:textSize="24sp"
+        android:onClick="onSubmit"
+        android:layout_marginEnd="16dp"
+        android:layout_marginBottom="16dp" />
+
+    <LinearLayout
+        android:id="@+id/debugLayout"
+        android:animateLayoutChanges="true"
+        android:orientation="vertical"
+        android:layout_weight="0.5"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone">
 
         <TextView
             android:id="@+id/txtPassengerMe"
@@ -50,28 +63,26 @@
             android:text="ME"/>
 
         <ScrollView
-        android:id="@+id/SCROLLER_ID"
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent"
-        android:scrollbars="vertical"
-        android:layout_weight="0.5"
-        android:fillViewport="true">
-        <TextView
-            android:id="@+id/txtStatusPassenger"
+            android:id="@+id/SCROLLER_ID"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content" />
-    </ScrollView>
+            android:layout_height="fill_parent"
+            android:scrollbars="vertical"
+            android:layout_weight="0.5"
+            android:fillViewport="true">
+
+            <TextView
+                android:id="@+id/txtStatusPassenger"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content" />
+
+        </ScrollView>
+
+    </LinearLayout>
 
     </LinearLayout>
 
     <!-- The navigation drawer -->
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/left_drawer"
-        android:layout_width="@dimen/navdrawer_width"
-        android:layout_height="match_parent"
-        android:layout_marginTop="?attr/actionBarSize"
-        android:layout_gravity="start"
-        android:background="?attr/colorPrimaryDark"
-        android:scrollbars="vertical" />
+    <include
+        layout="@layout/nav_drawer" />
 
 </android.support.v4.widget.DrawerLayout>

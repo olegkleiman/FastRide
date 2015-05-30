@@ -23,7 +23,7 @@ public class SettingsActivity extends BaseActivity {
         String subTitle = getResources().getString(R.string.subtitle_activity_settings);
         setupUI(subTitle);
 
-        View addButton = findViewById(R.id.add_button);
+        View addButton = findViewById(R.id.add_car_button);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
             addButton.setOutlineProvider(new ViewOutlineProvider() {
                 public void getOutline(View view, Outline outline) {

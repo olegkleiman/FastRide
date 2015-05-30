@@ -15,85 +15,41 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
-        <!-- Override height from original toolbar -->
         <include
             layout="@layout/tool_bar" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/card_backpanel_height"
+            android:background="?attr/colorPrimary" />
+
+        <ImageView
+            android:layout_width="128dp"
+            android:layout_height="@dimen/avatar_size"
+            android:src="@drawable/ic_action_car"
+            android:layout_marginEnd="@dimen/avatar_margin_end"
+            android:layout_marginTop="@dimen/avatar_margin_top"
+            android:id="@+id/userAvatarView"
+            android:layout_gravity="end"/>
 
         <LinearLayout
             xmlns:tools="http://schemas.android.com/tools"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="horizontal"
-            android:weightSum="1">
+            android:layout_marginStart="16dp"
+            android:orientation="vertical">
 
-
-        <ImageView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.5"
-            android:id="@+id/profileImageView"
-            android:layout_gravity="center_horizontal" />
-
-        <LinearLayout
-            android:layout_width="0dp"
-            android:layout_height="fill_parent"
-            android:layout_weight="0.5"
-            android:orientation="vertical"
-            android:weightSum="1">
-
-            <!--Thanks to Icons8 for the <a href="https://icons8.com/web-app/5620/Driver">Passenger icon</a>            -->
-            <Button
-                android:layout_width="140dp"
-                android:layout_height="140dp"
-                android:background="@drawable/ic_driver"
-                android:textColor="@color/white"
-                android:id="@+id/btnDriver"
-                android:onClick="onDriverClicked"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="20dp" />
-
-            <!--Thanks to Icons8 for the <a href="https://icons8.com/web-app/5620/Passenger">Passenger icon</a>            -->
-            <Button
-                android:layout_width="140dp"
-                android:layout_height="140dp"
-                android:background="@drawable/ic_passenger"
-                android:textColor="@color/white"
-                android:id="@+id/btnPassenger"
-                android:onClick="onPassengerClicked"
-                android:layout_gravity="center_horizontal"
-                android:layout_marginTop="20dp" />
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerViewModes"
+                android:layout_height="fill_parent"
+                android:layout_width="match_parent"/>
 
         </LinearLayout>
-
-
-     </LinearLayout>
 
     </LinearLayout>
 
     <!-- The navigation drawer -->
-    <!--<LinearLayout-->
-        <!--android:layout_width="240dp"-->
-        <!--android:layout_height="match_parent"-->
-        <!--android:layout_gravity="left|start"-->
-        <!--android:fitsSystemWindows="true">-->
-
-        <!--<ListView android:id="@+id/left_drawer"-->
-            <!--android:layout_width="240dp"-->
-            <!--android:layout_height="match_parent"-->
-            <!--android:layout_gravity="start"-->
-            <!--android:choiceMode="singleChoice"-->
-            <!--android:divider="@android:color/transparent"-->
-            <!--android:dividerHeight="0dp"-->
-            <!--android:background="#111"/>-->
-
-    <!--</LinearLayout>-->
-
-    <android.support.v7.widget.RecyclerView
-        android:id="@+id/left_drawer"
-        android:layout_width="320dp"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:background="?attr/colorPrimaryDark"
-        android:scrollbars="vertical" />
+    <include
+        layout="@layout/nav_drawer" />
 
 </android.support.v4.widget.DrawerLayout>

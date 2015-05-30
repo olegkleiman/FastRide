@@ -16,6 +16,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.maximum.fastride.AboutActivity;
+import com.maximum.fastride.MainActivity;
 import com.maximum.fastride.MyRidesActivity;
 import com.maximum.fastride.R;
 import com.maximum.fastride.SettingsActivity;
@@ -28,7 +29,7 @@ import java.util.concurrent.ExecutionException;
 /**
  * Created by Oleg Kleiman on 25-Apr-15.
  */
-public class DrawerRecyclerAdapter extends RecyclerView.Adapter<DrawerRecyclerAdapter.ViewHolder>{
+public class DrawerAccountAdapter extends RecyclerView.Adapter<DrawerAccountAdapter.ViewHolder>{
 
     private static final String LOG_TAG = "FR.DrawerAdapter";
 
@@ -43,7 +44,7 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<DrawerRecyclerAd
     private String mEmail;
     private String mPictureURL;
 
-    public DrawerRecyclerAdapter(Context context,
+    public DrawerAccountAdapter(Context context,
                                  String[] titles,
                                  int[] icons,
                                  String name,
@@ -59,21 +60,27 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<DrawerRecyclerAd
     }
 
     View.OnClickListener[] mListeners = new View.OnClickListener[] {
+
             new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-            Intent intent = new Intent(mContext, SettingsActivity.class);
-            mContext.startActivity(intent);
-            // mDrawerLayout.closeDrawer(Gravity.START);
-        }
-    },
-            new View.OnClickListener(){
+                @Override
+                public void onClick(View view){
+                    Intent intent = new Intent(mContext, SettingsActivity.class);
+                    mContext.startActivity(intent);
+                }
+            },
+            new View.OnClickListener() {
+                @Override
+                public void onClick(View view){
+                    Intent intent = new Intent(mContext, MainActivity.class);
+                    mContext.startActivity(intent);
+                }
+            },
+            new View.OnClickListener() {
 
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(mContext, MyRidesActivity.class);
                     mContext.startActivity(intent);
-                    // mDrawerLayout.closeDrawer(Gravity.START);
                 }
             },
             new View.OnClickListener(){
@@ -90,15 +97,6 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<DrawerRecyclerAd
                 @Override
                 public void onClick(View view) {
                     Intent intent = new Intent(mContext, TutorialActivity.class);
-                    mContext.startActivity(intent);
-                    // mDrawerLayout.closeDrawer(Gravity.START);
-                }
-            },
-            new View.OnClickListener(){
-
-                @Override
-                public void onClick(View view) {
-                    Intent intent = new Intent(mContext, AboutActivity.class);
                     mContext.startActivity(intent);
                     // mDrawerLayout.closeDrawer(Gravity.START);
                 }
@@ -201,9 +199,6 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<DrawerRecyclerAd
                 imageProfile = (ImageView) itemLayoutView.findViewById(R.id.circleView);
 
                 if( listener != null ) {
-                    txtName.setOnClickListener(listener);
-                    imageProfile.setOnClickListener(listener);
-                    txtEmail.setOnClickListener(listener);
                     itemLayoutView.setOnClickListener(listener);
                 }
 
@@ -214,8 +209,7 @@ public class DrawerRecyclerAdapter extends RecyclerView.Adapter<DrawerRecyclerAd
                 rowImageView = (ImageView) itemLayoutView.findViewById(R.id.rowIcon);
 
                 if( listener != null ) {
-                    rowTextView.setOnClickListener(listener);
-                    rowImageView.setOnClickListener(listener);
+                    itemLayoutView.setOnClickListener(listener);
                 }
 
                 holderId = viewType;

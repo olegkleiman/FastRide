@@ -19,7 +19,7 @@ import android.widget.TextView;
 import com.maximum.fastride.R;
 import com.maximum.fastride.SettingsActivity;
 import com.maximum.fastride.utils.Globals;
-import com.maximum.fastride.utils.IPeerClickListener;
+import com.maximum.fastride.utils.IRecyclerClickListener;
 import com.maximum.fastride.utils.IRefreshable;
 import com.maximum.fastride.utils.RoundedDrawable;
 
@@ -77,7 +77,7 @@ public class WiFiPeersAdapter2 extends RecyclerView.Adapter<WiFiPeersAdapter2.Vi
         }
 
         return new ViewHolder(mContext,
-                            (IPeerClickListener)mContext,
+                            (IRecyclerClickListener)mContext,
                             v, viewType, listener);
 
     }
@@ -187,7 +187,7 @@ public class WiFiPeersAdapter2 extends RecyclerView.Adapter<WiFiPeersAdapter2.Vi
             implements View.OnClickListener{
 
         int holderId;
-        IPeerClickListener mClickListener;
+        IRecyclerClickListener mClickListener;
 
         // Header views
         ImageButton btnRefresh;
@@ -204,7 +204,7 @@ public class WiFiPeersAdapter2 extends RecyclerView.Adapter<WiFiPeersAdapter2.Vi
         Drawable drawableConnected;
 
         public ViewHolder(Context context,
-                          IPeerClickListener clickListener,
+                          IRecyclerClickListener clickListener,
                           View itemLayoutView,
                           int viewType,
                           View.OnClickListener listener) {

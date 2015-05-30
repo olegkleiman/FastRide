@@ -1,5 +1,7 @@
 package com.maximum.fastride;
 
+import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v4.view.GravityCompat;
@@ -13,13 +15,14 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
-import android.widget.TextView;
+import android.view.View;
+import android.widget.LinearLayout;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.maximum.fastride.adapters.DrawerRecyclerAdapter;
+import com.maximum.fastride.adapters.DrawerAccountAdapter;
 import com.maximum.fastride.model.User;
 
 /**
@@ -35,16 +38,15 @@ public class BaseActivity extends ActionBarActivity
 
     protected String[] mDrawerTitles;
     protected int DRAWER_ICONS[] = {
+            R.drawable.ic_action_start,
             R.drawable.ic_action_myrides,
             R.drawable.ic_action_rating,
-            R.drawable.ic_action_tutorial,
-            R.drawable.ic_action_about};
+            R.drawable.ic_action_tutorial
+    };
 
     RecyclerView mDrawerRecyclerView;
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
-
-    private Toolbar toolbar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -67,12 +69,19 @@ public class BaseActivity extends ActionBarActivity
             setSupportActionBar(toolbar);
             toolbar.setNavigationIcon(R.drawable.ic_ab_drawer);
 
-            if( !subTitle.isEmpty() ) {
-                toolbar.setSubtitle(subTitle);
-                TextView txtSubTitle = (TextView) findViewById(R.id.toolbar_subtitle);
-                if( txtSubTitle != null )
-                    txtSubTitle.setText(subTitle);
-            }
+//            TextView txtSubTitle = (TextView) findViewById(R.id.toolbar_subtitle);
+//            if( txtSubTitle == null )
+//                return;
+//
+//            if( subTitle.isEmpty() ) {
+//                txtSubTitle.setVisibility(View.GONE);
+//            } else {
+//                txtSubTitle.setVisibility(View.VISIBLE);
+//                toolbar.setSubtitle(subTitle);
+//
+//                if( txtSubTitle != null )
+//                    txtSubTitle.setText(subTitle);
+//            }
 
         }
 
@@ -84,15 +93,25 @@ public class BaseActivity extends ActionBarActivity
         User user = User.load(this);
 
         mDrawerTitles = getResources().getStringArray(R.array.drawers_array_drawer);
-        DrawerRecyclerAdapter drawerRecyclerAdapter =
-                new DrawerRecyclerAdapter(this,
+        DrawerAccountAdapter drawerRecyclerAdapter =
+                new DrawerAccountAdapter(this,
                         mDrawerTitles,
                         DRAWER_ICONS,
                         user.getFirstName() + " " + user.getLastName(),
                         user.getEmail(),
                         user.getPictureURL());
-
         mDrawerRecyclerView.setAdapter(drawerRecyclerAdapter);
+
+        final Context ctx = this;
+
+        LinearLayout aboutLayout = (LinearLayout) findViewById(R.id.about_row);
+        aboutLayout.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(ctx, AboutActivity.class);
+                ctx.startActivity(intent);
+            }
+        });
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

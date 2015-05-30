@@ -1,5 +1,6 @@
 package com.maximum.fastride;
 
+import android.annotation.TargetApi;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -8,19 +9,24 @@ import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.maximum.fastride.model.Join;
 import com.maximum.fastride.utils.ClientSocketHandler;
+import com.maximum.fastride.utils.FloatingActionButton;
 import com.maximum.fastride.utils.Globals;
 import com.maximum.fastride.utils.GroupOwnerSocketHandler;
 import com.maximum.fastride.utils.ITrace;
@@ -65,6 +71,12 @@ public class PassengerRoleActivity extends BaseActivity
 
         mTxtStatus = (TextView)findViewById(R.id.txtStatusPassenger);
 
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.btnPassengerSubmit);
+            fab.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_done));
+            fab.setBackgroundColor(getResources().getColor(R.color.ColorAccent));
+        }
+
         wamsInit();
 
         wifiUtil = new WiFiUtil(this);
@@ -77,49 +89,6 @@ public class PassengerRoleActivity extends BaseActivity
         wifiUtil.startRegistrationAndDiscovery(null, userID);
 
     }
-
-//    private void setupView() {
-//        Toolbar toolbar = (Toolbar) findViewById(R.id.fastride_toolbar);
-//        if (toolbar != null) {
-//            setSupportActionBar(toolbar);
-//            toolbar.setNavigationIcon(R.drawable.ic_ab_drawer);
-//        }
-//
-//        mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
-//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-//            // set a custom shadow that overlays the main content when the drawer opens
-//            mDrawerLayout.setDrawerShadow(R.drawable.drawer_shadow, GravityCompat.START);
-//        }
-//
-//        mDrawerRecyclerView = (RecyclerView)findViewById(R.id.left_drawer);
-//        mDrawerRecyclerView.setHasFixedSize(true);
-//        mDrawerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-//        mDrawerRecyclerView.setItemAnimator(new DefaultItemAnimator());
-//
-//        User currentUser = User.load(this);
-//
-//        mDrawerTitles = getResources().getStringArray(R.array.drawers_array_drawer);
-//        DrawerRecyclerAdapter drawerRecyclerAdapter =
-//                new DrawerRecyclerAdapter(this,
-//                        mDrawerTitles,
-//                        DRAWER_ICONS,
-//                        currentUser.getFirstName() + " " + currentUser.getLastName(),
-//                        currentUser.getEmail(),
-//                        currentUser.getPictureURL());
-//
-//        mDrawerRecyclerView.setAdapter(drawerRecyclerAdapter);
-//
-//        mDrawerToggle = new ActionBarDrawerToggle(
-//                this,                  /* host Activity */
-//                mDrawerLayout,         /* DrawerLayout object */
-//                toolbar,  /* nav drawer image to replace 'Up' caret */
-//                R.string.drawer_open,  /* "open drawer" description for accessibility */
-//                R.string.drawer_close  /* "close drawer" description for accessibility */
-//        );
-//
-//        mDrawerLayout.setDrawerListener(mDrawerToggle);
-//
-//    }
 
     @Override
     public void onResume() {
@@ -145,6 +114,34 @@ public class PassengerRoleActivity extends BaseActivity
 //        super.onPostCreate(savedInstanceState);
 //        mDrawerToggle.syncState();
 //    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_passenger, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+        if (id == R.id.action_debug) {
+            onDebug(null);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    public void onDebug(View view){
+        LinearLayout layout = (LinearLayout) findViewById(R.id.debugLayout);
+        int visibility = layout.getVisibility();
+        if( visibility == View.VISIBLE )
+            layout.setVisibility(View.GONE);
+        else
+            layout.setVisibility(View.VISIBLE);
+    }
 
     @Override
     public boolean handleMessage(Message msg) {

@@ -6,43 +6,55 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
-    tools:context="com.maximum.fastride.MainActivity" >
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.maximum.fastride.PassengerRoleActivity">
-
-    <include
-        layout="@layout/tool_bar" />
+    tools:context="com.maximum.fastride.PassengerRoleActivity" >
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Ride Code:"/>
+        <include
+            layout="@layout/tool_bar" />
 
-        <EditText
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:inputType="number"
-            android:ems="10"
-            android:id="@+id/editTextRideCode" />
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Ride Code:"/>
+
+            <EditText
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:ems="10"
+                android:id="@+id/editTextRideCode" />
 
     </LinearLayout>
 
-    <com.maximum.fastride.utils.FloatingActionButton
+    <!--<com.maximum.fastride.utils.FloatingActionButton-->
+        <!--android:id="@+id/btnPassengerSubmit"-->
+        <!--android:layout_width="@dimen/diameter"-->
+        <!--android:layout_height="@dimen/diameter"-->
+        <!--android:layout_gravity="bottom|end"-->
+        <!--android:layout_margin="16dp"-->
+        <!--android:textSize="24sp"-->
+        <!--android:onClick="onSubmit"-->
+        <!--android:layout_marginEnd="16dp"-->
+        <!--android:layout_marginBottom="16dp" />-->
+
+    <ImageButton
         android:id="@+id/btnPassengerSubmit"
         android:layout_width="@dimen/diameter"
         android:layout_height="@dimen/diameter"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:textSize="24sp"
+        android:background="@drawable/oval_ripple"
+        android:tint="@android:color/white"
+        android:stateListAnimator="@anim/button_elevation"
+        android:elevation="@dimen/elevation_high"
+        android:src="@drawable/ic_action_done"
+        android:layout_gravity="end|bottom"
         android:onClick="onSubmit"
         android:layout_marginEnd="16dp"
         android:layout_marginBottom="16dp" />
@@ -71,15 +83,17 @@
             android:scrollbars="vertical"
             android:layout_weight="0.5"
             android:fillViewport="true">
+
             <TextView
                 android:id="@+id/txtStatusPassenger"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content" />
+
         </ScrollView>
 
     </LinearLayout>
 
-</LinearLayout>
+    </LinearLayout>
 
     <!-- The navigation drawer -->
     <include

@@ -17,7 +17,7 @@
         android:layout_height="match_parent"
         android:background="?android:attr/selectableItemBackground">
 
-        <LinearLayout
+        <RelativeLayout
             android:id="@+id/device_row"
             android:orientation="horizontal"
             android:layout_width="match_parent"
@@ -36,39 +36,46 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/imgStatus"
-                android:src="@drawable/question24"
+                android:src="@drawable/ic_action_disconnected"
                 android:layout_gravity="center_vertical"
-                android:layout_marginTop="12dp"
-                android:layout_marginLeft="-16dp" />
+                android:layout_alignBottom="@+id/userPicture"
+                android:layout_toStartOf="@+id/linearLayout"
+                android:layout_marginRight="-8dp"
+                android:layout_marginBottom="-2dp" />
 
             <LinearLayout
                 android:orientation="vertical"
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="8dp"
-                android:layout_gravity="center_vertical">
+                android:layout_gravity="center_vertical"
+                android:layout_alignParentTop="true"
+                android:layout_toEndOf="@+id/userPicture"
+                android:id="@+id/linearLayout">
 
-            <TextView
-                fontPath="fonts/Roboto-Regular.ttf"
-                 android:layout_height="wrap_content"
-                 android:layout_width="match_parent"
-                 android:textAppearance="?android:attr/textAppearanceMedium"
-                 android:id="@+id/device_name"
-                 android:gravity="center_vertical"/>
+                <TextView
+                    fontPath="fonts/Roboto-Regular.ttf"
+                     android:layout_height="wrap_content"
+                     android:layout_width="match_parent"
+                     android:textAppearance="?android:attr/textAppearanceMedium"
+                     android:id="@+id/device_name"
+                     android:text="Device Name"
+                     android:gravity="center_vertical"/>
 
-            <TextView
-                 fontPath="fonts/Roboto-Regular.ttf"
-                 android:id="@+id/device_details"
-                 android:layout_width="fill_parent"
-                 android:layout_height="0dip"
-                 android:layout_weight="1"
-                 android:singleLine="true"
-                 android:ellipsize="marquee"/>
+                <TextView
+                     fontPath="fonts/Roboto-Regular.ttf"
+                     android:id="@+id/device_details"
+                     android:text="address"
+                     android:layout_width="fill_parent"
+                     android:layout_height="0dip"
+                     android:layout_weight="1"
+                     android:singleLine="true"
+                     android:ellipsize="marquee"/>
 
 
             </LinearLayout>
 
-    </LinearLayout>
+    </RelativeLayout>
 
 </LinearLayout>
 
