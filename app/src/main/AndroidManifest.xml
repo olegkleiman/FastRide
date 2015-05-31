@@ -92,6 +92,8 @@
             android:name=".TransferService"
             android:exported="false" >
         </service>
+        
+        <service android:name="services.GeofenceTransitionsIntentService" />
     </application>
 
 </manifest>

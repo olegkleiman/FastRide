@@ -7,11 +7,13 @@ import android.database.Observable;
 import android.os.Build;
 
 import com.google.android.gms.common.data.DataBufferObserver;
+import com.google.android.gms.maps.model.LatLng;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * Created by Oleg Kleiman on 11-Apr-15.
@@ -79,4 +81,20 @@ public class Globals {
     public static final int MESSAGE_READ = 0x400 + 1;
     public static final int MY_HANDLE = 0x400 + 2;
     public static final int TRACE_MESSAGE = 0x400 + 3;
+
+    // Geofences
+
+    public static final HashMap<String, LatLng> FWY_AREA_LANDMARKS = new HashMap<String, LatLng>();
+    static {
+        // Home. Petach-Tikwa
+        FWY_AREA_LANDMARKS.put("Home", new LatLng(32.0746, 34.872));
+
+        // Googleplex.
+        FWY_AREA_LANDMARKS.put("GOOGLE", new LatLng(37.422611,-122.0840577));
+    }
+
+    public static final long GEOFENCE_EXPIRATION_IN_HOURS = 12;
+    public static final long GEOFENCE_EXPIRATION_IN_MILLISECONDS =
+            GEOFENCE_EXPIRATION_IN_HOURS * 60 * 60 * 1000;
+    public static final float GEOFENCE_RADIUS_IN_METERS = 1609; // 1 mile, 1.6 km
 }
