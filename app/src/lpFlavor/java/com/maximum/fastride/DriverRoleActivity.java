@@ -315,7 +315,7 @@ public class DriverRoleActivity extends BaseActivity
     }
 
     //
-    // Implementation of WifiP2pManager.PeerListListenere
+    // Implementation of WifiP2pManager.PeerListListener
     // Used to synchronize peers statuses after connection
 
     @Override

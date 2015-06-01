@@ -3,6 +3,8 @@
     <color name="user_profile_background">#607D8B</color>
     <color name="azure">#ff00a1f1</color>
     <color name="white">#FFF</color>
+    <color name="black">#000</color>
+    <color name="gray">#ffb9b9b9</color>
     <color name="light_gray">#ddd</color>
     <color name="red">#bf360c</color>
     <color name="ripple_red">#ffbf5232</color>

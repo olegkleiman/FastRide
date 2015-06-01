@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -129,6 +130,12 @@ public class PassengerRoleActivity extends BaseActivity
         if (id == R.id.action_debug) {
             onDebug(null);
             return true;
+        } else if( id == R.id.action_code) {
+            RelativeLayout layout = (RelativeLayout) findViewById(R.id.ride_code_layout);
+            layout.setVisibility(View.VISIBLE);
+        } else if( id == R.id.action_pass_refresh) {
+            RelativeLayout layout = (RelativeLayout) findViewById(R.id.ride_code_layout);
+            layout.setVisibility(View.GONE);
         }
 
         return super.onOptionsItemSelected(item);

@@ -16,37 +16,65 @@
         <include
             layout="@layout/tool_bar" />
 
-        <LinearLayout
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/card_backpanel_height"
+            android:background="?attr/colorPrimary" />
+
+        <RelativeLayout
+            android:id="@+id/ride_code_layout"
             android:layout_width="fill_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="220dp"
+            android:background="@color/ColorBackground"
+            android:layout_weight="0.5"
+            android:orientation="vertical"
+            android:elevation="8dp"
+            android:layout_marginLeft="@dimen/card_horizontal_margin"
+            android:layout_marginRight="@dimen/card_horizontal_margin"
+            android:layout_marginTop="@dimen/negativeActionBarSize">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ride Code:"/>
+                android:text="Ride Code:"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true"
+                android:layout_marginStart="21dp"
+                android:layout_marginTop="16dp"
+                android:id="@+id/textView5" />
 
             <EditText
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:inputType="number"
-                android:ems="10"
-                android:id="@+id/editTextRideCode" />
+                android:ems="5"
+                android:maxLength="5"
+                android:id="@+id/editTextRideCode"
+                android:layout_marginTop="23dp"
+                android:layout_gravity="center"
+                android:layout_below="@+id/textView5"
+                android:layout_alignStart="@+id/textView5"
+                android:layout_alignEnd="@+id/textView5" />
 
-    </LinearLayout>
+            <ImageButton
+                android:id="@+id/btnPassengerSubmit"
+                android:layout_width="@dimen/diameter"
+                android:layout_height="@dimen/diameter"
+                android:background="@drawable/oval_ripple"
+                android:tint="@android:color/white"
+                android:stateListAnimator="@anim/button_elevation"
+                android:elevation="@dimen/elevation_high"
+                android:src="@drawable/ic_action_done"
+                android:layout_gravity="end|bottom"
+                android:onClick="onSubmit"
+                android:layout_marginEnd="25dp"
+                android:layout_below="@+id/editTextRideCode"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginRight="25dp" />
 
-    <ImageButton
-        android:id="@+id/btnPassengerSubmit"
-        android:layout_width="@dimen/diameter"
-        android:layout_height="@dimen/diameter"
-        android:background="@drawable/oval_ripple"
-        android:tint="@android:color/white"
-        android:stateListAnimator="@anim/button_elevation"
-        android:elevation="@dimen/elevation_high"
-        android:src="@drawable/ic_action_done"
-        android:layout_gravity="end|bottom"
-        android:onClick="onSubmit"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp" />
+    </RelativeLayout>
 
     <LinearLayout
         android:id="@+id/debugLayout"

@@ -4,18 +4,23 @@ import android.app.DialogFragment;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.Switch;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.facebook.AppEventsLogger;
@@ -47,7 +52,7 @@ public class RegisterActivity extends FragmentActivity
     private final String fbProvider = "fb";
 
 	private UiLifecycleHelper uiHelper;
-	private LoginButton loginButton;
+	private LoginButton mFBLoginButton;
 
     private GraphUser fbUser;
 
@@ -113,19 +118,43 @@ public class RegisterActivity extends FragmentActivity
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+
         uiHelper = new UiLifecycleHelper(this, callback);
         uiHelper.onCreate(savedInstanceState);
-		
+
         if (savedInstanceState != null) {
             String name = savedInstanceState.getString(PENDING_ACTION_BUNDLE_KEY);
             pendingAction = PendingAction.valueOf(name);
         }
         
         setContentView(R.layout.activity_register);
-        loginButton = (LoginButton) findViewById(R.id.loginButton);
-        loginButton.setReadPermissions("email");
-        
-        loginButton.setUserInfoChangedCallback(new LoginButton.UserInfoChangedCallback() {
+        TextView toolbarTitle = (TextView) findViewById(R.id.toolbar_title);
+        toolbarTitle.setText(getString(R.string.title_activity_register));
+
+        final EditText txt = (EditText)findViewById(R.id.phone);
+        final String hint = getString(R.string.phone_hint);
+        txt.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+            @Override
+            public void onFocusChange(View view, boolean hasFocus) {
+                if( !hasFocus )
+                    txt.setHint(hint);
+
+            }
+        });
+        txt.setOnTouchListener(new View.OnTouchListener() {
+
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                txt.setHint("");
+                return false;
+            }
+
+        });
+
+        mFBLoginButton = (LoginButton) findViewById(R.id.loginButton);
+        mFBLoginButton.setReadPermissions("email");
+
+        mFBLoginButton.setUserInfoChangedCallback(new LoginButton.UserInfoChangedCallback() {
             @Override
             public void onUserInfoFetched(final GraphUser user) {
                 if( user != null ) {
@@ -138,6 +167,10 @@ public class RegisterActivity extends FragmentActivity
 
                         @Override
                         protected void onPreExecute(){
+
+                            LinearLayout loginLayout = (LinearLayout)findViewById(R.id.fb_login_form);
+                            if( loginLayout != null )
+                                loginLayout.setVisibility(View.GONE);
 
                             progress = ProgressDialog.show(RegisterActivity.this,
                                     "Almost there", "Making things ready");
@@ -189,11 +222,11 @@ public class RegisterActivity extends FragmentActivity
                 }
             }
         });
-        
-        loginButton.setOnErrorListener(new LoginButton.OnErrorListener() {
-			
-			@Override
-			public void onError(FacebookException error) {
+
+        mFBLoginButton.setOnErrorListener(new LoginButton.OnErrorListener() {
+
+            @Override
+            public void onError(FacebookException error) {
                 String msg = getResources().getString(R.string.fb_error_msg)
                         + error.getMessage().trim();
 
@@ -202,9 +235,9 @@ public class RegisterActivity extends FragmentActivity
                         .setMessage(msg)
                         .setPositiveButton("OK", null)
                         .show();
-				
-			}
-		});
+
+            }
+        });
 
         try{
             usersTable = new MobileServiceClient(
@@ -225,7 +258,7 @@ public class RegisterActivity extends FragmentActivity
 
     public void registerUser(View v) {
 
-        AutoCompleteTextView txtUser = (AutoCompleteTextView) findViewById(R.id.phone);
+        EditText txtUser = (EditText) findViewById(R.id.phone);
         if (txtUser.getText().toString().isEmpty()) {
 
             String noPhoneNumber = getResources().getString(R.string.no_phone_number);
@@ -244,8 +277,8 @@ public class RegisterActivity extends FragmentActivity
             newUser.setPictureURL(pictureURL);
             newUser.setEmail((String)fbUser.getProperty("email"));
             newUser.setPhone(txtUser.getText().toString());
-            Switch switchView = (Switch)findViewById(R.id.switchUsePhone);
-            newUser.setUsePhone(switchView.isChecked());
+            CheckBox cbUsePhone = (CheckBox)findViewById(R.id.cbUsePhone);
+            newUser.setUsePhone(cbUsePhone.isChecked());
 
             String android_id = Settings.Secure.getString(this.getContentResolver(),
                     Settings.Secure.ANDROID_ID);

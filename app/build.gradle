@@ -23,7 +23,7 @@ android {
             applicationId 'com.maximum.fastride.jbFlavor'
         }
         lpFlavor {
-            minSdkVersion 19
+            minSdkVersion 16
             versionName '1.0-lollipop'
             applicationId 'com.maximum.fastride.lpFlavor'
         }

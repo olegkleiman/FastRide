@@ -48,7 +48,6 @@ import com.maximum.fastride.utils.ClientSocketHandler;
 import com.maximum.fastride.utils.FloatingActionButton;
 import com.maximum.fastride.utils.Globals;
 import com.maximum.fastride.utils.GroupOwnerSocketHandler;
-import com.maximum.fastride.utils.IPeerClickListener;
 import com.maximum.fastride.utils.IRefreshable;
 import com.maximum.fastride.utils.ITrace;
 import com.maximum.fastride.utils.WiFiUtil;
@@ -74,7 +73,6 @@ public class DriverRoleActivity extends BaseActivity
         implements ITrace,
         Handler.Callback,
         IRefreshable,
-        IPeerClickListener,
         WiFiUtil.IPeersChangedListener,
         WifiP2pManager.ConnectionInfoListener {
 

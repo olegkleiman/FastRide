@@ -21,8 +21,9 @@
             android:layout_height="wrap_content"
             android:gravity="start"
             android:text="Fast Ride"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark"
+
             android:textSize="20sp"
+            android:textColor="@color/white"
             android:layout_gravity="center_vertical" />
 
         <!--<TextView-->

@@ -5,7 +5,13 @@
         <!--<item name="android:windowTranslucentStatus">true</item>-->
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowActionBar">false</item>
+        <!-- colorPrimary is used, for instance, for the default ActionBar
+                (but not Toolbar) background.
+                We specify the same color for the toolbar background in
+                tool_bar.xml.. -->
         <item name="colorPrimary">@color/ColorPrimary</item>
+        <!-- colorPrimaryDark is used for the status bar (with the
+            battery, clock, etc). -->
         <item name="colorPrimaryDark">@color/ColorPrimaryDark</item>
     </style>
 

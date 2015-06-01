@@ -80,11 +80,7 @@ static final int REGISTER_USER_REQUEST = 1;
         }
 
         super.onCreate(savedInstanceState);
-        Log.i(LOG_TAG, "onCreate");
-
         setContentView(R.layout.activity_main);
-
-        setupUI("");
 
         // Intended to be executed only once per app life-time
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -93,12 +89,16 @@ static final int REGISTER_USER_REQUEST = 1;
             Intent intent = new Intent(MainActivity.this, RegisterActivity.class);
             startActivityForResult(intent, REGISTER_USER_REQUEST);
 
+            // To be continued on onActivityResult()
+
         } else {
             NotificationsManager.handleNotifications(this, Globals.SENDER_ID,
                                                     GCMHandler.class);
 
             String accessToken = sharedPrefs.getString(Globals.TOKENPREF, "");
             wamsInit(accessToken);
+
+            setupUI("");
 
         }
     }
@@ -330,7 +330,8 @@ static final int REGISTER_USER_REQUEST = 1;
 
                     wamsInit(accessToken);
                     NotificationsManager.handleNotifications(this, Globals.SENDER_ID,
-                                                            GCMHandler.class);
+                            GCMHandler.class);
+                    setupUI("");
 
                 }
             }

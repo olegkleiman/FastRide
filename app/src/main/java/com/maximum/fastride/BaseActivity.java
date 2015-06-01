@@ -254,7 +254,9 @@ public class BaseActivity extends ActionBarActivity
     @Override
     protected void onPostCreate(Bundle savedInstanceState) {
         super.onPostCreate(savedInstanceState);
-        mDrawerToggle.syncState();
+
+        if (mDrawerToggle != null)
+            mDrawerToggle.syncState();
     }
 
     @Override
