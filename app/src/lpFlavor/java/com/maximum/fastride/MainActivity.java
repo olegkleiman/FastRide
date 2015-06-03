@@ -98,12 +98,14 @@ static final int REGISTER_USER_REQUEST = 1;
             String accessToken = sharedPrefs.getString(Globals.TOKENPREF, "");
             wamsInit(accessToken);
 
-            setupUI("");
+            setupUI(getString(R.string.title_activity_main), "");
 
         }
     }
 
-    protected void setupUI(String subTitle) {
+    protected void setupUI(String title, String subTitle) {
+
+        super.setupUI(title, subTitle);
 
         try {
             User user = User.load(this);
@@ -146,7 +148,6 @@ static final int REGISTER_USER_REQUEST = 1;
         ModesPeersAdapter adapter = new ModesPeersAdapter(this, modes);
         recycler.setAdapter(adapter);
 
-        super.setupUI(subTitle);
     }
 
     //
@@ -185,7 +186,7 @@ static final int REGISTER_USER_REQUEST = 1;
 //        }
 
         setContentView(R.layout.activity_main);
-        setupUI("");
+        setupUI(getString(R.string.title_activity_main), "");
 
         //mDrawerToggle.onConfigurationChanged(newConfig);
     }
@@ -331,7 +332,7 @@ static final int REGISTER_USER_REQUEST = 1;
                     wamsInit(accessToken);
                     NotificationsManager.handleNotifications(this, Globals.SENDER_ID,
                             GCMHandler.class);
-                    setupUI("");
+                    setupUI(getString(R.string.title_activity_main), "");
 
                 }
             }

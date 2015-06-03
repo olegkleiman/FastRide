@@ -19,72 +19,38 @@
         <include
             layout="@layout/tool_bar" />
 
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:weightSum="1">
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/card_backpanel_height"
+            android:background="?attr/colorPrimary" />
 
-            <ImageView
-                android:layout_width="128dp"
-                android:layout_height="128dp"
-                android:layout_weight="0.3"
-                android:id="@+id/profileImageView"
-                android:layout_gravity="center_horizontal" />
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:orientation="vertical"
-                android:gravity="center"
-                android:layout_weight="0.7"
-                android:weightSum="1">
-                <Button
-                    android:layout_width="fill_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="0.3"
-                    android:text="@string/btnDriverText"
-                    android:id="@+id/btnDriver"
-                    android:onClick="onDriverClicked"
-                    android:layout_gravity="center_horizontal" />
-                <Button
-                    android:layout_width="fill_parent"
-                    android:layout_height="48dp"
-                    android:layout_weight="0.5"
-                    android:text="@string/btnPassengerText"
-                    android:id="@+id/btnPassenger"
-                    android:onClick="onPassengerClicked"
-                    android:layout_gravity="center_horizontal" />
-                <Button
-                    android:layout_width="fill_parent"
-                    android:layout_height="48dp"
-                    android:layout_weight="0.5"
-                    android:text="@string/btnFindRide"
-                    android:id="@+id/btnFindRide"
-                    android:layout_gravity="center_horizontal" />
-
-            </LinearLayout>
-
-        </LinearLayout>
+        <ImageView
+            android:layout_width="@dimen/avatar_size"
+            android:layout_height="@dimen/avatar_size"
+            android:src="@drawable/ic_action_car"
+            android:layout_marginEnd="@dimen/avatar_margin_end"
+            android:layout_marginRight="@dimen/avatar_margin_end"
+            android:layout_marginTop="@dimen/avatar_margin_top"
+            android:id="@+id/userAvatarView"
+            android:layout_gravity="end" />
 
         <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent">
+            android:layout_marginTop="-62dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginStart="@dimen/activity_horizontal_margin"
+            android:layout_marginLeft="@dimen/activity_horizontal_margin"
+            android:layout_marginEnd="@dimen/activity_horizontal_margin"
+            android:layout_marginRight="@dimen/activity_horizontal_margin">
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="4 passengers required"
-                android:id="@+id/textView" />
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerViewModes"
+                android:layout_height="fill_parent"
+                android:layout_width="match_parent"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="07:14 estimated ride time"
-                android:id="@+id/textView2" />
+
         </LinearLayout>
 
     </LinearLayout>

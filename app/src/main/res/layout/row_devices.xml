@@ -40,6 +40,7 @@
                 android:layout_gravity="center_vertical"
                 android:layout_alignBottom="@+id/userPicture"
                 android:layout_toStartOf="@+id/linearLayout"
+                android:layout_toLeftOf="@+id/linearLayout"
                 android:layout_marginRight="-8dp"
                 android:layout_marginBottom="-2dp" />
 
@@ -48,9 +49,11 @@
                 android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="12dp"
+                android:layout_marginLeft="12dp"
                 android:layout_gravity="center_vertical"
                 android:layout_alignParentTop="true"
                 android:layout_toEndOf="@+id/userPicture"
+                android:layout_toRightOf="@+id/userPicture"
                 android:id="@+id/linearLayout">
 
                 <TextView

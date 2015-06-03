@@ -19,6 +19,7 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
@@ -87,26 +88,36 @@ public class BaseActivity extends ActionBarActivity
         }
     }
 
-    protected void setupUI(String subTitle) {
+    protected void setupUI(String title, String subTitle) {
         Toolbar toolbar = (Toolbar) findViewById(R.id.fastride_toolbar);
         if( toolbar != null ) {
             setSupportActionBar(toolbar);
-            toolbar.setNavigationIcon(R.drawable.ic_ab_drawer);
+            //toolbar.setNavigationIcon(R.drawable.ic_ab_drawer);
 
+            // enable ActionBar app icon to behave as action to toggle nav drawer
+            ActionBar actionBar = getSupportActionBar();
+            if( actionBar != null ) {
+                actionBar.setDisplayHomeAsUpEnabled(true);
+                actionBar.setHomeButtonEnabled(true);
+                actionBar.setDisplayShowTitleEnabled(true);
+
+                actionBar.setTitle(title);
+            }
+
+//            TextView txtTitle = (TextView) findViewById(R.id.toolbar_title);
+//            txtTitle.setText(title);
+//
 //            TextView txtSubTitle = (TextView) findViewById(R.id.toolbar_subtitle);
-//            if( txtSubTitle == null )
-//                return;
+//            if( txtSubTitle != null ) {
 //
-//            if( subTitle.isEmpty() ) {
-//                txtSubTitle.setVisibility(View.GONE);
-//            } else {
-//                txtSubTitle.setVisibility(View.VISIBLE);
-//                toolbar.setSubtitle(subTitle);
-//
-//                if( txtSubTitle != null )
+//                if (subTitle.isEmpty()) {
+//                    txtSubTitle.setVisibility(View.GONE);
+//                } else {
+//                    txtSubTitle.setVisibility(View.VISIBLE);
 //                    txtSubTitle.setText(subTitle);
+//                    //toolbar.setSubtitle(subTitle);
+//                }
 //            }
-
         }
 
         mDrawerRecyclerView = (RecyclerView) findViewById(R.id.left_drawer);
@@ -149,12 +160,7 @@ public class BaseActivity extends ActionBarActivity
         mDrawerToggle.setDrawerIndicatorEnabled(true);
         mDrawerLayout.setDrawerListener(mDrawerToggle);
 
-        // enable ActionBar app icon to behave as action to toggle nav drawer
-        ActionBar actionBar = getSupportActionBar();
-        if( actionBar != null ) {
-            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-            getSupportActionBar().setHomeButtonEnabled(true);
-        }
+
 
     }
 
@@ -240,9 +246,9 @@ public class BaseActivity extends ActionBarActivity
      */
     public void onResult(Status status) {
         if (status.isSuccess()) {
-
-            Toast.makeText(this,getString(R.string.geofences_added),
-                            Toast.LENGTH_SHORT).show();
+//
+//            Toast.makeText(this,getString(R.string.geofences_added),
+//                            Toast.LENGTH_SHORT).show();
         } else {
             // Get the status code for the error and log it using a user-friendly message.
             String errorMessage = GeofenceErrorMessages.getErrorString(this,

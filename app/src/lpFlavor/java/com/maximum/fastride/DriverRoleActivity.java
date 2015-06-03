@@ -86,24 +86,9 @@ public class DriverRoleActivity extends BaseActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_role);
 
-        setupUI(getResources().getString(R.string.subtitle_activity_driver_role));
-
-        mTxtStatus = (TextView)findViewById(R.id.txtStatus);
-
+        setupUI(getString(R.string.title_activity_driver_role), "");
+                //getResources().getString(R.string.subtitle_activity_driver_role));
         wamsInit();
-
-        mPeersRecyclerView = (RecyclerView)findViewById(R.id.recyclerViewPeers);
-        mPeersAdapter = new WiFiPeersAdapter2(this, peers);
-        mPeersRecyclerView.setHasFixedSize(true);
-        mPeersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
-        mPeersRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mPeersRecyclerView.setAdapter(mPeersAdapter);
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.submit_ride_button);
-            fab.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_done));
-            fab.setBackgroundColor(getResources().getColor(R.color.ColorAccent));
-        }
 
         wifiUtil = new WiFiUtil(this);
         wifiUtil.deletePersistentGroups();
@@ -114,6 +99,25 @@ public class DriverRoleActivity extends BaseActivity
         // This will publish the service in DNS-SD and start serviceDiscovery()
         wifiUtil.startRegistrationAndDiscovery(this, mUserID);
 
+    }
+
+    protected void setupUI(String title, String subTitle){
+        super.setupUI(title, subTitle);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.submit_ride_button);
+            fab.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_done));
+            fab.setBackgroundColor(getResources().getColor(R.color.ColorAccent));
+        }
+
+        mTxtStatus = (TextView)findViewById(R.id.txtStatus);
+        mPeersRecyclerView = (RecyclerView)findViewById(R.id.recyclerViewPeers);
+        mPeersRecyclerView.setHasFixedSize(true);
+        mPeersRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mPeersRecyclerView.setItemAnimator(new DefaultItemAnimator());
+
+        mPeersAdapter = new WiFiPeersAdapter2(this, R.layout.peers_header, peers);
+        mPeersRecyclerView.setAdapter(mPeersAdapter);
     }
 
     @Override
@@ -398,6 +402,9 @@ public class DriverRoleActivity extends BaseActivity
                 .setNegativeButton("No", dialogClickListener).show();
     }
 
+    //
+    // Implementations of WifiUtil.IPeersChangedListener
+    //
     @Override
     public void add(final WifiP2pDeviceUser device) {
         runOnUiThread(new Runnable() {

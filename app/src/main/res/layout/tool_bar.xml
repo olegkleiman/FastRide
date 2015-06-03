@@ -1,38 +1,44 @@
-<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Copyright 2015 Maximum LLC. All rights reserved.
+ -->
+
 <android.support.v7.widget.Toolbar
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/fastride_toolbar"
-    android:layout_height="wrap_content"
+    android:layout_height="?actionBarSize"
     android:layout_width="match_parent"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark"
+    app:titleTextAppearance="@style/Toolbar.TitleText"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
     android:minHeight="?attr/actionBarSize"
     android:background="?attr/colorPrimary">
 
-    <LinearLayout
-        android:orientation="vertical"
-        android:layout_width="fill_parent"
-        android:layout_height="?attr/actionBarSize"
-        android:gravity="center_vertical">
+    <!--<LinearLayout-->
+        <!--android:orientation="horizontal"-->
+        <!--android:layout_width="fill_parent"-->
+        <!--android:layout_height="?attr/actionBarSize">-->
 
-        <TextView
-            android:id="@+id/toolbar_title"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="start"
-            android:textSize="20sp"
-            android:textColor="@color/white"
-            android:text="Fast Ride"
-            android:theme="@style/ThemeOverlay.AppCompat.Dark"
-            android:layout_gravity="center_vertical" />
+        <!--<TextView-->
+            <!--android:id="@+id/toolbar_title"-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:gravity="start"-->
+            <!--android:textSize="20sp"-->
+            <!--android:textColor="@color/white"-->
+            <!--android:text="Fast Ride"-->
+            <!--android:layout_gravity="center_vertical" />-->
 
         <!--<TextView-->
             <!--android:id="@+id/toolbar_subtitle"-->
             <!--android:layout_width="wrap_content"-->
             <!--android:layout_height="wrap_content"-->
-            <!--android:gravity="start"-->
-            <!--android:theme="@style/ThemeOverlay.AppCompat.Dark"-->
-            <!--android:textAppearance="?android:attr/textAppearanceMedium"/>-->
+            <!--android:textSize="20sp"-->
+            <!--android:layout_marginLeft="18dp"-->
+            <!--android:layout_marginStart="18dp"-->
+            <!--android:textColor="@color/white"-->
+            <!--android:textAppearance="?android:attr/textAppearanceMedium"-->
+            <!--android:layout_gravity="center_vertical" />-->
 
-    </LinearLayout>
+    <!--</LinearLayout>-->
 
 </android.support.v7.widget.Toolbar>

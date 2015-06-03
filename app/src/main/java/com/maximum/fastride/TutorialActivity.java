@@ -23,7 +23,7 @@ public class TutorialActivity extends BaseActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_tutorial);
 
-        setupUI(getResources().getString(R.string.subtitle_activity_tutorial));
+        setupUI(getResources().getString(R.string.subtitle_activity_tutorial), "");
 
         titles = getResources().getStringArray(R.array.tutorial_titles);
 

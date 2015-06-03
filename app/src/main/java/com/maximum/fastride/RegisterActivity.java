@@ -128,8 +128,10 @@ public class RegisterActivity extends FragmentActivity
         }
         
         setContentView(R.layout.activity_register);
-        TextView toolbarTitle = (TextView) findViewById(R.id.toolbar_title);
-        toolbarTitle.setText(getString(R.string.title_activity_register));
+        Toolbar toolbar = (Toolbar) findViewById(R.id.fastride_toolbar);
+        toolbar.setTitle(getString(R.string.title_activity_register));
+//        TextView toolbarTitle = (TextView) findViewById(R.id.toolbar_title);
+//        toolbarTitle.setText(getString(R.string.title_activity_register));
 
         final EditText txt = (EditText)findViewById(R.id.phone);
         final String hint = getString(R.string.phone_hint);

@@ -20,8 +20,7 @@ public class SettingsActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-        String subTitle = getResources().getString(R.string.subtitle_activity_settings);
-        setupUI(subTitle);
+        setupUI(getString(R.string.title_activity_settings), "");
 
         View addButton = findViewById(R.id.add_car_button);
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {

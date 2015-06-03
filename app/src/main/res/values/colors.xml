@@ -9,8 +9,19 @@
     <color name="red">#bf360c</color>
     <color name="ripple_red">#ffbf5232</color>
 
-    <color name="ColorPrimary">#2196F3</color>
-    <color name="ColorPrimaryDark">#1976d2</color>
-    <color name="ColorAccent">#E65100</color>
+    <!-- Blue palette. 500 -->
+    <color name="material_blue_500">#2196F3</color>
+    <!-- Blue palette. 700 -->
+    <color name="material_blue_900">#1976d2</color>
+    <!-- Orange palette. 900 -->
+    <color name="material_orange_900">#E65100</color>
+    <!-- Green palette. 500 -->
+    <color name="material_green_500">#4CAF50</color>
+    
+    <color name="ColorPrimary">@color/material_blue_500</color>
+    <color name="ColorPrimaryDark">@color/material_blue_900</color>
+    <!-- Orange palette. 900 -->
+    <color name="ColorAccent">@color/material_green_500</color>
     <color name="ColorBackground">#FFF</color>
+
 </resources>

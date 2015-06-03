@@ -11,7 +11,7 @@ public class AboutActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_about);
 
-        setupUI(getResources().getString(R.string.version_title));
+        setupUI(getResources().getString(R.string.version_title), "");
     }
 
 

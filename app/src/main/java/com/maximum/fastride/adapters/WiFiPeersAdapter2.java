@@ -38,12 +38,14 @@ public class WiFiPeersAdapter2 extends RecyclerView.Adapter<WiFiPeersAdapter2.Vi
 
     private List<WifiP2pDeviceUser> items;
     private Context mContext;
+    private int mHeaderLayoutId;
 
 
     public WiFiPeersAdapter2(Context context,
+                             int headerLayoutId,
                              List<WifiP2pDeviceUser> objects){
         mContext = context;
-        mContext.getResources();
+        mHeaderLayoutId = headerLayoutId;
         items = objects;
     }
 
@@ -68,7 +70,7 @@ public class WiFiPeersAdapter2 extends RecyclerView.Adapter<WiFiPeersAdapter2.Vi
         if (viewType == TYPE_HEADER) { // Inflate header layout
             v = LayoutInflater.
                     from(parent.getContext()).
-                    inflate(R.layout.peers_header, parent, false);
+                    inflate(mHeaderLayoutId, parent, false);
             listener = mListeners[TYPE_HEADER];
         } else { // Inflate row layout
             v = LayoutInflater.

@@ -14,7 +14,7 @@ public class MyRidesActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_my_rides);
 
-        setupUI(getResources().getString(R.string.subtitle_activity_my_rides));
+        setupUI(getString(R.string.subtitle_activity_my_rides), "");
     }
 
 

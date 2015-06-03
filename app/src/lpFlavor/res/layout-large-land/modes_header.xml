@@ -16,6 +16,8 @@
         android:layout_gravity="center_vertical" />
 
     <View
+        android:layout_marginEnd="240dp"
+        android:layout_marginRight="240dp"
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="?attr/colorPrimary" />

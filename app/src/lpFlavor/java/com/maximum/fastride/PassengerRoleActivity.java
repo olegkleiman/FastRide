@@ -15,21 +15,31 @@ import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
 import android.os.Bundle;
+import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.FrameLayout;
+import android.widget.ImageButton;
 import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.maximum.fastride.adapters.WiFiPeersAdapter2;
+import com.maximum.fastride.adapters.WifiP2pDeviceUser;
 import com.maximum.fastride.model.Join;
 import com.maximum.fastride.utils.ClientSocketHandler;
 import com.maximum.fastride.utils.FloatingActionButton;
 import com.maximum.fastride.utils.Globals;
 import com.maximum.fastride.utils.GroupOwnerSocketHandler;
+import com.maximum.fastride.utils.IRecyclerClickListener;
+import com.maximum.fastride.utils.IRefreshable;
 import com.maximum.fastride.utils.ITrace;
 import com.maximum.fastride.utils.WiFiUtil;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
@@ -46,6 +56,9 @@ import java.util.concurrent.ExecutionException;
 public class PassengerRoleActivity extends BaseActivity
     implements ITrace,
         Handler.Callback,
+        IRecyclerClickListener,
+        IRefreshable,
+        WiFiUtil.IPeersChangedListener,
         WifiP2pManager.ConnectionInfoListener {
 
     private static final String LOG_TAG = "FR.Passenger";
@@ -54,9 +67,11 @@ public class PassengerRoleActivity extends BaseActivity
     MobileServiceTable<Join> joinsTable;
 
     WiFiUtil wifiUtil;
-    public List<WifiP2pDevice> peers = new ArrayList<>();
+    WiFiPeersAdapter2 mDriversAdapter;
+    public List<WifiP2pDeviceUser> drivers = new ArrayList<>();
 
     TextView mTxtStatus;
+    String mUserID;
 
     private android.os.Handler handler = new android.os.Handler(this);
     public android.os.Handler getHandler() {
@@ -68,12 +83,12 @@ public class PassengerRoleActivity extends BaseActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_passenger);
 
-        setupUI(getResources().getString(R.string.subtitle_activity_passenger_role));
+        setupUI(getString(R.string.title_activity_passenger_role), "");
 
         mTxtStatus = (TextView)findViewById(R.id.txtStatusPassenger);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.btnPassengerSubmit);
+            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.submit_passenger_button);
             fab.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_done));
             fab.setBackgroundColor(getResources().getColor(R.color.ColorAccent));
         }
@@ -83,11 +98,30 @@ public class PassengerRoleActivity extends BaseActivity
         wifiUtil = new WiFiUtil(this);
 
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        String userID = sharedPrefs.getString(Globals.USERIDPREF, "");
+        mUserID = sharedPrefs.getString(Globals.USERIDPREF, "");
 
         // This will start serviceDiscovery
         // for (hopefully) already published service
-        wifiUtil.startRegistrationAndDiscovery(null, userID);
+        wifiUtil.startRegistrationAndDiscovery(this, mUserID);
+
+    }
+
+    protected void setupUI(String title, String subTitle){
+        super.setupUI(title, subTitle);
+
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.submit_passenger_button);
+            fab.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_done));
+            fab.setBackgroundColor(getResources().getColor(R.color.ColorAccent));
+        }
+
+        RecyclerView driversRecycler = (RecyclerView)findViewById(R.id.recyclerViewDrivers);
+        driversRecycler.setHasFixedSize(true);
+        driversRecycler.setLayoutManager(new LinearLayoutManager(this));
+        driversRecycler.setItemAnimator(new DefaultItemAnimator());
+
+        mDriversAdapter = new WiFiPeersAdapter2(this, R.layout.drivers_header, drivers);
+        driversRecycler.setAdapter(mDriversAdapter);
 
     }
 
@@ -131,11 +165,15 @@ public class PassengerRoleActivity extends BaseActivity
             onDebug(null);
             return true;
         } else if( id == R.id.action_code) {
-            RelativeLayout layout = (RelativeLayout) findViewById(R.id.ride_code_layout);
+            LinearLayout layout = (LinearLayout)findViewById(R.id.ride_code_layout);
             layout.setVisibility(View.VISIBLE);
+            FrameLayout transmitterLayout = (FrameLayout)findViewById(R.id.ride_transmitter_layout);
+            transmitterLayout.setVisibility(View.GONE);
         } else if( id == R.id.action_pass_refresh) {
-            RelativeLayout layout = (RelativeLayout) findViewById(R.id.ride_code_layout);
+            LinearLayout layout = (LinearLayout) findViewById(R.id.ride_code_layout);
             layout.setVisibility(View.GONE);
+            FrameLayout transmitterLayout = (FrameLayout)findViewById(R.id.ride_transmitter_layout);
+            transmitterLayout.setVisibility(View.VISIBLE);
         }
 
         return super.onOptionsItemSelected(item);
@@ -325,6 +363,52 @@ public class PassengerRoleActivity extends BaseActivity
         builder.setMessage("Enable Wi-Fi on your device?")
                 .setPositiveButton("Yes", dialogClickListener)
                 .setNegativeButton("No", dialogClickListener).show();
+    }
+
+    //
+    // Implementations of WifiUtil.IPeersChangedListener
+    //
+    @Override
+    public void add(final WifiP2pDeviceUser device) {
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                mDriversAdapter.add(device);
+                mDriversAdapter.notifyDataSetChanged();
+            }
+        });
+    }
+
+    //
+    // Implementation of IPeerClickListener
+    //
+    public void clicked(View view, int position) {
+
+    }
+
+    //
+    // Implementation of IRefreshable
+    //
+    public void refresh() {
+        drivers.clear();
+        mDriversAdapter.notifyDataSetChanged();
+
+        final ImageButton btnRefresh = (ImageButton)findViewById(R.id.btnRefresh);
+        btnRefresh.setVisibility(View.GONE);
+        final ProgressBar progress_refresh = (ProgressBar)findViewById(R.id.progress_refresh);
+        progress_refresh.setVisibility(View.VISIBLE);
+
+        wifiUtil.startRegistrationAndDiscovery(this, mUserID);
+
+        getHandler().postDelayed(
+                new Runnable() {
+                    @Override
+                    public void run() {
+                        btnRefresh.setVisibility(View.VISIBLE);
+                        progress_refresh.setVisibility(View.GONE);
+                    }
+                },
+                5000);
     }
 
 }
