@@ -86,7 +86,8 @@ public class DriverRoleActivity extends BaseActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_role);
 
-        setupUI(getString(R.string.title_activity_driver_role), "");
+        setupUI(getString(R.string.title_activity_driver_role),
+                "");
                 //getResources().getString(R.string.subtitle_activity_driver_role));
         wamsInit();
 

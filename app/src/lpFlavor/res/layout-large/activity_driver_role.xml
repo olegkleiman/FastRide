@@ -20,6 +20,31 @@
     <include
         layout="@layout/tool_bar" />
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/card_backpanel_height"
+        android:orientation="horizontal"
+        android:background="?attr/colorPrimary"
+        android:layout_gravity="center_horizontal"
+        android:gravity="center_horizontal">
+        <TextView android:text="@string/ride_code_label"
+            android:textColor="@color/white"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center" />
+        <TextView
+            android:id="@+id/txtRideCode"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/white"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/default_ride_code"
+            android:layout_gravity="center"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp" />
+    </LinearLayout>
+
     <View
         android:layout_width="match_parent"
         android:layout_height="@dimen/card_backpanel_height"
@@ -34,6 +59,7 @@
         android:elevation="8dp"
         android:layout_marginLeft="@dimen/card_horizontal_margin"
         android:layout_marginRight="@dimen/card_horizontal_margin"
+        android:layout_marginBottom="@dimen/card_horizontal_margin"
         android:layout_marginTop="@dimen/negativeActionBarSize">
 
         <android.support.v7.widget.RecyclerView
@@ -58,22 +84,6 @@
             android:layout_marginBottom="16dp" />
 
     </RelativeLayout>
-
-    <TextView android:text="Ride Code"
-        android:id="@+id/txtRideCode"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:layout_gravity="center_horizontal" />
-
-    <!--<Button-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="@string/btnSubmitText"-->
-        <!--android:onClick="onButtonSubmitRide"-->
-        <!--android:id="@+id/btnSubmitRide"-->
-        <!--android:layout_gravity="center_horizontal" />-->
-
 
     <LinearLayout
         android:id="@+id/debugLayout"

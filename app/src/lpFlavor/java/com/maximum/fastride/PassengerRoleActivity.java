@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.drawable.Drawable;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
@@ -80,18 +81,12 @@ public class PassengerRoleActivity extends BaseActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_passenger);
-
         setupUI(getString(R.string.title_activity_passenger_role), "");
 
         mTxtStatus = (TextView)findViewById(R.id.txtStatusPassenger);
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.submit_passenger_button);
-            fab.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_done));
-            fab.setBackgroundColor(getResources().getColor(R.color.ColorAccent));
-        }
 
         wamsInit();
 
@@ -107,12 +102,20 @@ public class PassengerRoleActivity extends BaseActivity
     }
 
     protected void setupUI(String title, String subTitle){
+
         super.setupUI(title, subTitle);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+
             FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.submit_passenger_button);
-            fab.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_done));
-            fab.setBackgroundColor(getResources().getColor(R.color.ColorAccent));
+
+            if( fab != null ) {
+                fab.setBackgroundColor(getResources().getColor(R.color.ColorAccent));
+                Drawable iconDone = getResources().getDrawable(R.drawable.ic_action_done);
+                if( iconDone != null && fab != null ) {
+                    fab.setDrawableIcon(iconDone);
+                }
+            }
         }
 
         RecyclerView driversRecycler = (RecyclerView)findViewById(R.id.recyclerViewDrivers);

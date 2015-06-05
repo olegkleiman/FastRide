@@ -355,8 +355,12 @@ static final int REGISTER_USER_REQUEST = 1;
     }
 
     public void onPassengerClicked(View v) {
-        Intent intent = new Intent(this, PassengerRoleActivity.class);
-        startActivity(intent);
+        try {
+            Intent intent = new Intent(this, PassengerRoleActivity.class);
+            startActivity(intent);
+        } catch(Exception ex) {
+            Toast.makeText(this, ex.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
 }

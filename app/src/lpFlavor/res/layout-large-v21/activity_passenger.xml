@@ -26,6 +26,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:background="@color/ColorBackground"
+            android:elevation="8dp"
             android:layout_weight="0.5"
             android:layout_marginLeft="@dimen/card_horizontal_margin"
             android:layout_marginRight="@dimen/card_horizontal_margin"

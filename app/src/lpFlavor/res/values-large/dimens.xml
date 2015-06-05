@@ -8,14 +8,14 @@
 
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
-    <dimen name="card_horizontal_margin">36dp</dimen>
+    <dimen name="card_horizontal_margin">16dp</dimen>
     <dimen name="activity_vertical_margin">16dp</dimen>
     <dimen name="diameter">64dp</dimen>
     <dimen name="elevation_low">1dp</dimen>
     <dimen name="elevation_high">4dp</dimen>
     <dimen name="negativeActionBarSize">-56dp</dimen>
     <dimen name="adjustedActionBarSize">54dp</dimen>
-    <dimen name="card_backpanel_height">128dp</dimen>
+    <dimen name="card_backpanel_height">64dp</dimen>
     <dimen name="card_icon_size">24dp</dimen>
 
 </resources>

@@ -81,7 +81,7 @@
         </LinearLayout>
 
         <com.maximum.fastride.utils.FloatingActionButton
-            android:id="@+id/btnPassengerSubmit"
+            android:id="@+id/submit_passenger_button"
             android:layout_width="@dimen/diameter"
             android:layout_height="@dimen/diameter"
             android:layout_gravity="bottom|end"
