@@ -16,18 +16,47 @@
         <include
             layout="@layout/tool_bar" />
 
-        <com.maximum.fastride.utils.FloatingActionButton
-            android:id="@+id/add_car_button"
-            android:layout_width="@dimen/diameter"
-            android:layout_height="@dimen/diameter"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="16dp"
-            android:textSize="24sp"
-            android:onClick="onButtonSubmitRide"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp" />
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="34dp"
+                android:text="Personal Data"/>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="fill_parent"
+            android:layout_height="220dp"
+            android:layout_gravity="center_horizontal"
+            android:background="@color/ColorBackground"
+            android:layout_weight="0.5"
+            android:elevation="8dp"
+            android:layout_marginLeft="@dimen/card_horizontal_margin"
+            android:layout_marginRight="@dimen/card_horizontal_margin"
+            android:layout_marginBottom="@dimen/card_horizontal_margin">
+
+            <ListView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/carsListView" />
+
+            <com.maximum.fastride.utils.FloatingActionButton
+                android:id="@+id/add_car_button"
+                android:layout_width="@dimen/diameter"
+                android:layout_height="@dimen/diameter"
+                android:layout_gravity="bottom|end"
+                android:layout_margin="16dp"
+                android:textSize="24sp"
+                android:onClick="onAddCar"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentRight="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="16dp" />
+
+        </RelativeLayout>
 
     </LinearLayout>
 

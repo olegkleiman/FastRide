@@ -4,6 +4,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Outline;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
@@ -21,12 +22,14 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewOutlineProvider;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.maximum.fastride.adapters.WiFiPeersAdapter2;
 import com.maximum.fastride.adapters.WifiP2pDeviceUser;
 import com.maximum.fastride.model.Ride;
@@ -47,7 +50,10 @@ import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public class DriverRoleActivity extends BaseActivity
@@ -91,10 +97,68 @@ public class DriverRoleActivity extends BaseActivity
                 //getResources().getString(R.string.subtitle_activity_driver_role));
         wamsInit();
 
+        List<String> _cars = new ArrayList<>();
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        Set<String> carsSet = sharedPrefs.getStringSet(Globals.CARS_PREF, new HashSet<String>());
+        if( carsSet != null ) {
+            Iterator<String> iterator = carsSet.iterator();
+            while (iterator.hasNext()) {
+                String carNumber = iterator.next();
+                _cars.add(carNumber);
+            }
+        }
+
+        String[] cars = new String[_cars.size()];
+        cars = _cars.toArray(cars);
+
+        if( cars.length == 0 ) {
+            new MaterialDialog.Builder(this)
+                    .title(R.string.edit_car_dialog_caption2)
+                    .content(R.string.edit_car_dialog_text)
+                    .autoDismiss(true)
+                    .cancelable(false)
+                    .positiveText(getString(R.string.edit_car_button_title2))
+                    .callback(new MaterialDialog.ButtonCallback() {
+                        @Override
+                        public void onPositive(MaterialDialog dialog) {
+                            Intent intent = new Intent(getApplicationContext(),
+                                    SettingsActivity.class);
+                            startActivity(intent);
+                        }
+                    })
+                    .show();
+        }else {
+
+            new MaterialDialog.Builder(this)
+                    .title(R.string.edit_car_dialog_caption1)
+                    .autoDismiss(true)
+                    .cancelable(false)
+                    .items(cars)
+                    .positiveText(getString(R.string.edit_car_button_title))
+                    .itemsCallback(new MaterialDialog.ListCallback() {
+                        @Override
+                        public void onSelection(MaterialDialog dialog,
+                                                View view,
+                                                int which,
+                                                CharSequence text) {
+                            Toast.makeText(getApplicationContext(), text,
+                                    Toast.LENGTH_LONG).show();
+                        }
+                    })
+                    .callback(new MaterialDialog.ButtonCallback() {
+                        @Override
+                        public void onPositive(MaterialDialog dialog) {
+                            Intent intent = new Intent(getApplicationContext(),
+                                    SettingsActivity.class);
+                            startActivity(intent);
+                        }
+                    })
+                    .show();
+        }
+
         wifiUtil = new WiFiUtil(this);
         wifiUtil.deletePersistentGroups();
 
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         mUserID = sharedPrefs.getString(Globals.USERIDPREF, "");
 
         // This will publish the service in DNS-SD and start serviceDiscovery()
@@ -102,13 +166,23 @@ public class DriverRoleActivity extends BaseActivity
 
     }
 
+    @Override
     protected void setupUI(String title, String subTitle){
         super.setupUI(title, subTitle);
 
+        View fab = findViewById(R.id.submit_ride_button);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.submit_ride_button);
-            fab.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_done));
-            fab.setBackgroundColor(getResources().getColor(R.color.ColorAccent));
+            FloatingActionButton _fab = (FloatingActionButton)fab;
+            _fab.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_done));
+            _fab.setBackgroundColor(getResources().getColor(R.color.ColorAccent));
+        } else {
+            fab.setOutlineProvider(new ViewOutlineProvider() {
+                public void getOutline(View view, Outline outline) {
+                    int diameter = getResources().getDimensionPixelSize(R.dimen.diameter);
+                    outline.setOval(0, 0, diameter, diameter);
+                }
+            });
+            fab.setClipToOutline(true);
         }
 
         mTxtStatus = (TextView)findViewById(R.id.txtStatus);

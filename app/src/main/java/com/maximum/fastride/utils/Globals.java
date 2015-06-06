@@ -47,6 +47,7 @@ public class Globals {
     public static final String SERVICE_REG_TYPE = "_presence._tcp";
 
     public static final String USERIDPREF = "userid";
+    public static final String CARS_PREF = "cars";
     public static final String TOKENPREF = "accessToken";
     public static final String WAMSTOKENPREF = "wamsToken";
 

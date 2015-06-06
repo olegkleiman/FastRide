@@ -69,14 +69,18 @@
                     android:layout_marginTop="16dp"
                     android:id="@+id/textView5" />
 
-                <EditText
+                <android.support.design.widget.TextInputLayout
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:inputType="number"
-                    android:maxLength="5"
-                    android:hint="00000"
-                    android:id="@+id/editTextRideCode"
-                    android:layout_gravity="center" />
+                    android:layout_height="wrap_content" >
+                    <EditText
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:inputType="number"
+                        android:maxLength="5"
+                        android:hint="Type here"
+                        android:id="@+id/editTextRideCode"
+                        android:layout_gravity="center" />
+                </android.support.design.widget.TextInputLayout>
 
             </LinearLayout>
 

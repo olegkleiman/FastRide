@@ -17,4 +17,7 @@
     <string name="reclaim_tutorial_fragment">הדרכת ערעור</string>
     <string name="title_activity_driver_role">מצב נהג</string>
     <string name="title_activity_my_rides">הנסיעות שלי</string>
+    <string name="edit_car_button_title">עריכה</string>
+    <string name="edit_car_dialog_caption1">בחר\י את רכב הנוסע</string>
+    <string name="add_car_dialog_caption">הוסף רכב</string>
 </resources>

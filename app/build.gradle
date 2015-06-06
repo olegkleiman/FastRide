@@ -48,5 +48,7 @@ dependencies {
     compile 'com.facebook.android:facebook-android-sdk:3.21.1'
     //compile 'com.facebook.android:facebook-android-sdk:4.0.0'
     compile 'com.google.android.gms:play-services:7.5.0'
+    compile 'com.android.support:design:22.2.0'
     compile 'com.android.support:multidex:1.0.0'
+    compile 'com.afollestad:material-dialogs:0.7.5.2'
 }

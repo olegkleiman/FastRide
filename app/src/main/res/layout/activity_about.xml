@@ -125,6 +125,12 @@
                 android:text="This product includes the software by Oğuz Bilgener (https://github.com/oguzbilgener) distributed under MIT licence. See file LICENCE. "
                 android:id="@+id/textView15"
                 android:layout_marginTop="10dp" />
+
+            <TextView
+                style="@style/SubCaptionStyle"
+                android:text="This product includes the 'material-dialogs' software by Aidan Michael Follestad (https://github.com/afollestad/material-dialogs) distributed under MIT licence. See file LICENCE. "
+                android:id="@+id/textView16"
+                android:layout_marginTop="10dp" />
         </LinearLayout>
 
     </ScrollView>

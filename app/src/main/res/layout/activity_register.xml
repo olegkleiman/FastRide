@@ -46,13 +46,17 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:text="@string/prompt_phone"/>
 
-        <EditText android:id="@+id/phone"
+        <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="@string/phone_hint"
-            android:inputType="phone"
-            android:maxLines="1"
-            android:singleLine="true" />
+            android:layout_height="wrap_content">
+            <EditText android:id="@+id/phone"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/prompt_phone"
+                android:inputType="phone"
+                android:maxLines="1"
+                android:singleLine="true" />
+        </android.support.design.widget.TextInputLayout>
 
         <TextView
             android:layout_width="wrap_content"

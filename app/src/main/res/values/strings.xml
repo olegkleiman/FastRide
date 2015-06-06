@@ -69,6 +69,20 @@
         <item>Passenger</item>
         <item>Reclamation</item>
     </string-array>
+
+    <string name="edit_car_button_title">edit</string>
+    <string name="edit_car_button_title2">Specify</string>
+    <string name="edit_car_dialog_caption1">Choose a riding car</string>
+    <string name="edit_car_dialog_caption2">Specify your car(s)</string>
+    <string name="edit_car_dialog_text">You have not yet specified the car(s) belongs to you.</string>
+    <string name="add_car_dialog_caption">Add a car</string>
+    <string name="edit_car_dialog_caption">Edit a car</string>
+    <string name="add_car_button_add">Add</string>
+    <string name="edit_car_button_save">Save</string>
+    <string name="edit_car_button_delete">Delete</string>
+    <string name="add_car_button_cancel">Cancel</string>
+    <string name="add_car_hint">Car number</string>
+
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
     <string name="fb_error">No network access</string>
