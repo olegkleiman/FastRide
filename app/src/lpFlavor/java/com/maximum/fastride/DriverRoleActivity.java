@@ -86,6 +86,7 @@ public class DriverRoleActivity extends BaseActivity
     TextView mTxtStatus;
 
     String mUserID;
+    String mCarNumber;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -127,7 +128,7 @@ public class DriverRoleActivity extends BaseActivity
                         }
                     })
                     .show();
-        }else {
+        }else if( cars.length > 1) {
 
             new MaterialDialog.Builder(this)
                     .title(R.string.edit_car_dialog_caption1)
@@ -141,8 +142,7 @@ public class DriverRoleActivity extends BaseActivity
                                                 View view,
                                                 int which,
                                                 CharSequence text) {
-                            Toast.makeText(getApplicationContext(), text,
-                                    Toast.LENGTH_LONG).show();
+                            mCarNumber = text.toString();
                         }
                     })
                     .callback(new MaterialDialog.ButtonCallback() {
@@ -154,7 +154,10 @@ public class DriverRoleActivity extends BaseActivity
                         }
                     })
                     .show();
+        } else {
+            mCarNumber = cars[0];
         }
+
 
         wifiUtil = new WiFiUtil(this);
         wifiUtil.deletePersistentGroups();
@@ -288,7 +291,7 @@ public class DriverRoleActivity extends BaseActivity
 
                         Ride ride = new Ride();
                         ride.setCreated(new Date());
-                        ride.setCarNumber("77-555_99");
+                        ride.setCarNumber(mCarNumber);
                         mCurrentRide = ridesTable.insert(ride).get();
 
                     } catch(ExecutionException | InterruptedException ex ) {

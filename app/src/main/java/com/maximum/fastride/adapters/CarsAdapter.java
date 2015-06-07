@@ -41,6 +41,11 @@ public class CarsAdapter extends ArrayAdapter<String> {
     }
 
     @Override
+    public String getItem(int position) {
+        return mItems.get(position);
+    }
+
+    @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View row = convertView;
         CarHolder holder = null;

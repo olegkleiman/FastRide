@@ -129,25 +129,24 @@ public class RegisterActivity extends FragmentActivity
         
         setContentView(R.layout.activity_register);
         Toolbar toolbar = (Toolbar) findViewById(R.id.fastride_toolbar);
+        toolbar.setTitleTextColor(getResources().getColor(R.color.white));
         toolbar.setTitle(getString(R.string.title_activity_register));
-//        TextView toolbarTitle = (TextView) findViewById(R.id.toolbar_title);
-//        toolbarTitle.setText(getString(R.string.title_activity_register));
 
-        final EditText txt = (EditText)findViewById(R.id.phone);
+        final EditText txtPhoneNumber = (EditText)findViewById(R.id.phone);
         final String hint = getString(R.string.phone_hint);
-        txt.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+        txtPhoneNumber.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View view, boolean hasFocus) {
                 if( !hasFocus )
-                    txt.setHint(hint);
+                    txtPhoneNumber.setHint(hint);
 
             }
         });
-        txt.setOnTouchListener(new View.OnTouchListener() {
+        txtPhoneNumber.setOnTouchListener(new View.OnTouchListener() {
 
             @Override
             public boolean onTouch(View v, MotionEvent event) {
-                txt.setHint("");
+                txtPhoneNumber.setHint("");
                 return false;
             }
 

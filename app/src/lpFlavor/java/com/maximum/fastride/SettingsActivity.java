@@ -1,27 +1,20 @@
 package com.maximum.fastride;
 
-import android.annotation.TargetApi;
-import android.app.Activity;
 import android.content.SharedPreferences;
 import android.graphics.Outline;
 import android.os.Build;
-import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
-import com.maximum.fastride.R;
 import com.maximum.fastride.adapters.CarsAdapter;
 import com.maximum.fastride.utils.FloatingActionButton;
 import com.maximum.fastride.utils.Globals;
@@ -69,33 +62,59 @@ public class SettingsActivity extends BaseActivity {
                                     final View view,
                                     int position, long id) {
 
+                final String currentCarNumber =  mCarsAdapter.getItem(position);
+
                 MaterialDialog dialog = new MaterialDialog.Builder(SettingsActivity.this)
                         .title(R.string.edit_car_dialog_caption)
                         .customView(R.layout.dialog_add_car, true)
                         .positiveText(R.string.edit_car_button_save)
                         .negativeText(R.string.add_car_button_cancel)
                         .neutralText(R.string.edit_car_button_delete)
-                        .autoDismiss(true)
+                        .autoDismiss(false)
                         .cancelable(true)
                         .callback(new MaterialDialog.ButtonCallback() {
                             @Override
                             public void onPositive(MaterialDialog dialog) {
+
                                 String carNumber = mCarInput.getText().toString();
-                                mCars.add(carNumber);
-                                mCarsAdapter.add(carNumber);
-                                mCarsAdapter.notifyDataSetChanged();
+                                if( carNumber.length() < 7 ) {
+                                    mCarInput.setError(getString(R.string.car_number_validation_error));
+                                    return;
+                                }
+
+                                if( !carNumber.equals(currentCarNumber) ) {
+
+                                    mCars.remove(currentCarNumber);
+                                    mCars.add(carNumber);
+
+                                    // Adapter's items will be updated since underlaying list changes
+                                    mCarsAdapter.notifyDataSetChanged();
+
+                                    saveCars();
+                                }
+
+                                dialog.dismiss();
                             }
+
+                            @Override
+                            public void onNegative(MaterialDialog dialog) {
+                                dialog.dismiss();
+                            }
+
 
                             @Override
                             public void onNeutral(MaterialDialog dialog) {
                                 String carNumber = mCarInput.getText().toString();
                                 mCarsAdapter.remove(carNumber);
                                 mCarsAdapter.notifyDataSetChanged();
+
+                                saveCars();
+                                dialog.dismiss();
                             }
                         })
                         .build();
                 mCarInput = (EditText) dialog.getCustomView().findViewById(R.id.txtCarNumber);
-                String currentCarNumber =  mCarsAdapter.getItem(position);
+
                 mCarInput.setText(currentCarNumber);
 
                 dialog.show();
@@ -140,9 +159,7 @@ public class SettingsActivity extends BaseActivity {
                         mCarsAdapter.add(carNumber);
                         mCarsAdapter.notifyDataSetChanged();
 
-                        Toast.makeText(SettingsActivity.this,
-                                "Car number: " + mCarInput.getText().toString(),
-                                Toast.LENGTH_LONG).show();
+                        saveCars();
                     }
                 })
                 .build();
@@ -171,6 +188,16 @@ public class SettingsActivity extends BaseActivity {
                     positiveAction.setEnabled(false); // disabled by default
                 }
 
+    private void saveCars() {
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        SharedPreferences.Editor editor = sharedPrefs.edit();
+        Set<String> carsSet = new HashSet<String>();
+        for (String _s : mCars) {
+            carsSet.add(_s);
+        }
+        editor.putStringSet(Globals.CARS_PREF, carsSet);
+        editor.apply();
     }
+}
 
 

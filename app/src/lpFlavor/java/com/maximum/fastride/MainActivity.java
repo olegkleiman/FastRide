@@ -21,7 +21,6 @@ import android.widget.Toast;
 
 import com.google.gson.JsonObject;
 import com.maximum.fastride.adapters.ModesPeersAdapter;
-import com.maximum.fastride.adapters.WiFiPeersAdapter2;
 import com.maximum.fastride.gcm.GCMHandler;
 import com.maximum.fastride.model.FRMode;
 import com.maximum.fastride.model.User;
@@ -112,20 +111,20 @@ static final int REGISTER_USER_REQUEST = 1;
 
             ImageView imageAvatar = (ImageView) findViewById(R.id.userAvatarView);
 
-            Drawable drawable = //getResources().getDrawable(R.drawable.ic_action_car);
+            Drawable drawable =
                     (Globals.drawMan.userDrawable(this,
                     "1",
                     user.getPictureURL())).get();
+            if( drawable != null ) {
+                drawable = RoundedDrawable.fromDrawable(drawable);
+                ((RoundedDrawable) drawable)
+                        .setCornerRadius(Globals.PICTURE_CORNER_RADIUS)
+                        .setBorderColor(Color.WHITE)
+                        .setBorderWidth(Globals.PICTURE_BORDER_WIDTH)
+                        .setOval(true);
 
-            drawable = RoundedDrawable.fromDrawable(drawable);
-            ((RoundedDrawable) drawable)
-                .setCornerRadius(Globals.PICTURE_CORNER_RADIUS)
-                .setBorderColor(Color.WHITE)
-                .setBorderWidth(Globals.PICTURE_BORDER_WIDTH)
-                .setOval(true);
-
-            imageAvatar.setImageDrawable(drawable);
-
+                imageAvatar.setImageDrawable(drawable);
+            }
         } catch (Exception e) {
             Log.e(LOG_TAG, e.getMessage());
         }

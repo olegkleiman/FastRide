@@ -6,6 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:fitsSystemWindows="true"
+    android:background="@color/white"
     tools:context="com.maximum.fastride.MainActivity" >
 
     <!-- The main content view -->
@@ -28,7 +29,6 @@
         <ImageView
             android:layout_width="@dimen/avatar_size"
             android:layout_height="@dimen/avatar_size"
-            android:src="@drawable/ic_action_car"
             android:layout_marginEnd="@dimen/avatar_margin_end"
             android:layout_marginRight="@dimen/avatar_margin_end"
             android:layout_marginTop="@dimen/avatar_margin_top"

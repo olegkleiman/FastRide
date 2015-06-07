@@ -39,12 +39,12 @@
         android:id="@+id/register_form"
         android:visibility="invisible">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="@string/prompt_phone"/>
+        <!--<TextView-->
+            <!--android:layout_width="wrap_content"-->
+            <!--android:layout_height="wrap_content"-->
+            <!--android:textColor="@color/black"-->
+            <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
+            <!--android:text="@string/prompt_phone"/>-->
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
@@ -71,6 +71,18 @@
             android:layout_height="wrap_content"
             android:checked="true"
             android:id="@+id/cbUsePhone" />
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:textAppearance="?android:attr/textAppearanceSmall"
+            android:text="Cars"/>
+
+        <ListView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/carsListView" />
 
         <Button
             android:layout_marginTop="12dp"

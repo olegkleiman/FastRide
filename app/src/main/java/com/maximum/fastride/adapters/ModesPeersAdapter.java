@@ -1,6 +1,8 @@
 package com.maximum.fastride.adapters;
 
 import android.content.Context;
+import android.graphics.Color;
+import android.provider.CalendarContract;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -13,6 +15,7 @@ import android.widget.TextView;
 import com.maximum.fastride.R;
 import com.maximum.fastride.model.FRMode;
 import com.maximum.fastride.utils.IRecyclerClickListener;
+import com.maximum.fastride.views.LayoutRipple;
 
 import java.util.List;
 
@@ -101,7 +104,8 @@ public class ModesPeersAdapter extends RecyclerView.Adapter<ModesPeersAdapter.Vi
         // Row views
         TextView modeName;
         ImageView modeImage;
-        LinearLayout rowLayout;
+        LayoutRipple rowLayout;
+        //LinearLayout rowLayout;
 
         public ViewHolder(IRecyclerClickListener clickListener,
                           View itemLayoutView,
@@ -114,13 +118,15 @@ public class ModesPeersAdapter extends RecyclerView.Adapter<ModesPeersAdapter.Vi
             if(viewType == TYPE_ITEM){
                 modeName = (TextView) itemLayoutView.findViewById(R.id.mode_name);
                 modeImage = (ImageView) itemLayoutView.findViewById(R.id.mode_image);
-                rowLayout = (LinearLayout) itemLayoutView.findViewById(R.id.mode_row);
+                rowLayout = (LayoutRipple) itemLayoutView.findViewById(R.id.mode_row);
+                //rowLayout = (LinearLayout) itemLayoutView.findViewById(R.id.mode_row);
                 rowLayout.setOnClickListener(this);
             }
         }
 
         @Override
         public void onClick(View v) {
+            v.invalidate();
             int position = this.getLayoutPosition();
             if( mClickListener != null ) {
                 mClickListener.clicked(v, position);

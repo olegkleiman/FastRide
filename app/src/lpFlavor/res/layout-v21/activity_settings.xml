@@ -8,31 +8,56 @@
     android:fitsSystemWindows="true"
     tools:context="com.maximum.fastride.SettingsActivity" >
 
-    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:tools="http://schemas.android.com/tools"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingLeft="@dimen/activity_horizontal_margin"
-        android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin"
-        android:paddingBottom="@dimen/activity_vertical_margin"
-        tools:context="com.maximum.fastride.SettingsActivity">
+        android:orientation="vertical">
 
-        <ImageButton
-            android:id="@+id/add_car_button"
-            android:layout_width="@dimen/diameter"
-            android:layout_height="@dimen/diameter"
-            android:background="@drawable/oval_ripple"
-            android:tint="@android:color/white"
-            android:stateListAnimator="@anim/button_elevation"
-            android:elevation="@dimen/elevation_high"
-            android:src="@android:drawable/ic_input_add"
-            android:layout_gravity="end|bottom"
-            android:onClick="onButtonAdd"
-            android:layout_marginRight="16dp"
-            android:layout_marginBottom="16dp" />
+        <include
+            layout="@layout/tool_bar" />
+
+        <LinearLayout
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:layout_width="fill_parent"
+                android:layout_height="34dp"
+                android:text="Personal Data"/>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:elevation="8dp"
+            android:paddingLeft="@dimen/activity_horizontal_margin"
+            android:paddingRight="@dimen/activity_horizontal_margin"
+            android:paddingTop="@dimen/activity_vertical_margin"
+            android:paddingBottom="@dimen/activity_vertical_margin">
+
+            <ListView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/carsListView" />
+
+            <ImageButton
+                android:id="@+id/add_car_button"
+                android:layout_width="@dimen/diameter"
+                android:layout_height="@dimen/diameter"
+                android:background="@drawable/oval_ripple"
+                android:tint="@android:color/white"
+                android:stateListAnimator="@anim/button_elevation"
+                android:elevation="@dimen/elevation_high"
+                android:src="@android:drawable/ic_input_add"
+                android:layout_gravity="end|bottom"
+                android:onClick="onAddCar"
+                android:layout_alignParentBottom="true"
+                android:layout_alignParentEnd="true"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp" />
 
     </RelativeLayout>
+
+    </LinearLayout>
 
     <!-- The navigation drawer -->
     <include
