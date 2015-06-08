@@ -1,9 +1,12 @@
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/register_layout"
     android:orientation="vertical"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.maximum.fastride.RegisterActivity" >
+    tools:context="com.maximum.fastride.RegisterActivity"
+    android:gravity="bottom">
 
     <include
         layout="@layout/tool_bar" />
@@ -16,7 +19,11 @@
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
         android:gravity="center"
-        android:orientation="vertical">
+        android:orientation="vertical"
+        android:layout_below="@+id/fastride_toolbar"
+        android:layout_alignRight="@+id/register_form"
+        android:layout_alignEnd="@+id/register_form"
+        android:visibility="visible">
 
             <com.facebook.widget.LoginButton
                 android:id="@+id/loginButton"
@@ -32,30 +39,39 @@
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
         android:paddingTop="@dimen/activity_vertical_margin"
-        android:layout_marginTop="12dp"
         android:orientation="vertical"
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
         android:id="@+id/register_form"
-        android:visibility="invisible">
+        android:visibility="gone"
+        android:layout_alignLeft="@+id/btnRegistrationNext"
+        android:layout_alignStart="@+id/btnRegistrationNext"
+        android:layout_above="@+id/btnRegistrationNext"
+        android:layout_below="@+id/fastride_toolbar">
 
-        <!--<TextView-->
-            <!--android:layout_width="wrap_content"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:textColor="@color/black"-->
-            <!--android:textAppearance="?android:attr/textAppearanceSmall"-->
-            <!--android:text="@string/prompt_phone"/>-->
+        <TextView
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="Complete your info"
+            android:id="@+id/textView" />
 
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_below="@+id/textView">
             <EditText android:id="@+id/phone"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/prompt_phone"
                 android:inputType="phone"
                 android:maxLines="1"
-                android:singleLine="true" />
+                android:singleLine="true"
+                android:layout_below="@+id/textView"
+                android:layout_alignLeft="@+id/cbUsePhone"
+                android:layout_alignStart="@+id/cbUsePhone" />
         </android.support.design.widget.TextInputLayout>
 
         <TextView
@@ -64,37 +80,43 @@
             android:textAppearance="?android:attr/textAppearanceSmall"
             android:textColor="@color/black"
             android:text="@string/prompt_use_phone"
-            android:id="@+id/switchUsePhone"/>
+            android:id="@+id/switchUsePhone" />
 
         <CheckBox
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:checked="true"
-            android:id="@+id/cbUsePhone" />
+            android:id="@+id/cbUsePhone"
+            android:layout_below="@+id/switchUsePhone"
+            android:layout_alignLeft="@+id/textView2"
+            android:layout_alignStart="@+id/textView2" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="@color/black"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Cars"/>
 
-        <ListView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/carsListView" />
-
-        <Button
-            android:layout_marginTop="12dp"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:background="@color/ColorPrimaryDark"
-            android:textColor="@color/white"
-            android:text="@string/action_register"
-            android:id="@+id/btnRegister"
-            android:layout_gravity="center"
-            android:onClick="registerUser" />
     </LinearLayout>
 
+    <LinearLayout
+        android:id="@+id/register_cars_form"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_alignTop="@+id/fb_login_form">
 
-</LinearLayout>
+
+    </LinearLayout>
+
+    <Button
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:onClick="onRegisterNext"
+        android:background="@color/ColorPrimary"
+        android:layout_alignParentBottom="true"
+        android:textColor="@color/white"
+        android:text="Next"
+        android:id="@+id/btnRegistrationNext"
+        android:layout_gravity="bottom"
+        android:paddingBottom="-16dp"
+        android:paddingRight="-16dp"
+        android:paddingTop="-16dp"/>
+
+</RelativeLayout>
+

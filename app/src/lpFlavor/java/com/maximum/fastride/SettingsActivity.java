@@ -164,29 +164,29 @@ public class SettingsActivity extends BaseActivity {
                 })
                 .build();
 
-                final View positiveAction = dialog.getActionButton(DialogAction.POSITIVE);
-                mCarInput = (EditText) dialog.getCustomView().findViewById(R.id.txtCarNumber);
-                mCarInput.addTextChangedListener(new TextWatcher() {
+        final View positiveAction = dialog.getActionButton(DialogAction.POSITIVE);
+        mCarInput = (EditText) dialog.getCustomView().findViewById(R.id.txtCarNumber);
+        mCarInput.addTextChangedListener(new TextWatcher() {
 
-                        @Override
-                        public void beforeTextChanged (CharSequence s,int start, int count, int after){
+                @Override
+                public void beforeTextChanged (CharSequence s,int start, int count, int after){
 
-                        }
-
-                        @Override
-                        public void onTextChanged (CharSequence s,int start, int before, int count){
-                            positiveAction.setEnabled(s.toString().trim().length() > 0);
-                        }
-
-                        @Override
-                        public void afterTextChanged (Editable s){
-
-                        }
-                    });
-
-                    dialog.show();
-                    positiveAction.setEnabled(false); // disabled by default
                 }
+
+                @Override
+                public void onTextChanged (CharSequence s,int start, int before, int count){
+                    positiveAction.setEnabled(s.toString().trim().length() > 0);
+                }
+
+                @Override
+                public void afterTextChanged (Editable s){
+
+                }
+            });
+
+        dialog.show();
+        positiveAction.setEnabled(false); // disabled by default
+    }
 
     private void saveCars() {
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());

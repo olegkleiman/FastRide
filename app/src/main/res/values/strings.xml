@@ -12,7 +12,7 @@
     <string name="prompt_email">Email</string>
     <string name="prompt_phone">Phone number</string>
     <string name="phone_hint">050-1234-567</string>
-    <string name="prompt_use_phone">Show your number</string>
+    <string name="prompt_use_phone">Show your number to others</string>
     <string name="prompt_password">Password (optional)</string>
     <string name="action_sign_in">Sign in or register</string>
     <string name="action_sign_in_short">Sign in</string>
@@ -91,6 +91,9 @@
     <string name="title_activity_about">About</string>
     <string name="version_title">Version Alpha 1</string>
     <string name="dialog_confirm_registration">Replace previous registration?</string>
+    <string name="registration_already_performed">You already registered with Fast Ride app.</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
 
     <string name="copyright">Copyright (C) 2015 Maximum</string>
         <string name="license">Licensed under the Apache License, Version 2.0 (the "License");
@@ -138,5 +141,8 @@ limitations under the License.</string>
     <string name="geofence_transition_notification_text">Click notification to return to app</string>
     <string name="geofences_added">Geofences added</string>
     <string name="geofences_removed">Geofences removed</string>
+    <string name="title_activity_register2">Register2Activity</string>
+
+    <string name="hello_world">Hello world!</string>
 
 </resources>

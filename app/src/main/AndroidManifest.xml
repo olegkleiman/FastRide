@@ -48,7 +48,6 @@
             android:label="@string/title_activity_camera"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" >
         </activity>
-
         <activity
             android:name="com.facebook.LoginActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
@@ -63,7 +62,6 @@
             android:name=".ConfirmRideActivity"
             android:label="@string/title_activity_confirm_ride" >
         </activity>
-
         <activity
             android:name=".TutorialActivity"
             android:label="@string/title_activity_tutorial"
@@ -89,8 +87,12 @@
             android:name=".TransferService"
             android:exported="false" >
         </service>
-        
         <service android:name="services.GeofenceTransitionsIntentService" />
+
+        <activity
+            android:name=".Register2Activity"
+            android:label="@string/title_activity_register2" >
+        </activity>
     </application>
 
 </manifest>

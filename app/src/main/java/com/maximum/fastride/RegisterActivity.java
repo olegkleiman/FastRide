@@ -1,7 +1,10 @@
 package com.maximum.fastride;
 
 import android.app.DialogFragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
@@ -16,6 +19,7 @@ import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.AutoCompleteTextView;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -23,6 +27,7 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.facebook.AppEventsLogger;
 import com.facebook.FacebookAuthorizationException;
 import com.facebook.FacebookException;
@@ -174,7 +179,8 @@ public class RegisterActivity extends FragmentActivity
                                 loginLayout.setVisibility(View.GONE);
 
                             progress = ProgressDialog.show(RegisterActivity.this,
-                                    "Almost there", "Making things ready");
+                                    "Almost there",
+                                    "Making things ready");
                         }
 
                         @Override
@@ -198,14 +204,36 @@ public class RegisterActivity extends FragmentActivity
                                 if( _users.getTotalCount() >= 1 ) {
                                     User registeredUser = _users.get(0);
 
+//                                    try {
+//                                        new AlertDialogWrapper.Builder(RegisterActivity.this)
+//                                                .setTitle(R.string.dialog_confirm_registration)
+//                                                .setMessage(R.string.registration_already_performed)
+//                                                .autoDismiss(true)
+//                                                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+//                                                    @Override
+//                                                    public void onClick(DialogInterface dialog, int which) {
+//                                                        //dialog.dismiss();
+//                                                    }
+//                                                })
+//                                                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+//                                                    @Override
+//                                                    public void onClick(DialogInterface dialog, int which) {
+//                                                        //dialog.dismiss();
+//                                                    }
+//                                                }).show();
+//                                    } catch (Exception e) {
+//                                        Log.e("FR", e.getMessage());
+//                                    }
+
                                     //ConfirmRegistrationFragment dialog =
                                      new ConfirmRegistrationFragment()
                                     .setUser(registeredUser)
                                     .show(getFragmentManager(), "RegistrationDialogFragment");
 
-                                    // Just prevent body execution with onPostExecute()
+                                    // Just prevent body execution with onPostExecute().
+                                    // Normal flow continues from positive button handler.
                                     mEx = new Exception();
-                                 }
+                                }
                                 else {
 
                                     saveFBUser(user);
@@ -257,64 +285,12 @@ public class RegisterActivity extends FragmentActivity
         form.setVisibility(View.VISIBLE);
     }
 
-    public void registerUser(View v) {
-
-        EditText txtUser = (EditText) findViewById(R.id.phone);
-        if (txtUser.getText().toString().isEmpty()) {
-
-            String noPhoneNumber = getResources().getString(R.string.no_phone_number);
-            txtUser.setError(noPhoneNumber);
-            return;
-        }
-
-        final ProgressDialog progress = ProgressDialog.show(this, "Adding", "New user");
-        try{
-
-            User newUser = new User();
-            newUser.setRegistrationId(Globals.FB_PROVIDER_FOR_STORE + fbUser.getId());
-            newUser.setFirstName( fbUser.getFirstName() );
-            newUser.setLastName( fbUser.getLastName() );
-            String pictureURL = "http://graph.facebook.com/" + fbUser.getId() + "/picture?type=large";
-            newUser.setPictureURL(pictureURL);
-            newUser.setEmail((String)fbUser.getProperty("email"));
-            newUser.setPhone(txtUser.getText().toString());
-            CheckBox cbUsePhone = (CheckBox)findViewById(R.id.cbUsePhone);
-            newUser.setUsePhone(cbUsePhone.isChecked());
-
-            String android_id = Settings.Secure.getString(this.getContentResolver(),
-                    Settings.Secure.ANDROID_ID);
-            newUser.setDeviceId(android_id);
-
-            newUser.setPlatform(Globals.PLATFORM);
-
-            newUser.save(this);
-
-            // 'Users' table is defined with 'Anybody with the Application Key'
-            // permissions for READ and INSERT operations, so no authentication is
-            // required for adding new user to it
-            usersTable.insert(newUser, new TableOperationCallback<User>() {
-                @Override
-                public void onCompleted(User user, Exception e, ServiceFilterResponse serviceFilterResponse) {
-                    progress.dismiss();
-
-                    if( e != null ) {
-                        Toast.makeText(RegisterActivity.this,
-                                e.getMessage(), Toast.LENGTH_LONG).show();
-                    } else {
-                        Intent returnIntent = new Intent();
-                        returnIntent.putExtra(Globals.TOKENPREF, mAccessToken);
-                        setResult(RESULT_OK, returnIntent);
-                        finish();
-                    }
-                }
-            });
-
-        } catch(Exception ex){
-            Toast.makeText(this, ex.getMessage(), Toast.LENGTH_LONG).show();
-        } finally {
-            progress.dismiss();
-        }
+    private void hideRegistrationForm() {
+        LinearLayout form = (LinearLayout)findViewById(R.id.register_form);
+        form.setVisibility(View.GONE);
     }
+
+
 
     @Override
     public void onResume() {
@@ -383,6 +359,86 @@ public class RegisterActivity extends FragmentActivity
             mAccessToken = session.getAccessToken();
         }
 
+    }
+
+    boolean bCardsFragmentDisplayed = false;
+
+    public void onRegisterNext(View v){
+
+        if( !bCardsFragmentDisplayed ) {
+
+            EditText txtUser = (EditText) findViewById(R.id.phone);
+            if (txtUser.getText().toString().isEmpty()) {
+
+                String noPhoneNumber = getResources().getString(R.string.no_phone_number);
+                txtUser.setError(noPhoneNumber);
+                return;
+            }
+
+            final ProgressDialog progress = ProgressDialog.show(this, "Processing", "Adding your data");
+            try {
+
+                User newUser = new User();
+
+                newUser.setRegistrationId(Globals.FB_PROVIDER_FOR_STORE + fbUser.getId());
+                newUser.setFirstName( fbUser.getFirstName() );
+                newUser.setLastName( fbUser.getLastName() );
+                String pictureURL = "http://graph.facebook.com/" + fbUser.getId() + "/picture?type=large";
+                newUser.setPictureURL(pictureURL);
+                newUser.setEmail((String)fbUser.getProperty("email"));
+                newUser.setPhone(txtUser.getText().toString());
+                CheckBox cbUsePhone = (CheckBox)findViewById(R.id.cbUsePhone);
+                newUser.setUsePhone(cbUsePhone.isChecked());
+
+                String android_id = Settings.Secure.getString(this.getContentResolver(),
+                        Settings.Secure.ANDROID_ID);
+                newUser.setDeviceId(android_id);
+
+                newUser.setPlatform(Globals.PLATFORM);
+
+                newUser.save(this);
+
+                // 'Users' table is defined with 'Anybody with the Application Key'
+                // permissions for READ and INSERT operations, so no authentication is
+                // required for adding new user to it
+                usersTable.insert(newUser, new TableOperationCallback<User>() {
+                    @Override
+                    public void onCompleted(User user, Exception e, ServiceFilterResponse serviceFilterResponse) {
+                        progress.dismiss();
+
+                        if( e != null ) {
+                            Toast.makeText(RegisterActivity.this,
+                                    e.getMessage(), Toast.LENGTH_LONG).show();
+                        } else {
+
+                            hideRegistrationForm();
+
+                            FragmentManager fragmentManager = getFragmentManager();
+                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+
+                            RegisterCarsFragment fragment = new RegisterCarsFragment();
+                            fragmentTransaction.add(R.id.register_cars_form, fragment);
+                            fragmentTransaction.commit();
+
+                            bCardsFragmentDisplayed = true;
+                            Button btnNext = (Button)findViewById(R.id.btnRegistrationNext);
+                            btnNext.setText("Finish");
+                        }
+                    }
+                });
+
+            } catch(Exception ex){
+                Toast.makeText(this, ex.getMessage(), Toast.LENGTH_LONG).show();
+            } finally {
+                progress.dismiss();
+            }
+
+        } else {
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra(Globals.TOKENPREF, mAccessToken);
+            setResult(RESULT_OK, returnIntent);
+            finish();
+        }
     }
 	
 }
