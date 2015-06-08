@@ -1,5 +1,6 @@
 package com.maximum.fastride.utils;
 
+import android.app.PendingIntent;
 import android.content.ContentQueryMap;
 import android.content.Context;
 import android.content.Intent;
@@ -7,6 +8,7 @@ import android.database.Observable;
 import android.os.Build;
 
 import com.google.android.gms.common.data.DataBufferObserver;
+import com.google.android.gms.location.Geofence;
 import com.google.android.gms.maps.model.LatLng;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 
@@ -84,15 +86,9 @@ public class Globals {
     public static final int TRACE_MESSAGE = 0x400 + 3;
 
     // Geofences
-
     public static final HashMap<String, LatLng> FWY_AREA_LANDMARKS = new HashMap<String, LatLng>();
-    static {
-        // Home. Petach-Tikwa
-        FWY_AREA_LANDMARKS.put("Home", new LatLng(32.0746, 34.872));
-
-        // Googleplex.
-        FWY_AREA_LANDMARKS.put("GOOGLE", new LatLng(37.422611,-122.0840577));
-    }
+    public static ArrayList<Geofence> GEOFENCES = new ArrayList<Geofence>();
+    public static PendingIntent GeofencePendingIntent;
 
     public static final long GEOFENCE_EXPIRATION_IN_HOURS = 12;
     public static final long GEOFENCE_EXPIRATION_IN_MILLISECONDS =

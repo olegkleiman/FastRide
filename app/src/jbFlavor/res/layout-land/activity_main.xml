@@ -42,7 +42,7 @@
                     android:layout_width="fill_parent"
                     android:layout_height="0dp"
                     android:layout_weight="0.3"
-                    android:text="@string/btnDriverText"
+                    android:text="Driver"
                     android:id="@+id/btnDriver"
                     android:onClick="onDriverClicked"
                     android:layout_gravity="center_horizontal" />
@@ -50,7 +50,7 @@
                     android:layout_width="fill_parent"
                     android:layout_height="48dp"
                     android:layout_weight="0.5"
-                    android:text="@string/btnPassengerText"
+                    android:text="Passenger"
                     android:id="@+id/btnPassenger"
                     android:onClick="onPassengerClicked"
                     android:layout_gravity="center_horizontal" />

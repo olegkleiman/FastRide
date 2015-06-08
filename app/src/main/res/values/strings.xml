@@ -29,8 +29,8 @@
     <string name="facebook_app_id">1554616841424048</string>
     <string name="title_section_user">User Profile</string>
     <string name="title_section_cars">Cars</string>
-    <string name="btnDriverText">Driver</string>
-    <string name="btnPassengerText">Passenger</string>
+    <string name="mode_name_driver">Driver</string>
+    <string name="mode_name_passenger">Passenger</string>
     <string name="btnFindRide">Find a ride</string>
 
     <string name="title_activity_main">Fast Ride</string>

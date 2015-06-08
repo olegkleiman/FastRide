@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">FastRide</string>
-    <string name="btnDriverText">נהג</string>
-    <string name="btnPassengerText">נוסע</string>
+    <string name="mode_name_driver">נהג</string>
+    <string name="mode_name_passenger">נוסע</string>
     <string name="btnFindRide">חפש נסיעה</string>
     <string name="no_phone_number">חובה להזין מספר טלפון, אך אפשר לבחור לא לשתף אותו עם משתמשים אחרים במתג הבא</string>
     <string name="btnSubmitText">  בקש פטור</string>
