@@ -30,6 +30,7 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
@@ -114,6 +115,9 @@ public class DriverRoleActivity extends BaseActivity
 
     String mUserID;
     String mCarNumber;
+
+    final int WIFI_CONNECT_REQUEST = 1;// request code for starting WiFi connection
+                                        // handled  in onActivityResult
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -443,7 +447,7 @@ public class DriverRoleActivity extends BaseActivity
                         ).setResultCallback(DriverRoleActivity.this); // Result processed in onResult().
                     }
 
-                } catch (InterruptedException | ExecutionException ex) {
+                } catch (Exception ex) {
                     Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
                 }
 
@@ -672,14 +676,26 @@ public class DriverRoleActivity extends BaseActivity
             @Override
             public void onClick(DialogInterface dialogInterface, int which) {
                 if( which == DialogInterface.BUTTON_POSITIVE ) {
-                    startActivity(new Intent(strIntent));
+                    startActivityForResult(new Intent(strIntent), WIFI_CONNECT_REQUEST);
                 }
             }};
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Enable Wi-Fi on your device?")
-                .setPositiveButton("Yes", dialogClickListener)
-                .setNegativeButton("No", dialogClickListener).show();
+        new AlertDialogWrapper.Builder(this)
+                .setTitle(R.string.enable_wifi_question)
+                .setNegativeButton(R.string.no, dialogClickListener)
+                .setPositiveButton(R.string.yes, dialogClickListener)
+                .show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data){
+        if( requestCode == WIFI_CONNECT_REQUEST) {
+            // if( resultCode == RESULT_OK ) {
+            // How to distinguish between successful connection
+            // and just pressing back frm there?
+                wamsInit();
+            //}
+        }
     }
 
     //

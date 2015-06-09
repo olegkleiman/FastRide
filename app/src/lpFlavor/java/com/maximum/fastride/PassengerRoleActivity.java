@@ -32,6 +32,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.maximum.fastride.adapters.WiFiPeersAdapter2;
 import com.maximum.fastride.adapters.WifiP2pDeviceUser;
 import com.maximum.fastride.model.Join;
@@ -362,10 +363,11 @@ public class PassengerRoleActivity extends BaseActivity
                 }
             }};
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage("Enable Wi-Fi on your device?")
-                .setPositiveButton("Yes", dialogClickListener)
-                .setNegativeButton("No", dialogClickListener).show();
+        new AlertDialogWrapper.Builder(this)
+                .setTitle(R.string.enable_wifi_question)
+                .setNegativeButton(R.string.no, dialogClickListener)
+                .setPositiveButton(R.string.yes, dialogClickListener)
+                .show();
     }
 
     //

@@ -83,6 +83,7 @@
     <string name="add_car_button_cancel">Cancel</string>
     <string name="add_car_hint">Car number</string>
     <string name="car_number_validation_error">Type in a valid car number</string>
+    <string name="enable_wifi_question">Enable Wi-Fi on your device?</string>
 
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
