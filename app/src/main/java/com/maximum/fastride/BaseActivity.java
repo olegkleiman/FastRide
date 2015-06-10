@@ -151,9 +151,6 @@ public class BaseActivity extends ActionBarActivity
 
         mDrawerToggle.setDrawerIndicatorEnabled(true);
         mDrawerLayout.setDrawerListener(mDrawerToggle);
-
-
-
     }
 
     @Override

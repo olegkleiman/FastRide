@@ -54,6 +54,7 @@ import com.maximum.fastride.utils.IRecyclerClickListener;
 import com.maximum.fastride.utils.IRefreshable;
 import com.maximum.fastride.utils.ITrace;
 import com.maximum.fastride.utils.WiFiUtil;
+import com.maximum.fastride.utils.wamsUtils;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.MobileServiceList;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceUser;
@@ -80,7 +81,7 @@ import java.util.Random;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
-public class DriverRoleActivity extends BaseActivity
+public class DriverRoleActivity extends BaseActivityWithGeofences
                 implements ITrace,
                            IMessageTarget,
                            Handler.Callback,
@@ -98,8 +99,6 @@ public class DriverRoleActivity extends BaseActivity
 
     public static MobileServiceClient wamsClient;
     private MobileServiceTable<Ride> ridesTable;
-    private MobileServiceSyncTable<GFence> mGFencesSyncTable;
-    private SQLiteLocalStore mLocalStore;
 
     RecyclerView mPeersRecyclerView;
     WiFiPeersAdapter2 mPeersAdapter;
@@ -126,6 +125,8 @@ public class DriverRoleActivity extends BaseActivity
 
         setupUI(getString(R.string.title_activity_driver_role), "");
         wamsInit();
+
+        initGeofences(wamsClient);
 
         List<String> _cars = new ArrayList<>();
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -238,12 +239,6 @@ public class DriverRoleActivity extends BaseActivity
     public void onPause() {
         super.onPause();
         wifiUtil.unregisterReceiver();
-
-        LocationServices.GeofencingApi.removeGeofences(
-                getGoogleApiClient(),
-                // This is the same pending intent that was used in addGeofences().
-                getGeofencePendingIntent()
-        ).setResultCallback(this); // Result processed in onResult().
     }
 
     @Override
@@ -301,7 +296,7 @@ public class DriverRoleActivity extends BaseActivity
 
             wamsClient.setCurrentUser(wamsUser);
 
-            geoFencesInit();
+            //geoFencesInit();
 
             ridesTable = wamsClient.getTable("rides", Ride.class);
 
@@ -342,153 +337,6 @@ public class DriverRoleActivity extends BaseActivity
         } catch(MalformedURLException ex ) {
             Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
         }
-    }
-
-    private void geoFencesInit(){
-        if( wamsClient == null )
-            return;
-
-        try {
-
-            mLocalStore = new SQLiteLocalStore(wamsClient.getContext(),
-                                                "gfences", null, 1);
-            MobileServiceSyncHandler handler = new ConflictResolvingSyncHandler();
-            MobileServiceSyncContext syncContext = wamsClient.getSyncContext();
-            if (!syncContext.isInitialized()) {
-                Map<String, ColumnDataType> tableDefinition = new HashMap<>();
-                tableDefinition.put("id", ColumnDataType.String);
-                tableDefinition.put("lat", ColumnDataType.Number);
-                tableDefinition.put("lon", ColumnDataType.Number);
-                tableDefinition.put("when_updated", ColumnDataType.Date);
-                tableDefinition.put("__deleted", ColumnDataType.Boolean);
-                tableDefinition.put("__version", ColumnDataType.String);
-
-                mLocalStore.defineTable("gfences", tableDefinition);
-                syncContext.initialize(mLocalStore, null).get();
-            }
-
-            mGFencesSyncTable = wamsClient.getSyncTable("gfences", GFence.class);
-
-            refreshGeofences();
-
-        } catch( MobileServiceLocalStoreException| ExecutionException |InterruptedException ex ) {
-            Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
-        }
-
-    }
-
-    private void refreshGeofences() {
-
-        if( mGFencesSyncTable == null )
-            return;
-
-        new AsyncTask<Object, Void, Void>() {
-            @Override
-            protected Void doInBackground(Object... params) {
-
-                try {
-
-                    Query pullQuery = wamsClient.getTable(GFence.class).where();
-
-                    mGFencesSyncTable.purge(pullQuery);
-                    mGFencesSyncTable.pull(pullQuery).get();
-
-                    MobileServiceList<GFence> gFences = mGFencesSyncTable.read(pullQuery).get();
-
-                    // After getting landmark coordinates from WAMS,
-                    // the steps for dealing with geofences are following:
-                    // 1. populate FWY_AREA_LANDMARKS in Globals
-                    // 2. based on this hashmap, populate GEOFENCES in Globals
-                    // 3. create GeofencingRequest request based on GEOFENCES list
-                    // 4. define pending intent for geofences transitions
-                    // 5. add geofences to Google API service
-
-                    Random r = new Random();
-                    String gFenceName = "gf_";
-                    for (GFence _gFence : gFences) {
-                        gFenceName += r.nextInt(100);
-                        double lat = _gFence.getLat();
-                        double lon = _gFence.getLat();
-                        LatLng latLng = new LatLng(lat, lon);
-                        Globals.FWY_AREA_LANDMARKS.put(gFenceName, latLng);
-                    }
-
-                    for (Map.Entry<String, LatLng> entry : Globals.FWY_AREA_LANDMARKS.entrySet()) {
-
-                        Globals.GEOFENCES.add(new Geofence.Builder()
-                                .setRequestId(entry.getKey())
-
-                                // Set the circular region of this geofence.
-                                .setCircularRegion(
-                                        entry.getValue().latitude,
-                                        entry.getValue().longitude,
-                                        Globals.GEOFENCE_RADIUS_IN_METERS
-                                )
-                                        // Set the expiration duration of the geofence. This geofence gets automatically
-                                        // removed after this period of time.
-                                .setExpirationDuration(Globals.GEOFENCE_EXPIRATION_IN_MILLISECONDS)
-                                // Set the transition types of interest. Alerts are only generated for these
-                                // transition. We track entry and exit transitions here.
-                                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                                                    Geofence.GEOFENCE_TRANSITION_EXIT)
-                                .build());
-                    }
-
-                    GeofencingRequest geoFencingRequest = getGeofencingRequest();
-                    if( geoFencingRequest != null ) {
-                        LocationServices.GeofencingApi.addGeofences(
-                                getGoogleApiClient(), // from base activity
-                                // The GeofenceRequest object.
-                                geoFencingRequest,
-                                // A pending intent that that is reused when calling removeGeofences(). This
-                                // pending intent is used to generate an intent when a matched geofence
-                                // transition is observed.
-                                getGeofencePendingIntent()
-                        ).setResultCallback(DriverRoleActivity.this); // Result processed in onResult().
-                    }
-
-                } catch (Exception ex) {
-                    Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
-                }
-
-                return null;
-            }
-        }.execute();
-
-
-    }
-
-    private GeofencingRequest getGeofencingRequest() {
-
-        try {
-            GeofencingRequest.Builder builder = new GeofencingRequest.Builder();
-
-            // The INITIAL_TRIGGER_ENTER flag indicates that geofencing service should trigger a
-            // GEOFENCE_TRANSITION_ENTER notification when the geofence is added and if the device
-            // is already inside that geofence.
-            builder.setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER);
-
-            // Add the geofences to be monitored by geofencing service.
-            builder.addGeofences(Globals.GEOFENCES);
-
-            // Return a GeofencingRequest.
-            return builder.build();
-        } catch (Exception ex) {
-            Log.e(LOG_TAG, ex.getMessage());
-            return null;
-        }
-    }
-
-    private PendingIntent getGeofencePendingIntent() {
-        // Reuse the PendingIntent if we already have it.
-        if ( Globals.GeofencePendingIntent != null) {
-            return Globals.GeofencePendingIntent;
-        }
-        Intent intent = new Intent(this, GeofenceTransitionsIntentService.class);
-        // We use FLAG_UPDATE_CURRENT so that we get the same pending intent back when calling
-        // addGeofences() and removeGeofences().
-        return PendingIntent.getService(this, 0, intent,
-                PendingIntent.FLAG_UPDATE_CURRENT);
     }
 
     public void onButtonSubmitRide(View v){

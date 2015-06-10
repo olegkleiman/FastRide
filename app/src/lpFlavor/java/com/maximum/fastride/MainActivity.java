@@ -23,23 +23,13 @@ import com.google.gson.JsonObject;
 import com.maximum.fastride.adapters.ModesPeersAdapter;
 import com.maximum.fastride.gcm.GCMHandler;
 import com.maximum.fastride.model.FRMode;
-import com.maximum.fastride.model.GFence;
 import com.maximum.fastride.model.User;
-import com.maximum.fastride.utils.ConflictResolvingSyncHandler;
 import com.maximum.fastride.utils.Globals;
 import com.maximum.fastride.utils.IRecyclerClickListener;
 import com.maximum.fastride.utils.RoundedDrawable;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceAuthenticationProvider;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceUser;
-import com.microsoft.windowsazure.mobileservices.table.query.Query;
-import com.microsoft.windowsazure.mobileservices.table.query.QueryOrder;
-import com.microsoft.windowsazure.mobileservices.table.sync.MobileServiceSyncContext;
-import com.microsoft.windowsazure.mobileservices.table.sync.MobileServiceSyncTable;
-import com.microsoft.windowsazure.mobileservices.table.sync.localstore.ColumnDataType;
-import com.microsoft.windowsazure.mobileservices.table.sync.localstore.MobileServiceLocalStoreException;
-import com.microsoft.windowsazure.mobileservices.table.sync.localstore.SQLiteLocalStore;
-import com.microsoft.windowsazure.mobileservices.table.sync.synchandler.MobileServiceSyncHandler;
 import com.microsoft.windowsazure.notifications.NotificationsManager;
 
 import java.io.UnsupportedEncodingException;
@@ -49,9 +39,8 @@ import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Locale;
 import java.util.concurrent.ExecutionException;
 
 public class MainActivity extends BaseActivity
@@ -93,6 +82,11 @@ static final int REGISTER_USER_REQUEST = 1;
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        String lang = Locale.getDefault().getLanguage();
+        String langDisplay = Locale.getDefault().getDisplayLanguage();
+        String display = Locale.getDefault().getDisplayName();
+        String country = Locale.getDefault().getDisplayCountry();
 
         // Intended to be executed only once per app life-time
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());

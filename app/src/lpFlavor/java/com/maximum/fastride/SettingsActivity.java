@@ -2,11 +2,15 @@ package com.maximum.fastride;
 
 import android.content.SharedPreferences;
 import android.graphics.Outline;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.widget.AdapterView;
@@ -16,19 +20,36 @@ import android.widget.ListView;
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.maximum.fastride.adapters.CarsAdapter;
+import com.maximum.fastride.model.GFence;
 import com.maximum.fastride.utils.FloatingActionButton;
 import com.maximum.fastride.utils.Globals;
+import com.maximum.fastride.utils.wamsUtils;
+import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
+import com.microsoft.windowsazure.mobileservices.MobileServiceList;
+import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
+import com.microsoft.windowsazure.mobileservices.table.query.Query;
+import com.microsoft.windowsazure.mobileservices.table.sync.MobileServiceSyncContext;
+import com.microsoft.windowsazure.mobileservices.table.sync.MobileServiceSyncTable;
+import com.microsoft.windowsazure.mobileservices.table.sync.localstore.ColumnDataType;
+import com.microsoft.windowsazure.mobileservices.table.sync.localstore.MobileServiceLocalStoreException;
+import com.microsoft.windowsazure.mobileservices.table.sync.localstore.SQLiteLocalStore;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.ExecutionException;
 
 public class SettingsActivity extends BaseActivity {
 
     List<String> mCars;
     CarsAdapter mCarsAdapter;
+
+    private static final String LOG_TAG = "FR.Settings";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,6 +57,60 @@ public class SettingsActivity extends BaseActivity {
         setContentView(R.layout.activity_settings);
 
         setupUI(getString(R.string.title_activity_settings), "");
+
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_settings, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        int id = item.getItemId();
+        if (id == R.id.action_refresh_settings) {
+            onRefreshGeofences();
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    void onRefreshGeofences() {
+
+        new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+
+                try {
+                    MobileServiceClient wamsClient =
+                            new MobileServiceClient(
+                                    Globals.WAMS_URL,
+                                    Globals.WAMS_API_KEY,
+                                    getApplicationContext());
+
+                    MobileServiceSyncTable<GFence> gFencesSyncTable = wamsClient.getSyncTable("gfences",
+                            GFence.class);
+                    MobileServiceTable<GFence> gFencesTbl = wamsClient.getTable(GFence.class);
+
+                    wamsUtils.sync(wamsClient, "gfences");
+
+                    Query pullQuery = gFencesTbl.where();
+                    gFencesSyncTable.purge(pullQuery);
+                    gFencesSyncTable.pull(pullQuery).get();
+
+                } catch(MalformedURLException | InterruptedException | ExecutionException ex ) {
+                    Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
+                }
+
+                return null;
+            }
+        }.execute();
+
 
     }
 

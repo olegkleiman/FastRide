@@ -55,7 +55,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.ExecutionException;
 
-public class PassengerRoleActivity extends BaseActivity
+public class PassengerRoleActivity extends BaseActivityWithGeofences
     implements ITrace,
         Handler.Callback,
         IRecyclerClickListener,
@@ -90,6 +90,7 @@ public class PassengerRoleActivity extends BaseActivity
         mTxtStatus = (TextView)findViewById(R.id.txtStatusPassenger);
 
         wamsInit();
+        initGeofences(wamsClient);
 
         wifiUtil = new WiFiUtil(this);
 

@@ -33,8 +33,8 @@
     <string name="mode_name_passenger">Passenger</string>
     <string name="btnFindRide">Find a ride</string>
 
-    <string name="title_activity_main">Fast Ride</string>
 
+    <string name="title_activity_main">Fast Ride</string>
     <string name="title_activity_driver_role">Driver Mode</string>
     <string name="subtitle_activity_driver_role">Driver Mode</string>
 
@@ -70,7 +70,9 @@
         <item>Reclamation</item>
     </string-array>
 
-    <string name="edit_car_button_title">edit</string>
+    <string name="operating_modes">Operating modes</string>
+
+    <string name="edit_car_button_title">Edit</string>
     <string name="edit_car_button_title2">Specify</string>
     <string name="edit_car_dialog_caption1">Choose a riding car</string>
     <string name="edit_car_dialog_caption2">Specify your car(s)</string>
@@ -95,8 +97,10 @@
     <string name="registration_already_performed">You already registered with Fast Ride app.</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="action_refresh_settings">Update GeoFences</string>
+    <string name="about">About</string>
 
-    <string name="copyright">Copyright (C) 2015 Maximum</string>
+    <string name="copyright">Copyright (&#169;) 2015 Maximum</string>
         <string name="license">Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -143,7 +147,5 @@ limitations under the License.</string>
     <string name="geofences_added">Geofences added</string>
     <string name="geofences_removed">Geofences removed</string>
     <string name="title_activity_register2">Register2Activity</string>
-
-    <string name="hello_world">Hello world!</string>
 
 </resources>
