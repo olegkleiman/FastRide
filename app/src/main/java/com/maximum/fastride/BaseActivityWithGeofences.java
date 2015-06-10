@@ -6,6 +6,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.Geofence;
@@ -29,7 +30,8 @@ import java.util.Random;
  * Created by Oleg on 09-Jun-15.
  */
 public class BaseActivityWithGeofences extends BaseActivity
-                                        implements ResultCallback<Status> {
+                                        implements ResultCallback<Status>,
+                                        GoogleApiClient.ConnectionCallbacks{
 
     private static final String LOG_TAG = "FR.GeoFences";
     private MobileServiceSyncTable<GFence> mGFencesSyncTable;
@@ -41,12 +43,22 @@ public class BaseActivityWithGeofences extends BaseActivity
 
     }
 
-    protected void initGeofences(final MobileServiceClient wamsClient) {
+    @Override
+    public void onConnected(Bundle bundle) {
+        initGeofences();
+    }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+
+    }
+
+    protected void initGeofences() {
 
         final ResultCallback resultCallback = this;
 
         if( mGFencesSyncTable == null )
-            mGFencesSyncTable = wamsClient.getSyncTable("gfences", GFence.class);
+            mGFencesSyncTable = getMobileServiceClient().getSyncTable("gfences", GFence.class);
 
         new AsyncTask<Object, Void, Void>() {
             @Override
@@ -55,9 +67,9 @@ public class BaseActivityWithGeofences extends BaseActivity
                 MobileServiceList<GFence> gFences = null;
                 try {
 
-                    wamsUtils.sync(wamsClient, "gfences");
+                    wamsUtils.sync(getMobileServiceClient(), "gfences");
 
-                    Query pullQuery = wamsClient.getTable(GFence.class).where();
+                    Query pullQuery = getMobileServiceClient().getTable(GFence.class).where();
                     gFences = mGFencesSyncTable.read(pullQuery).get();
 
                 } catch (Exception ex) {

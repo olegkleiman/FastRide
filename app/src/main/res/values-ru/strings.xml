@@ -53,4 +53,6 @@
     <string name="subtitle_activity_tutorial">Подсказки</string>
     <string name="title_activity_about">О программе</string>
     <string name="title_activity_settings">Настройки</string>
+    <string name="title_activity_driver_role">Режим водителя</string>
+    <string name="title_activity_passenger_role">Режим пассажира</string>
 </resources>

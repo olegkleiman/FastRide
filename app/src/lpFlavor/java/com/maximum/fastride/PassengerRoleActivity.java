@@ -65,7 +65,7 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
 
     private static final String LOG_TAG = "FR.Passenger";
 
-    public static MobileServiceClient wamsClient;
+
     MobileServiceTable<Join> joinsTable;
 
     WiFiUtil wifiUtil;
@@ -86,11 +86,11 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_passenger);
         setupUI(getString(R.string.title_activity_passenger_role), "");
+        wamsInit();
 
         mTxtStatus = (TextView)findViewById(R.id.txtStatusPassenger);
 
-        wamsInit();
-        initGeofences(wamsClient);
+        joinsTable = getMobileServiceClient().getTable("joins", Join.class);
 
         wifiUtil = new WiFiUtil(this);
 
@@ -215,33 +215,6 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
         return true;
     }
 
-
-    private void wamsInit( ) {
-        try {
-            wamsClient = new MobileServiceClient(
-                    Globals.WAMS_URL,
-                    Globals.WAMS_API_KEY,
-                    this);
-
-            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-
-            String userID = sharedPrefs.getString(Globals.USERIDPREF, "");
-            MobileServiceUser wamsUser = new MobileServiceUser(userID);
-
-            String token = sharedPrefs.getString(Globals.WAMSTOKENPREF, "");
-            // According to this article (http://www.thejoyofcode.com/Setting_the_auth_token_in_the_Mobile_Services_client_and_caching_the_user_rsquo_s_identity_Day_10_.aspx)
-            // this should be JWT token, so use WAMS_TOKEN
-            wamsUser.setAuthenticationToken(token);
-
-            wamsClient.setCurrentUser(wamsUser);
-
-            joinsTable = wamsClient.getTable("joins", Join.class);
-
-        } catch(MalformedURLException ex ) {
-            Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
-        }
-
-    }
 
     public void onSubmit(View view){
         final EditText editRideCode = (EditText)findViewById(R.id.editTextRideCode);

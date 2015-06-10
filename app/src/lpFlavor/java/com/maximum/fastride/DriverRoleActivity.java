@@ -97,7 +97,6 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
 
     Ride mCurrentRide;
 
-    public static MobileServiceClient wamsClient;
     private MobileServiceTable<Ride> ridesTable;
 
     RecyclerView mPeersRecyclerView;
@@ -126,7 +125,41 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
         setupUI(getString(R.string.title_activity_driver_role), "");
         wamsInit();
 
-        initGeofences(wamsClient);
+        ridesTable = getMobileServiceClient().getTable("rides", Ride.class);
+        new AsyncTask<Void, Void, Void>() {
+
+            Exception mEx;
+
+            @Override
+            protected void onPostExecute(Void result){
+
+                if( mEx == null ) {
+                    TextView txtRideCode = (TextView) findViewById(R.id.txtRideCode);
+                    txtRideCode.setText(mCurrentRide.getRideCode());
+                } else {
+                    Toast.makeText(DriverRoleActivity.this,
+                            mEx.getMessage(), Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+
+                try {
+
+                    Ride ride = new Ride();
+                    ride.setCreated(new Date());
+                    ride.setCarNumber(mCarNumber);
+                    mCurrentRide = ridesTable.insert(ride).get();
+
+                } catch(ExecutionException | InterruptedException ex ) {
+                    mEx = ex;
+                    Log.e(LOG_TAG, ex.getMessage());
+                }
+
+                return null;
+            }
+        }.execute();
 
         List<String> _cars = new ArrayList<>();
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -275,68 +308,6 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
         }
 
         return true;
-    }
-
-    private void wamsInit( ){
-        try {
-            wamsClient = new MobileServiceClient(
-                    Globals.WAMS_URL,
-                    Globals.WAMS_API_KEY,
-                    this);
-
-            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-
-            String userID = sharedPrefs.getString(Globals.USERIDPREF, "");
-            MobileServiceUser wamsUser = new MobileServiceUser(userID);
-
-            String token = sharedPrefs.getString(Globals.WAMSTOKENPREF, "");
-            // According to this article (http://www.thejoyofcode.com/Setting_the_auth_token_in_the_Mobile_Services_client_and_caching_the_user_rsquo_s_identity_Day_10_.aspx)
-            // this should be JWT token, so use WAMS_TOKEN
-            wamsUser.setAuthenticationToken(token);
-
-            wamsClient.setCurrentUser(wamsUser);
-
-            //geoFencesInit();
-
-            ridesTable = wamsClient.getTable("rides", Ride.class);
-
-            new AsyncTask<Void, Void, Void>() {
-
-                Exception mEx;
-
-                @Override
-                protected void onPostExecute(Void result){
-
-                    if( mEx == null ) {
-                        TextView txtRideCode = (TextView) findViewById(R.id.txtRideCode);
-                        txtRideCode.setText(mCurrentRide.getRideCode());
-                    } else {
-                        Toast.makeText(DriverRoleActivity.this,
-                                mEx.getMessage(), Toast.LENGTH_LONG).show();
-                    }
-                }
-
-                @Override
-                protected Void doInBackground(Void... voids) {
-
-                    try {
-
-                        Ride ride = new Ride();
-                        ride.setCreated(new Date());
-                        ride.setCarNumber(mCarNumber);
-                        mCurrentRide = ridesTable.insert(ride).get();
-
-                    } catch(ExecutionException | InterruptedException ex ) {
-                        mEx = ex;
-                        Log.e(LOG_TAG, ex.getMessage());
-                    }
-
-                    return null;
-                }
-            }.execute();
-        } catch(MalformedURLException ex ) {
-            Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
-        }
     }
 
     public void onButtonSubmitRide(View v){
@@ -540,7 +511,7 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
         if( requestCode == WIFI_CONNECT_REQUEST) {
             // if( resultCode == RESULT_OK ) {
             // How to distinguish between successful connection
-            // and just pressing back frm there?
+            // and just pressing back from there?
                 wamsInit();
             //}
         }

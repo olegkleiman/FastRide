@@ -83,11 +83,6 @@ static final int REGISTER_USER_REQUEST = 1;
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        String lang = Locale.getDefault().getLanguage();
-        String langDisplay = Locale.getDefault().getDisplayLanguage();
-        String display = Locale.getDefault().getDisplayName();
-        String country = Locale.getDefault().getDisplayCountry();
-
         // Intended to be executed only once per app life-time
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         if( sharedPrefs.getString(Globals.USERIDPREF, "").isEmpty() ) {
@@ -102,6 +97,8 @@ static final int REGISTER_USER_REQUEST = 1;
                                                     GCMHandler.class);
 
             String accessToken = sharedPrefs.getString(Globals.TOKENPREF, "");
+
+            // Don't mess with BaseActivity.wamsInit();
             wamsInit(accessToken);
 
             setupUI(getString(R.string.title_activity_main), "");
@@ -206,13 +203,12 @@ static final int REGISTER_USER_REQUEST = 1;
         NotificationsManager.stopHandlingNotifications(this);
     }
 
-    private void wamsInit(String accessToken){
+    public void wamsInit(String accessToken){
         try {
             wamsClient = new MobileServiceClient(
                     Globals.WAMS_URL,
                     Globals.WAMS_API_KEY,
                     this);
-
 
             final JsonObject body = new JsonObject();
             body.addProperty("access_token", accessToken);

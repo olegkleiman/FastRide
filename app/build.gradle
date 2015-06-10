@@ -38,6 +38,7 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     compile files('libs/mobileservices-2.0.1-beta.jar')
+    //compile 'com.microsoft.azure:azure-mobile-services-android-sdk:2.0.2+'
     compile files('libs/notifications-1.0.1.jar')
     compile 'com.google.code.gson:gson:2+'
     compile 'com.android.support:appcompat-v7:22.1.1'

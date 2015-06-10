@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
@@ -32,11 +33,15 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.maximum.fastride.adapters.DrawerAccountAdapter;
+import com.maximum.fastride.model.Join;
 import com.maximum.fastride.model.User;
 import com.maximum.fastride.services.GeofenceErrorMessages;
 import com.maximum.fastride.services.GeofenceTransitionsIntentService;
 import com.maximum.fastride.utils.Globals;
+import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
+import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceUser;
 
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -44,13 +49,15 @@ import java.util.Map;
  * Created by Oleg Kleiman on 22-May-14.
  */
 public class BaseActivity extends ActionBarActivity
-        implements GoogleApiClient.ConnectionCallbacks,
+        implements //GoogleApiClient.ConnectionCallbacks,
         GoogleApiClient.OnConnectionFailedListener{
 
     private GoogleApiClient mGoogleApiClient;
     public GoogleApiClient getGoogleApiClient() { return mGoogleApiClient; }
 
-    private LocationRequest mLocationRequest;
+    private MobileServiceClient wamsClient;
+    public MobileServiceClient getMobileServiceClient() { return wamsClient; }
+
     private static final String LOG_TAG = "FR.baseActivity";
 
     protected String[] mDrawerTitles;
@@ -67,14 +74,29 @@ public class BaseActivity extends ActionBarActivity
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-          super.onCreate(savedInstanceState);
+
+        super.onCreate(savedInstanceState);
 
         try {
-            mGoogleApiClient = new GoogleApiClient.Builder(this)
-                    .addApi(LocationServices.API)
-                    .addConnectionCallbacks(this)
-                    .addOnConnectionFailedListener(this)
-                    .build();
+
+            GoogleApiClient.OnConnectionFailedListener connectionFailedListener =
+                    (GoogleApiClient.OnConnectionFailedListener)this;
+
+            GoogleApiClient.Builder builder =
+                    new GoogleApiClient.Builder(this)
+                    .addApi(LocationServices.API);
+
+            if( this instanceof GoogleApiClient.ConnectionCallbacks) {
+                GoogleApiClient.ConnectionCallbacks callbacksImplementer =
+                        (GoogleApiClient.ConnectionCallbacks)this;
+                builder.addConnectionCallbacks(callbacksImplementer);
+            }
+            if( connectionFailedListener != null ) {
+                builder.addOnConnectionFailedListener(connectionFailedListener);
+            }
+
+            mGoogleApiClient = builder.build();
+
         } catch (Exception ex) {
             Log.e(LOG_TAG, ex.getMessage());
         }
@@ -162,27 +184,11 @@ public class BaseActivity extends ActionBarActivity
     }
 
     @Override
-    public void onConnected(Bundle bundle) {
-        mLocationRequest = LocationRequest.create();
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mLocationRequest.setInterval(1000); // Update location every second
-
-//        LocationServices.FusedLocationApi.requestLocationUpdates(
-//                mGoogleApiClient, mLocationRequest, this);
-    }
-
-    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (mDrawerToggle.onOptionsItemSelected(item))
             return true;
 
         return super.onOptionsItemSelected(item);
-    }
-
-
-    @Override
-    public void onConnectionSuspended(int i) {
-
     }
 
     @Override
@@ -193,17 +199,41 @@ public class BaseActivity extends ActionBarActivity
     @Override
     protected void onStart() {
         super.onStart();
-        // Connect the client.
+        // Connect the Google API client.
         if( mGoogleApiClient != null )
             mGoogleApiClient.connect();
     }
 
     @Override
     protected void onStop() {
-        // Disconnecting the client invalidates it.
+        // Disconnecting the Google API client invalidates it.
         if( mGoogleApiClient != null )
             mGoogleApiClient.disconnect();
 
         super.onStop();
+    }
+
+    public void wamsInit() {
+        try {
+            wamsClient = new MobileServiceClient(
+                    Globals.WAMS_URL,
+                    Globals.WAMS_API_KEY,
+                    this);
+
+            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+            String userID = sharedPrefs.getString(Globals.USERIDPREF, "");
+            MobileServiceUser wamsUser = new MobileServiceUser(userID);
+
+            String token = sharedPrefs.getString(Globals.WAMSTOKENPREF, "");
+            // According to this article (http://www.thejoyofcode.com/Setting_the_auth_token_in_the_Mobile_Services_client_and_caching_the_user_rsquo_s_identity_Day_10_.aspx)
+            // this should be JWT token, so use WAMS_TOKEN
+            wamsUser.setAuthenticationToken(token);
+
+            wamsClient.setCurrentUser(wamsUser);
+
+        } catch(MalformedURLException ex ) {
+            Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
+        }
+
     }
 }
