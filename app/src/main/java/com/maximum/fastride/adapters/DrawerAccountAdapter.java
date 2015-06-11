@@ -87,9 +87,8 @@ public class DrawerAccountAdapter extends RecyclerView.Adapter<DrawerAccountAdap
 
                 @Override
                 public void onClick(View view) {
-                    Intent intent = new Intent(mContext, MyRidesActivity.class);
+                    Intent intent = new Intent(mContext, SettingsActivity.class);
                     mContext.startActivity(intent);
-                    // mDrawerLayout.closeDrawer(Gravity.START);
                 }
             },
             new View.OnClickListener(){

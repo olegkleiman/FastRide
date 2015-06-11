@@ -103,6 +103,15 @@ public class SettingsActivity extends BaseActivity {
                     gFencesSyncTable.purge(pullQuery);
                     gFencesSyncTable.pull(pullQuery).get();
 
+                    // TEST
+                    MobileServiceList<GFence> gFences
+                            = gFencesSyncTable.read(pullQuery).get();
+                    for (GFence _gFence : gFences) {
+                        double lat = _gFence.getLat();
+                        double lon = _gFence.getLon();
+                        Log.i(LOG_TAG, "GFence: " + lat + " " + lon);
+                    }
+
                 } catch(MalformedURLException | InterruptedException | ExecutionException ex ) {
                     Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
                 }

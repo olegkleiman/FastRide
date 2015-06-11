@@ -87,6 +87,9 @@ public class Globals {
 
     // Geofences
     public static final HashMap<String, LatLng> FWY_AREA_LANDMARKS = new HashMap<String, LatLng>();
+//    static {
+//        FWY_AREA_LANDMARKS.put("GOOGLE", new LatLng(32.080341,34.780639));
+//    }
     public static ArrayList<Geofence> GEOFENCES = new ArrayList<Geofence>();
     public static PendingIntent GeofencePendingIntent;
 

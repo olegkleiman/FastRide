@@ -11,7 +11,7 @@
         android:layout_width="fill_parent"
         android:layout_height="48dp"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Operating modes"
+        android:text="@string/operating_modes"
         android:id="@+id/textView4"
         android:layout_gravity="center_vertical" />
 

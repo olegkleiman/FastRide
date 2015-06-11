@@ -15,19 +15,18 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.maximum.fastride.model.GFence;
 import com.maximum.fastride.services.GeofenceErrorMessages;
-import com.maximum.fastride.services.GeofenceTransitionsIntentService;
 import com.maximum.fastride.utils.Globals;
 import com.maximum.fastride.utils.wamsUtils;
-import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.MobileServiceList;
 import com.microsoft.windowsazure.mobileservices.table.query.Query;
 import com.microsoft.windowsazure.mobileservices.table.sync.MobileServiceSyncTable;
 
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Random;
 
 /**
- * Created by Oleg on 09-Jun-15.
+ * Created by Oleg Kleiman on 09-Jun-15.
  */
 public class BaseActivityWithGeofences extends BaseActivity
                                         implements ResultCallback<Status>,
@@ -39,9 +38,11 @@ public class BaseActivityWithGeofences extends BaseActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
     }
+
+    //
+    // Implementation of GoogleApiClient.ConnectionCallbacks
+    //
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -55,12 +56,52 @@ public class BaseActivityWithGeofences extends BaseActivity
 
     protected void initGeofences() {
 
-        final ResultCallback resultCallback = this;
+        final ResultCallback<Status> resultCallback = this;
 
         if( mGFencesSyncTable == null )
             mGFencesSyncTable = getMobileServiceClient().getSyncTable("gfences", GFence.class);
 
         new AsyncTask<Object, Void, Void>() {
+
+            @Override
+            protected void onPostExecute(Void result){
+                for (Map.Entry<String, LatLng> entry : Globals.FWY_AREA_LANDMARKS.entrySet()) {
+
+                    Globals.GEOFENCES.add(new Geofence.Builder()
+                            .setRequestId(entry.getKey())
+
+                                    // Set the circular region of this geofence.
+                            .setCircularRegion(
+                                    entry.getValue().latitude,
+                                    entry.getValue().longitude,
+                                    Globals.GEOFENCE_RADIUS_IN_METERS
+                            )
+
+                                    // Set the expiration duration of the geofence. This geofence gets automatically
+                                    // removed after this period of time.
+                            .setExpirationDuration(Globals.GEOFENCE_EXPIRATION_IN_MILLISECONDS)
+                                    // Set the transition types of interest. Alerts are only generated for these
+                                    // transition. We track entry and exit transitions here.
+                            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
+                                    Geofence.GEOFENCE_TRANSITION_EXIT)
+                            .build());
+                }
+
+                GeofencingRequest geoFencingRequest = getGeofencingRequest();
+                if( geoFencingRequest != null ) {
+                    LocationServices.GeofencingApi.addGeofences(
+                            getGoogleApiClient(), // from base activity
+                            // The GeofenceRequest object.
+                            geoFencingRequest,
+                            // A pending intent that that is reused when calling removeGeofences(). This
+                            // pending intent is used to generate an intent when a matched geofence
+                            // transition is observed.
+                            getGeofencePendingIntent()
+                    ).setResultCallback(resultCallback); // Result processed in onResult().
+                }
+
+            }
+
             @Override
             protected Void doInBackground(Object... params) {
 
@@ -82,55 +123,26 @@ public class BaseActivityWithGeofences extends BaseActivity
                 try {
                     // After getting landmark coordinates from WAMS,
                     // the steps for dealing with geofences are following:
-                    // 1. populate FWY_AREA_LANDMARKS in Globals
-                    // 2. based on this hashmap, populate GEOFENCES in Globals
+                    // 1. populate FWY_AREA_LANDMARKS hashmap in Globals
+                    // 2. (from this step on, performed in onPostExecute) based on this hashmap, populate GEOFENCES in Globals
                     // 3. create GeofencingRequest request based on GEOFENCES list
                     // 4. define pending intent for geofences transitions
                     // 5. add geofences to Google API service
 
                     Random r = new Random();
-                    String gFenceName = "gf_";
+                    String gFenceNamePrefix = "gf_";
                     for (GFence _gFence : gFences) {
-                        gFenceName += r.nextInt(100);
-                        double lat = _gFence.getLat();
-                        double lon = _gFence.getLat();
+                        //double lat = Double.parseDouble(Float.toString(_gFence.getLat()));
+                        double lat = new BigDecimal(String.valueOf(_gFence.getLat())).doubleValue();
+                        //double lat = 32.080341; // _gFence.getLat();
+                        //double lon = Double.parseDouble(Float.toString(_gFence.getLon()));
+                        double lon = new BigDecimal(String.valueOf(_gFence.getLon())).doubleValue();
+                        //double lon = 34.780639;//_gFence.getLon();
                         LatLng latLng = new LatLng(lat, lon);
-                        Globals.FWY_AREA_LANDMARKS.put(gFenceName, latLng);
+                        Globals.FWY_AREA_LANDMARKS.put(gFenceNamePrefix + r.nextInt(100),
+                                                       latLng);
                     }
 
-                    for (Map.Entry<String, LatLng> entry : Globals.FWY_AREA_LANDMARKS.entrySet()) {
-
-                        Globals.GEOFENCES.add(new Geofence.Builder()
-                                .setRequestId(entry.getKey())
-                                        // Set the circular region of this geofence.
-                                .setCircularRegion(
-                                        entry.getValue().latitude,
-                                        entry.getValue().longitude,
-                                        Globals.GEOFENCE_RADIUS_IN_METERS
-                                )
-
-                                        // Set the expiration duration of the geofence. This geofence gets automatically
-                                        // removed after this period of time.
-                                .setExpirationDuration(Globals.GEOFENCE_EXPIRATION_IN_MILLISECONDS)
-                                        // Set the transition types of interest. Alerts are only generated for these
-                                        // transition. We track entry and exit transitions here.
-                                .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                                        Geofence.GEOFENCE_TRANSITION_EXIT)
-                                .build());
-                    }
-
-                    GeofencingRequest geoFencingRequest = getGeofencingRequest();
-                    if( geoFencingRequest != null ) {
-                        LocationServices.GeofencingApi.addGeofences(
-                                getGoogleApiClient(), // from base activity
-                                // The GeofenceRequest object.
-                                geoFencingRequest,
-                                // A pending intent that that is reused when calling removeGeofences(). This
-                                // pending intent is used to generate an intent when a matched geofence
-                                // transition is observed.
-                                getGeofencePendingIntent()
-                        ).setResultCallback(resultCallback); // Result processed in onResult().
-                    }
 
                 } catch (Exception ex) {
                     Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
@@ -143,15 +155,16 @@ public class BaseActivityWithGeofences extends BaseActivity
 
     }
 
-    @Override
-    public void onPause() {
-        super.onPause();
 
+    @Override
+    protected void onDestroy() {
         LocationServices.GeofencingApi.removeGeofences(
                 getGoogleApiClient(),
                 // This is the same pending intent that was used in addGeofences().
                 getGeofencePendingIntent()
         ).setResultCallback(this); // Result processed in onResult().
+
+        super.onDestroy();
     }
 
     private GeofencingRequest getGeofencingRequest() {

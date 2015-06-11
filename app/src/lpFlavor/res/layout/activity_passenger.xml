@@ -89,8 +89,8 @@
 
             <com.maximum.fastride.utils.FloatingActionButton
                 android:id="@+id/submit_passenger_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="@dimen/diameter"
+                android:layout_height="@dimen/diameter"
                 android:layout_gravity="end"
                 android:textSize="24sp"
                 android:onClick="onSubmit"

@@ -18,6 +18,7 @@
         android:layout_width="@dimen/mode_image_width"
         android:layout_height="@dimen/mode_image_height"
         android:layout_centerVertical="true"
+        android:layout_marginStart="16dp"
         android:layout_marginLeft="16dp"
         android:id="@+id/mode_image"
         android:src="@drawable/driver64"/>
@@ -26,6 +27,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
+        android:layout_marginStart="88dp"
         android:layout_marginLeft="88dp"
         fontPath="fonts/Roboto-Regular.ttf"
         android:textAppearance="?android:attr/textAppearanceMedium"

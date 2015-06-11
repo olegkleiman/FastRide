@@ -1,4 +1,4 @@
-package com.maximum.fastride.services;
+package com.maximum.fastride;
 
 import android.app.IntentService;
 import android.app.NotificationManager;
@@ -13,6 +13,7 @@ import android.util.Log;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
 import com.maximum.fastride.R;
+import com.maximum.fastride.services.GeofenceErrorMessages;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -1,12 +1,10 @@
 package com.maximum.fastride;
 
-import android.annotation.TargetApi;
-import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.drawable.Drawable;
-import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
@@ -28,11 +26,15 @@ import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.AlertDialogWrapper;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.location.Geofence;
+import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.model.LatLng;
 import com.maximum.fastride.adapters.WiFiPeersAdapter2;
 import com.maximum.fastride.adapters.WifiP2pDeviceUser;
 import com.maximum.fastride.model.Join;
@@ -44,15 +46,14 @@ import com.maximum.fastride.utils.IRecyclerClickListener;
 import com.maximum.fastride.utils.IRefreshable;
 import com.maximum.fastride.utils.ITrace;
 import com.maximum.fastride.utils.WiFiUtil;
-import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
-import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceUser;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
 
 import java.io.IOException;
-import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
+import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 public class PassengerRoleActivity extends BaseActivityWithGeofences
@@ -114,7 +115,7 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
             if( fab != null ) {
                 fab.setBackgroundColor(getResources().getColor(R.color.ColorAccent));
                 Drawable iconDone = getResources().getDrawable(R.drawable.ic_action_done);
-                if( iconDone != null && fab != null ) {
+                if( iconDone != null ) {
                     fab.setDrawableIcon(iconDone);
                 }
             }

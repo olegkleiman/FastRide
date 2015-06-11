@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="drawers_array_drawer">
+        <item>نعم...</item>
+        <item>جميع الرحلات</item>
+        <item>الإعدادات</item>
+        <item>نصائح</item>
+    </string-array>
+
+
+    <string name="app_name">FastRide</string>
+    <string name="operating_modes">أوضاع التشغيل</string>
+    <string name="action_settings">الإعدادات</string>
+    <string name="action_register">تسجيل</string>
+    <string name="driverTabCaption">سائق</string>
+    <string name="edit_car_button_delete">الغاء</string>
+    <string name="edit_car_button_save">حفض</string>
+    <string name="edit_car_button_title">تحرير</string>
+    <string name="no">لا</string>
+    <string name="yes">نعم</string>
+    <string name="mode_name_driver">سائق</string>
+    <string name="mode_name_passenger">راكب</string>
+    <string name="edit_car_button_title2">اختار</string>
+    <string name="edit_car_dialog_caption1">اختر سيارتك</string>
+    <string name="enable_wifi_question">تشغيل الواي فاي؟</string>
+    <string name="intro_tutorial_fragment">إرشادات عامة</string>
+    <string name="prompt_phone">رقم الهاتف</string>
+    <string name="subtitle_activity_my_rides">جميع الرحلات</string>
+    <string name="subtitle_activity_passenger_role">راكب</string>
+    <string name="subtitle_activity_settings">الإعدادات</string>
+    <string name="subtitle_activity_tutorial">نصائح</string>
+    <string name="title_activity_about">نبذة عن البرنامج</string>
+    <string name="title_activity_my_rides">جميع الرحلات</string>
+    <string name="title_activity_settings">الإعدادات</string>
+    <string name="version_title">نسخة ألفا 1</string>
+    <string name="btnSubmitText">أطلب الإعفاء</string>
+    <string name="add_car_dialog_caption">إضافة مركبة</string>
+    <string name="add_car_button_cancel">إلغاء</string>
+    <string name="action_refresh">تحديث</string>
+    <string name="about">نبذة عن البرنامج</string>
+    <string name="ride_code_label">رمز ركوب:</string>
+    <string name="subtitle_activity_driver_role">وضع سواقه</string>
+    <string name="btnFindRide">ابحث عن سفر</string>
+    <string name="driver_tutorial_fragment">مساعده السائق</string>
+    <string name="title_activity_confirm_ride">موافقه</string>
+</resources>

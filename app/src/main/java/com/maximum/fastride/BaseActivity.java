@@ -1,6 +1,5 @@
 package com.maximum.fastride;
 
-import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -20,30 +19,17 @@ import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.LinearLayout;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.ResultCallback;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.GeofencingRequest;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.model.LatLng;
 import com.maximum.fastride.adapters.DrawerAccountAdapter;
-import com.maximum.fastride.model.Join;
 import com.maximum.fastride.model.User;
-import com.maximum.fastride.services.GeofenceErrorMessages;
-import com.maximum.fastride.services.GeofenceTransitionsIntentService;
 import com.maximum.fastride.utils.Globals;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceUser;
 
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.Map;
 
 /**
  * Created by Oleg Kleiman on 22-May-14.
@@ -64,7 +50,7 @@ public class BaseActivity extends ActionBarActivity
     protected int DRAWER_ICONS[] = {
             R.drawable.ic_action_start,
             R.drawable.ic_action_myrides,
-            R.drawable.ic_action_rating,
+            R.drawable.ic_action_settings,
             R.drawable.ic_action_tutorial
     };
 
@@ -76,7 +62,14 @@ public class BaseActivity extends ActionBarActivity
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        buildGoogleApiClient();
 
+        // Connect the Google API client.
+        if( mGoogleApiClient != null )
+            mGoogleApiClient.connect();
+    }
+
+    protected synchronized void buildGoogleApiClient() {
         try {
 
             GoogleApiClient.OnConnectionFailedListener connectionFailedListener =
@@ -84,7 +77,7 @@ public class BaseActivity extends ActionBarActivity
 
             GoogleApiClient.Builder builder =
                     new GoogleApiClient.Builder(this)
-                    .addApi(LocationServices.API);
+                            .addApi(LocationServices.API);
 
             if( this instanceof GoogleApiClient.ConnectionCallbacks) {
                 GoogleApiClient.ConnectionCallbacks callbacksImplementer =
@@ -100,6 +93,7 @@ public class BaseActivity extends ActionBarActivity
         } catch (Exception ex) {
             Log.e(LOG_TAG, ex.getMessage());
         }
+
     }
 
     protected void setupUI(String title, String subTitle) {
@@ -197,15 +191,7 @@ public class BaseActivity extends ActionBarActivity
     }
 
     @Override
-    protected void onStart() {
-        super.onStart();
-        // Connect the Google API client.
-        if( mGoogleApiClient != null )
-            mGoogleApiClient.connect();
-    }
-
-    @Override
-    protected void onStop() {
+    protected void onDestroy() {
         // Disconnecting the Google API client invalidates it.
         if( mGoogleApiClient != null )
             mGoogleApiClient.disconnect();
