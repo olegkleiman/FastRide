@@ -5,5 +5,5 @@ package com.maximum.fastride.utils;
  */
 public interface ITrace{
     public void trace(String status);
-    public void alert(String intent);
+    public void alert(String message, String intent);
 }

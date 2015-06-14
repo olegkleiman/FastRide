@@ -46,7 +46,7 @@
     <string name="operating_modes">Кто вы сейчас?</string>
     <string name="about">О программе</string>
     <string name="passengers_header">Пассажиры</string>
-    <string name="drivers_header">Ваш водитель</string>
+    <string name="drivers_header">Укажите водителя</string>
     <string name="version_title">Версия Alpha 1</string>
     <string name="subtitle_activity_settings">Настройки</string>
     <string name="subtitle_activity_tutorial">Подсказки</string>
@@ -56,9 +56,14 @@
     <string name="title_activity_passenger_role">Пассажир</string>
     <string name="edit_car_button_title2">Указать</string>
     <string name="prompt_phone">Номер телефона</string>
-    <string name="geofence_transition_entered">Вы едите в зоне контроля</string>
+    <string name="geofence_transition_entered">Вы пересекли зону контроля</string>
     <string name="passengerTabCaption">Пассажир</string>
     <string name="ride_code_dialog_content">Вы можете увидеть этот код на дисплее телефона водителя</string>
     <string name="ride_code_title">Введите код поездки</string>
     <string name="ride_code_hint">7 цифр без тире</string>
+    <string name="registration_finish">Завершить</string>
+    <string name="geofence_outside">Вы находитесь вне скоростной трассы</string>
+    <string name="geofence_positive_answer">Напомнить</string>
+    <string name="geofence_negative_answer">Отменить</string>
+    <string name="geofence_outside_title">Напомнить при въезде на трассу?</string>
 </resources>

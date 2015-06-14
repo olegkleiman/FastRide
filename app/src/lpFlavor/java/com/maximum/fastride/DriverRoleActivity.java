@@ -469,18 +469,18 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
     }
 
     @Override
-    public void alert(final String strIntent) {
+    public void alert(String message, final String actionIntent) {
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialogInterface, int which) {
                 if( which == DialogInterface.BUTTON_POSITIVE ) {
-                    startActivityForResult(new Intent(strIntent), WIFI_CONNECT_REQUEST);
+                    startActivityForResult(new Intent(actionIntent), WIFI_CONNECT_REQUEST);
                 }
             }};
 
         new AlertDialogWrapper.Builder(this)
-                .setTitle(R.string.enable_wifi_question)
+                .setTitle(message)
                 .setNegativeButton(R.string.no, dialogClickListener)
                 .setPositiveButton(R.string.yes, dialogClickListener)
                 .show();

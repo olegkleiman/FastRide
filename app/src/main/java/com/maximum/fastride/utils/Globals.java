@@ -137,4 +137,17 @@ public class Globals {
         }
     }
 
+    private static Object lock3 = new Object();
+    private static boolean _REMIND_GEOFENCE_ENTRANCE;
+    public static void setRemindGeofenceEntrance() {
+        synchronized ( lock3 ) {
+            _REMIND_GEOFENCE_ENTRANCE = true;
+        }
+    }
+    public static Boolean getRemindGeofenceEntrance() {
+        synchronized ( lock3 ) {
+            return _REMIND_GEOFENCE_ENTRANCE;
+        }
+    }
+
 }

@@ -3,20 +3,19 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="com.maximum.fastride.PassengerRoleActivity">
 
-    <item android:id="@+id/action_pass_refresh"
-        android:title="@string/action_refresh"
-        android:orderInCategory="100"
-        android:icon="@drawable/ic_action_pass"
-        app:showAsAction="ifRoom" />
-
     <item android:id="@+id/action_code"
         android:title="@string/action_code"
-        android:orderInCategory="200"
+        android:orderInCategory="100"
         android:icon="@drawable/ic_action_code"
         app:showAsAction="ifRoom" />
 
     <item android:id="@+id/action_debug"
         android:title="@string/action_debug"
+        android:orderInCategory="200"
+        app:showAsAction="never" />
+
+    <item android:id="@+id/enforce_passenger_submit"
+        android:title="Enforce Submit"
         android:orderInCategory="300"
         app:showAsAction="never" />
 

@@ -12,6 +12,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
@@ -27,6 +28,9 @@ import android.widget.Switch;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.plus.Plus;
+
 import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.facebook.AppEventsLogger;
 import com.facebook.FacebookAuthorizationException;
@@ -37,19 +41,28 @@ import com.facebook.SessionState;
 import com.facebook.UiLifecycleHelper;
 import com.facebook.model.GraphUser;
 import com.facebook.widget.LoginButton;
+import com.google.android.gms.common.SignInButton;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.plus.model.people.Person;
+import com.maximum.fastride.model.GFence;
 import com.maximum.fastride.model.User;
 import com.maximum.fastride.utils.Globals;
+import com.maximum.fastride.utils.wamsUtils;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.MobileServiceList;
 import com.microsoft.windowsazure.mobileservices.http.ServiceFilterResponse;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
 import com.microsoft.windowsazure.mobileservices.table.TableOperationCallback;
+import com.microsoft.windowsazure.mobileservices.table.query.Query;
+import com.microsoft.windowsazure.mobileservices.table.sync.MobileServiceSyncTable;
 
 import java.net.MalformedURLException;
 import java.util.concurrent.ExecutionException;
 
 public class RegisterActivity extends FragmentActivity
-        implements ConfirmRegistrationFragment.RegistrationDialogListener{
+        implements GoogleApiClient.ConnectionCallbacks,
+        GoogleApiClient.OnConnectionFailedListener,
+        ConfirmRegistrationFragment.RegistrationDialogListener{
 
     private static final String LOG_TAG = "FR.Register";
 
@@ -62,6 +75,12 @@ public class RegisterActivity extends FragmentActivity
     private GraphUser fbUser;
 
     String mAccessToken;
+
+    // Google+ stuff
+    // GoogleApiClient wraps our service connection to Google Play services and
+    // provides access to the users sign in state and Google's APIs.
+    private GoogleApiClient mGoogleApiClient;
+    private SignInButton mGoogleSignInButton;
 
     @Override
     public void onDialogPositiveClick(DialogFragment dialog, final User user) {
@@ -76,6 +95,7 @@ public class RegisterActivity extends FragmentActivity
             protected void onPostExecute(Void result) {
                 saveFBUser(fbUser);
                 showRegistrationForm();
+                findViewById(R.id.btnRegistrationNext).setVisibility(View.VISIBLE);
             }
 
             @Override
@@ -157,6 +177,17 @@ public class RegisterActivity extends FragmentActivity
 
         });
 
+        // Google stuff
+        mGoogleApiClient = buildGoogleApiClient();
+        mGoogleSignInButton = (SignInButton) findViewById(R.id.google_sign_in_button);
+        mGoogleSignInButton.setOnClickListener(new View.OnClickListener(){
+            @Override
+            public void onClick(View v) {
+
+            }
+        });
+
+        // FB stuuff
         mFBLoginButton = (LoginButton) findViewById(R.id.loginButton);
         mFBLoginButton.setReadPermissions("email");
 
@@ -279,6 +310,51 @@ public class RegisterActivity extends FragmentActivity
             Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
         }
 	}
+
+    private GoogleApiClient buildGoogleApiClient() {
+        // When we build the GoogleApiClient we specify where connected and
+        // connection failed callbacks should be returned, which Google APIs our
+        // app uses and which OAuth 2.0 scopes our app requests.
+        GoogleApiClient.Builder builder = new GoogleApiClient.Builder(this)
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(Plus.API, Plus.PlusOptions.builder().build())
+                .addScope(Plus.SCOPE_PLUS_LOGIN);
+
+//        checkServerAuthConfiguration();
+//        builder = builder.requestServerAuthCode(WEB_CLIENT_ID, this);
+
+        return builder.build();
+    }
+
+    /* onConnected is called when our Activity successfully connects to Google
+ * Play services.  onConnected indicates that an account was selected on the
+ * device, that the selected account has granted any requested permissions to
+ * our app and that we were able to establish a service connection to Google
+ * Play services.
+ */
+    @Override
+    public void onConnected(Bundle connectionHint) {
+        // Retrieve some profile information to personalize our app for the user.
+        Person currentUser = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
+    }
+
+    @Override
+    public void onConnectionSuspended(int cause) {
+        // The connection to Google Play services was lost for some reason.
+        // We call connect() to attempt to re-establish the connection or get a
+        // ConnectionResult that we can attempt to resolve.
+        mGoogleApiClient.connect();
+    }
+
+    /* onConnectionFailed is called when our Activity could not connect to Google
+ * Play services.  onConnectionFailed indicates that the user needs to select
+ * an account, grant permissions or resolve an error in order to sign in.
+ */
+    @Override
+    public void onConnectionFailed(ConnectionResult result) {
+
+    }
 
     private void showRegistrationForm() {
         LinearLayout form = (LinearLayout)findViewById(R.id.register_form);
@@ -422,7 +498,7 @@ public class RegisterActivity extends FragmentActivity
 
                             bCardsFragmentDisplayed = true;
                             Button btnNext = (Button)findViewById(R.id.btnRegistrationNext);
-                            btnNext.setText("Finish");
+                            btnNext.setText(R.string.registration_finish);
                         }
                     }
                 });
@@ -433,11 +509,65 @@ public class RegisterActivity extends FragmentActivity
                 progress.dismiss();
             }
 
-        } else {
-            Intent returnIntent = new Intent();
-            returnIntent.putExtra(Globals.TOKENPREF, mAccessToken);
-            setResult(RESULT_OK, returnIntent);
-            finish();
+        } else { // Finish
+
+            final View view = findViewById(R.id.register_cars_form);
+
+            new AsyncTask<Void, Void, Void>() {
+
+                Exception mEx;
+
+                @Override
+                protected void onPostExecute(Void result){
+
+                    if( mEx == null ) {
+
+                        Intent returnIntent = new Intent();
+                        returnIntent.putExtra(Globals.TOKENPREF, mAccessToken);
+                        setResult(RESULT_OK, returnIntent);
+                        finish();
+                    }
+                    else {
+                        Snackbar snackbar =
+                                Snackbar.make(view, mEx.getMessage(), Snackbar.LENGTH_LONG);
+                         snackbar.setActionTextColor(getResources().getColor(R.color.white));
+                        //snackbar.setDuration(8000);
+                        snackbar.show();
+                    }
+                }
+
+                @Override
+                protected Void doInBackground(Void... voids) {
+
+                    try {
+                        mEx = null;
+
+                        MobileServiceClient wamsClient =
+                                new MobileServiceClient(
+                                        Globals.WAMS_URL,
+                                        Globals.WAMS_API_KEY,
+                                        getApplicationContext());
+
+                        MobileServiceSyncTable<GFence> gFencesSyncTable = wamsClient.getSyncTable("gfences",
+                                GFence.class);
+                        wamsUtils.sync(wamsClient, "gfences");
+
+                        Query pullQuery = wamsClient.getTable(GFence.class).where();
+                        gFencesSyncTable.purge(pullQuery);
+                        gFencesSyncTable.pull(pullQuery).get();
+
+                    } catch(MalformedURLException | InterruptedException | ExecutionException ex ) {
+                        mEx = ex;
+                        Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
+                    }
+
+                    return null;
+                }
+            }.execute();
+
+
+
+
         }
     }
 	

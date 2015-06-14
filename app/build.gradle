@@ -55,6 +55,7 @@ dependencies {
     compile 'com.google.android.gms:play-services-location:7.5.0'
     compile 'com.google.android.gms:play-services-gcm:7.5.0'
     compile 'com.google.android.gms:play-services-nearby:7.5.0'
+    compile 'com.google.android.gms:play-services-plus:7.5.0'
     //compile 'com.google.android.gms:play-services:7.5.0'
 
     compile 'com.android.support:design:22.2.0'

@@ -56,4 +56,13 @@
     <string name="ride_code_title">הזן קוד נסיעה</string>
     <string name="ride_code_hint">7 ספרות ללא מקף</string>
     <string name="title_activity_passenger_role">מצב נוסע</string>
+    <string name="registration_finish">סיום</string>
+    <string name="drivers_header">בחר את הנהג</string>
+    <string name="title_activity_about">אודות</string>
+    <string name="title_activity_confirm_ride">אישור</string>
+    <string name="version_title">גרסה Alpha 1</string>
+    <string name="geofence_outside">אינך נמצא באזור פיקוח</string>
+    <string name="geofence_positive_answer">כן, תזכירו לי</string>
+    <string name="geofence_negative_answer">לא, אני אנסה מאוחר יותר</string>
+    <string name="geofence_outside_title">להזכיר בכניסה לכביש?</string>
 </resources>

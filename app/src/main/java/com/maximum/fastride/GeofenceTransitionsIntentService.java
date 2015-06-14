@@ -7,6 +7,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.TaskStackBuilder;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -76,7 +78,10 @@ public class GeofenceTransitionsIntentService extends IntentService {
             }
 
             // Send notification and log the transition details.
-            sendNotification(geofenceTransitionDetails);
+            if( Globals.getRemindGeofenceEntrance() ) {
+                sendNotification(geofenceTransitionDetails);
+            }
+
             Log.i(TAG, geofenceTransitionDetails);
         } else if( geofenceTransition == Geofence.GEOFENCE_TRANSITION_DWELL ) {
             List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
@@ -125,45 +130,45 @@ public class GeofenceTransitionsIntentService extends IntentService {
      * If the user clicks the notification, control goes to the MainActivity.
      */
     private void sendNotification(String notificationDetails) {
-//        // Create an explicit content Intent that starts the main Activity.
-//        Intent notificationIntent = new Intent(getApplicationContext(), MainActivity.class);
-//
-//        // Construct a task stack.
-//        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
-//
-//        // Add the main Activity to the task stack as the parent.
-//        stackBuilder.addParentStack(MainActivity.class);
-//
-//        // Push the content Intent onto the stack.
-//        stackBuilder.addNextIntent(notificationIntent);
-//
-//        // Get a PendingIntent containing the entire back stack.
-//        PendingIntent notificationPendingIntent =
-//                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
-//
-//        // Get a notification builder that's compatible with platform versions >= 4
-//        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-//
-//        // Define the notification settings.
-//        builder.setSmallIcon(R.drawable.ic_launcher)
-//                // In a real app, you may want to use a library like Volley
-//                // to decode the Bitmap.
-//                .setLargeIcon(BitmapFactory.decodeResource(getResources(),
-//                        R.drawable.ic_launcher))
-//                .setColor(Color.RED)
-//                .setContentTitle(notificationDetails)
-//                .setContentText(getString(R.string.geofence_transition_notification_text))
-//                .setContentIntent(notificationPendingIntent);
-//
-//        // Dismiss notification once the user touches it.
-//        builder.setAutoCancel(true);
-//
-//        // Get an instance of the Notification manager
-//        NotificationManager mNotificationManager =
-//                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
-//
-//        // Issue the notification
-//        mNotificationManager.notify(0, builder.build());
+        // Create an explicit content Intent that starts the main Activity.
+        Intent notificationIntent = new Intent(getApplicationContext(), PassengerRoleActivity.class);
+
+        // Construct a task stack.
+        TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
+
+        // Add the main Activity to the task stack as the parent.
+        stackBuilder.addParentStack(PassengerRoleActivity.class);
+
+        // Push the content Intent onto the stack.
+        stackBuilder.addNextIntent(notificationIntent);
+
+        // Get a PendingIntent containing the entire back stack.
+        PendingIntent notificationPendingIntent =
+                stackBuilder.getPendingIntent(0, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        // Get a notification builder that's compatible with platform versions >= 4
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
+
+        // Define the notification settings.
+        builder.setSmallIcon(R.drawable.ic_launcher)
+                // In a real app, you may want to use a library like Volley
+                // to decode the Bitmap.
+                .setLargeIcon(BitmapFactory.decodeResource(getResources(),
+                        R.drawable.ic_launcher))
+                .setColor(Color.RED)
+                .setContentTitle(notificationDetails)
+                .setContentText(getString(R.string.geofence_transition_notification_text))
+                .setContentIntent(notificationPendingIntent);
+
+        // Dismiss notification once the user touches it.
+        builder.setAutoCancel(true);
+
+        // Get an instance of the Notification manager
+        NotificationManager mNotificationManager =
+                (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+        // Issue the notification
+        mNotificationManager.notify(0, builder.build());
 
     }
 

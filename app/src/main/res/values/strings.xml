@@ -55,13 +55,14 @@
     <string name="subtitle_activity_settings">Settings</string>
 
     <string name="passengers_header">Passengers</string>
-    <string name="drivers_header">Driver(s)</string>
+    <string name="drivers_header">Select the driver</string>
 
     <string name="default_ride_code">00000</string>
     <string name="ride_code_label">Ride Code:</string>
     <string name="ride_code_title">Type in Ride Code</string>
     <string name="ride_code_dialog_content">You may see this code on the device\'s display of the driver</string>
     <string name="ride_code_hint">7 digits without dashes</string>
+    <string name="passenger_confirm">You want to confirm your ride with</string>
     <string name="ride_code_refill"></string>
 
     <string-array name="drawers_array_drawer">
@@ -94,7 +95,9 @@
     <string name="add_car_hint">Car number</string>
     <string name="car_number_validation_error">Type in a valid car number</string>
     <string name="enable_wifi_question">Enable Wi-Fi on your device?</string>
+    <string name="enable_location_question">Do you want to enable location services on the device?</string>
     <string name="code_retry_action">Try again</string>
+    <string name="registration_finish">Finish</string>
 
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
@@ -138,6 +141,10 @@ limitations under the License.</string>
     <string name="geofence_transition_dwell">You\'re riding in monitored area</string>
     <string name="geofence_transition_exited">You exited geofences area</string>
     <string name="unknown_geofence_transition">Unknown Transition</string>
+    <string name="geofence_outside">You are outside of monitored area</string>
+    <string name="geofence_outside_title">Remind you when getting inside?</string>
+    <string name="geofence_positive_answer">Yes, remind me</string>
+    <string name="geofence_negative_answer">No, I\'ll try later</string>
 
     <!-- Geofences Error strings -->
     <string name="not_connected">GoogleApiClient no yet connected. Try again.</string>
@@ -153,7 +160,7 @@ limitations under the License.</string>
         Geofence transition error: invalid transition type %1$d
     </string>
 
-    <string name="geofence_transition_notification_text">Click notification to return to app</string>
+    <string name="geofence_transition_notification_text">Click notification to submit your ride</string>
     <string name="geofences_added">Geofences added</string>
     <string name="geofences_removed">Geofences removed</string>
     <string name="title_activity_register2">Register2Activity</string>

@@ -1,11 +1,14 @@
 package com.maximum.fastride;
 
+import android.annotation.TargetApi;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Outline;
 import android.graphics.drawable.Drawable;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
+import android.opengl.Visibility;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -22,6 +25,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewOutlineProvider;
 import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
@@ -71,6 +75,19 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
     TextView mTxtStatus;
     String mUserID;
 
+    Object _lock = new Object();
+    private Boolean mEnforcedSubmit = false;
+    public void toggleSubmit() {
+        synchronized( _lock ) {
+            mEnforcedSubmit = !mEnforcedSubmit;
+        }
+    }
+    public Boolean isSubmitEnforced() {
+        synchronized (_lock ) {
+            return mEnforcedSubmit;
+        }
+    }
+
     private android.os.Handler handler = new android.os.Handler(this);
     public android.os.Handler getHandler() {
         return handler;
@@ -96,40 +113,39 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         mUserID = sharedPrefs.getString(Globals.USERIDPREF, "");
 
-        final View v = findViewById(R.id.passenger_snackbar);
         final TextView txtStatus = (TextView)findViewById(R.id.status_monitor);
+
+        Globals.setMonitorStatus(getString(R.string.geofence_outside));
+
         new Thread() {
             @Override
             public void run(){
-                try {
+
+                try{
+
                     while (true) {
-                        if (Globals.isInGeofenceArea()) {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
 
-                                    if( v.getVisibility() != View.VISIBLE) {
-                                        v.setVisibility(View.VISIBLE);
+                        runOnUiThread(new Runnable() {
 
-                                        txtStatus.setText(Globals.getMonitorStatus());
-                                    }
-                                }
-                            });
-                        } else {
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    if( v.getVisibility() != View.GONE)
-                                        v.setVisibility(View.GONE);
-                                }
-                            });
+                            @Override
+                            public void run() {
 
-                        }
+                                    String message = Globals.isInGeofenceArea() ?
+                                            Globals.getMonitorStatus() :
+                                            getString(R.string.geofence_outside);
+
+                                    txtStatus.setText(message);
+
+                            }
+                        });
+
                         Thread.sleep(1000);
                     }
-                } catch(Exception ex) {
+                }
+                catch(InterruptedException ex) {
                     Log.e(LOG_TAG, ex.getMessage());
                 }
+
             }
         }.start();
 
@@ -142,19 +158,6 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
     protected void setupUI(String title, String subTitle){
 
         super.setupUI(title, subTitle);
-
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-
-            FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.submit_passenger_button);
-
-            if( fab != null ) {
-                fab.setBackgroundColor(getResources().getColor(R.color.ColorAccent));
-                Drawable iconDone = getResources().getDrawable(R.drawable.ic_action_done);
-                if( iconDone != null ) {
-                    fab.setDrawableIcon(iconDone);
-                }
-            }
-        }
 
         RecyclerView driversRecycler = (RecyclerView)findViewById(R.id.recyclerViewDrivers);
         driversRecycler.setHasFixedSize(true);
@@ -208,11 +211,8 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
             return true;
         } else if( id == R.id.action_code) {
             showSubmitCodeDialog();
-        } else if( id == R.id.action_pass_refresh) {
-            LinearLayout layout = (LinearLayout) findViewById(R.id.ride_code_layout);
-            layout.setVisibility(View.GONE);
-            FrameLayout transmitterLayout = (FrameLayout)findViewById(R.id.ride_transmitter_layout);
-            transmitterLayout.setVisibility(View.VISIBLE);
+        } else if( id == R.id.enforce_passenger_submit) {
+            toggleSubmit();
         }
 
         return super.onOptionsItemSelected(item);
@@ -268,10 +268,8 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
         return true;
     }
 
-    private void onSubmit(View view) {
-        final EditText editRideCode = (EditText)findViewById(R.id.editTextRideCode);
-        final String rideCode = editRideCode.getText().toString();
-        onSubmitCode(rideCode);
+    public void onSubmit() {
+        onSubmitCode("");
     }
 
     public void onSubmitCode(final String rideCode){
@@ -391,18 +389,18 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
     }
 
     @Override
-    public void alert(final String strIntent) {
+    public void alert(String message, final String actionIntent) {
         DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
 
             @Override
             public void onClick(DialogInterface dialogInterface, int which) {
                 if( which == DialogInterface.BUTTON_POSITIVE ) {
-                    startActivity(new Intent(strIntent));
+                    startActivity(new Intent(actionIntent));
                 }
             }};
 
         new AlertDialogWrapper.Builder(this)
-                .setTitle(R.string.enable_wifi_question)
+                .setTitle(message)
                 .setNegativeButton(R.string.no, dialogClickListener)
                 .setPositiveButton(R.string.yes, dialogClickListener)
                 .show();
@@ -427,12 +425,51 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
     //
     public void clicked(View view, int position) {
 
+        WifiP2pDeviceUser driverDevice = drivers.get(position);
+
+        if( !Globals.isInGeofenceArea() ) {
+            new MaterialDialog.Builder(this)
+                    .title(R.string.geofence_outside_title)
+                    .content(R.string.geofence_outside)
+                    .positiveText(R.string.geofence_positive_answer)
+                    .negativeText(R.string.geofence_negative_answer)
+                    .callback(new MaterialDialog.ButtonCallback() {
+                        @Override
+                        public void onPositive(MaterialDialog dialog) {
+                            Globals.setRemindGeofenceEntrance();
+                        }
+                    })
+                    .show();
     }
 
-    //
-    // Implementation of IRefreshable
-    //
-    public void refresh() {
+    else
+
+    {
+
+        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+
+            @Override
+            public void onClick(DialogInterface dialogInterface, int which) {
+                if (which == DialogInterface.BUTTON_POSITIVE) {
+                    onSubmit();
+                }
+            }
+        };
+
+        String message = getString(R.string.passenger_confirm) + driverDevice.deviceName;
+
+        new AlertDialogWrapper.Builder(this)
+                .setTitle(message)
+                .setNegativeButton(R.string.no, dialogClickListener)
+                .setPositiveButton(R.string.yes, dialogClickListener)
+                .show();
+    }
+}
+
+        //
+        // Implementation of IRefreshable
+        //
+        public void refresh() {
         drivers.clear();
         mDriversAdapter.notifyDataSetChanged();
 

@@ -4,6 +4,8 @@ import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.Settings;
+import android.text.TextUtils;
 import android.util.Log;
 
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -94,16 +96,25 @@ public class BaseActivityWithGeofences extends BaseActivity
                 }
 
                 GeofencingRequest geoFencingRequest = getGeofencingRequest();
-                if( geoFencingRequest != null ) {
-                    LocationServices.GeofencingApi.addGeofences(
-                            getGoogleApiClient(), // from base activity
-                            // The GeofenceRequest object.
-                            geoFencingRequest,
-                            // A pending intent that that is reused when calling removeGeofences(). This
-                            // pending intent is used to generate an intent when a matched geofence
-                            // transition is observed.
-                            getGeofencePendingIntent()
-                    ).setResultCallback(resultCallback); // Result processed in onResult().
+                GoogleApiClient googleApiClient = getGoogleApiClient();
+
+                if( geoFencingRequest != null
+                        && googleApiClient != null ) {
+
+                    if (googleApiClient.isConnected()) {
+
+                        LocationServices.GeofencingApi.addGeofences(
+                                getGoogleApiClient(), // from base activity
+                                // The GeofenceRequest object.
+                                geoFencingRequest,
+                                // A pending intent that that is reused when calling removeGeofences(). This
+                                // pending intent is used to generate an intent when a matched geofence
+                                // transition is observed.
+                                getGeofencePendingIntent()
+                        ).setResultCallback(resultCallback); // Result processed in onResult().
+                    } else {
+                        Log.e(LOG_TAG, "Google API is not connected yet");
+                    }
                 }
 
             }
@@ -233,6 +244,14 @@ public class BaseActivityWithGeofences extends BaseActivity
             String errorMessage = GeofenceErrorMessages.getErrorString(this,
                     status.getStatusCode());
             Log.e(LOG_TAG, errorMessage);
+
+            if( this instanceof ITrace ) {
+
+                String message = getString(R.string.enable_location_question);
+                ITrace tracer = (ITrace)this;
+                tracer.alert(errorMessage + "." + message,
+                        Settings.ACTION_LOCATION_SOURCE_SETTINGS);
+            }
         }
     }
 

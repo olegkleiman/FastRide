@@ -48,35 +48,7 @@
             </FrameLayout>
 
 
-        <LinearLayout
-            android:id="@+id/ride_code_layout"
-            android:layout_width="fill_parent"
-            android:layout_height="fill_parent"
-            android:visibility="gone"
-            android:orientation="horizontal"
-            android:elevation="8dp">
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/ride_code_label"
-                android:textAppearance="?android:attr/textAppearanceMedium"
-                android:layout_marginStart="16dp"
-                android:layout_marginTop="16dp"
-                android:id="@+id/textView5" />
-
-            <EditText
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:inputType="number"
-                android:maxLength="5"
-                android:hint="00000"
-                android:id="@+id/editTextRideCode"
-                android:layout_gravity="center" />
-
-        </LinearLayout>
-
-        <ImageButton
+            <ImageButton
             android:id="@+id/submit_passenger_button"
             android:layout_width="@dimen/diameter"
             android:layout_height="@dimen/diameter"
@@ -99,7 +71,7 @@
             android:layout_width="fill_parent"
             android:layout_height="@dimen/snackbar_height"
             android:animateLayoutChanges="true"
-            android:visibility="gone">
+            android:visibility="visible">
             <TextView
                 android:id="@+id/status_monitor"
                 android:layout_width="fill_parent"
@@ -109,7 +81,7 @@
                 android:background="@color/ColorPrimary"
                 android:textAppearance="?android:attr/textAppearanceMedium"
                 android:textColor="@color/white"
-                android:text="@string/geofence_transition_entered"
+                android:text="@string/geofence_outside"
                 android:gravity="center_vertical|fill_vertical|start|center_horizontal" />
 
         </LinearLayout>

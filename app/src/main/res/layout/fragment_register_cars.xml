@@ -28,11 +28,12 @@
             android:id="@+id/carsListView"
             android:layout_margin="8dp" />
 
-        <!--<android.support.design.widget.FloatingActionButton-->
-        <com.maximum.fastride.utils.FloatingActionButton
+        <!-- <com.maximum.fastride.utils.FloatingActionButton -->
+        <android.support.design.widget.FloatingActionButton
             android:id="@+id/add_car_button"
             android:src="@drawable/ic_action_add"
             app:backgroundTint="@color/ColorAccent"
+            app:borderWidth="0dp"
             android:layout_height="wrap_content"
             android:layout_width="wrap_content"
             android:layout_marginBottom="44dp"
