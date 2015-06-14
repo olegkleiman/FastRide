@@ -16,6 +16,7 @@ import com.google.android.gms.maps.model.LatLng;
 import com.maximum.fastride.model.GFence;
 import com.maximum.fastride.services.GeofenceErrorMessages;
 import com.maximum.fastride.utils.Globals;
+import com.maximum.fastride.utils.ITrace;
 import com.maximum.fastride.utils.wamsUtils;
 import com.microsoft.windowsazure.mobileservices.MobileServiceList;
 import com.microsoft.windowsazure.mobileservices.table.query.Query;
@@ -65,25 +66,30 @@ public class BaseActivityWithGeofences extends BaseActivity
 
             @Override
             protected void onPostExecute(Void result){
+
+                Globals.GEOFENCES.clear();
+
                 for (Map.Entry<String, LatLng> entry : Globals.FWY_AREA_LANDMARKS.entrySet()) {
 
                     Globals.GEOFENCES.add(new Geofence.Builder()
                             .setRequestId(entry.getKey())
 
-                                    // Set the circular region of this geofence.
+                             // Set the circular region of this geofence.
                             .setCircularRegion(
                                     entry.getValue().latitude,
                                     entry.getValue().longitude,
                                     Globals.GEOFENCE_RADIUS_IN_METERS
                             )
-
-                                    // Set the expiration duration of the geofence. This geofence gets automatically
-                                    // removed after this period of time.
+                            .setLoiteringDelay(Globals.GEOFENCE_LOITERING_DELAY)
+                             //.setNotificationResponsiveness(Globals.GEOFENCE_RESPONSIVENESS)
+                             // Set the expiration duration of the geofence. This geofence gets automatically
+                             // removed after this period of time.
                             .setExpirationDuration(Globals.GEOFENCE_EXPIRATION_IN_MILLISECONDS)
-                                    // Set the transition types of interest. Alerts are only generated for these
-                                    // transition. We track entry and exit transitions here.
+                             // Set the transition types of interest. Alerts are only generated for these
+                             // transition. We track entry and exit transitions here.
                             .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER |
-                                    Geofence.GEOFENCE_TRANSITION_EXIT)
+                                    Geofence.GEOFENCE_TRANSITION_EXIT |
+                                    Geofence.GEOFENCE_TRANSITION_DWELL)
                             .build());
                 }
 
@@ -129,18 +135,18 @@ public class BaseActivityWithGeofences extends BaseActivity
                     // 4. define pending intent for geofences transitions
                     // 5. add geofences to Google API service
 
-                    Random r = new Random();
-                    String gFenceNamePrefix = "gf_";
                     for (GFence _gFence : gFences) {
-                        //double lat = Double.parseDouble(Float.toString(_gFence.getLat()));
-                        double lat = new BigDecimal(String.valueOf(_gFence.getLat())).doubleValue();
-                        //double lat = 32.080341; // _gFence.getLat();
-                        //double lon = Double.parseDouble(Float.toString(_gFence.getLon()));
-                        double lon = new BigDecimal(String.valueOf(_gFence.getLon())).doubleValue();
-                        //double lon = 34.780639;//_gFence.getLon();
-                        LatLng latLng = new LatLng(lat, lon);
-                        Globals.FWY_AREA_LANDMARKS.put(gFenceNamePrefix + r.nextInt(100),
-                                                       latLng);
+
+                        if( _gFence.isActive() ) {
+
+                            // About the issues of converting float to double
+                            // see here: http://programmingjungle.blogspot.co.il/2013/03/float-to-double-conversion-in-java.html
+                            double lat = new BigDecimal(String.valueOf(_gFence.getLat())).doubleValue();
+                            double lon = new BigDecimal(String.valueOf(_gFence.getLon())).doubleValue();
+                            LatLng latLng = new LatLng(lat, lon);
+
+                            Globals.FWY_AREA_LANDMARKS.put(_gFence.getLabel(), latLng);
+                        }
                     }
 
 
@@ -158,6 +164,10 @@ public class BaseActivityWithGeofences extends BaseActivity
 
     @Override
     protected void onDestroy() {
+
+        Globals.setInGeofenceArea(false);
+        Globals.setMonitorStatus("");
+
         LocationServices.GeofencingApi.removeGeofences(
                 getGoogleApiClient(),
                 // This is the same pending intent that was used in addGeofences().
@@ -212,9 +222,12 @@ public class BaseActivityWithGeofences extends BaseActivity
      */
     public void onResult(Status status) {
         if (status.isSuccess()) {
-//
-//            Toast.makeText(this,getString(R.string.geofences_added),
-//                            Toast.LENGTH_SHORT).show();
+
+            if( this instanceof ITrace ) {
+                ITrace tracer = (ITrace)this;
+                tracer.trace(getString(R.string.geofences_added));
+            }
+
         } else {
             // Get the status code for the error and log it using a user-friendly message.
             String errorMessage = GeofenceErrorMessages.getErrorString(this,

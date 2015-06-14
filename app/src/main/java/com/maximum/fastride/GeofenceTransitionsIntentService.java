@@ -14,6 +14,7 @@ import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingEvent;
 import com.maximum.fastride.R;
 import com.maximum.fastride.services.GeofenceErrorMessages;
+import com.maximum.fastride.utils.Globals;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,10 +67,26 @@ public class GeofenceTransitionsIntentService extends IntentService {
                     geofenceTransition,
                     triggeringGeofences
             );
+            Globals.setMonitorStatus(geofenceTransitionDetails);
+
+            if( geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER) {
+                Globals.setInGeofenceArea(true);
+            } else if( geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT ){
+                Globals.setInGeofenceArea(false);
+            }
 
             // Send notification and log the transition details.
             sendNotification(geofenceTransitionDetails);
             Log.i(TAG, geofenceTransitionDetails);
+        } else if( geofenceTransition == Geofence.GEOFENCE_TRANSITION_DWELL ) {
+            List<Geofence> triggeringGeofences = geofencingEvent.getTriggeringGeofences();
+            // Get the transition details as a String.
+            String geofenceTransitionDetails = getGeofenceTransitionDetails(
+                    this,
+                    geofenceTransition,
+                    triggeringGeofences
+            );
+            Globals.setMonitorStatus(geofenceTransitionDetails);
         } else {
             // Log the error.
             Log.e(TAG, getString(R.string.geofence_transition_invalid_type, geofenceTransition));
@@ -94,7 +111,9 @@ public class GeofenceTransitionsIntentService extends IntentService {
         // Get the Ids of each geofence that was triggered.
         List<String> triggeringGeofencesIdsList = new ArrayList<String>();
         for (Geofence geofence : triggeringGeofences) {
-            triggeringGeofencesIdsList.add(geofence.getRequestId());
+            String requestId = geofence.getRequestId();
+            String[] tokens = requestId.split(":");
+            triggeringGeofencesIdsList.add(tokens[0]);
         }
         String triggeringGeofencesIdsString = TextUtils.join(", ", triggeringGeofencesIdsList);
 
@@ -158,6 +177,8 @@ public class GeofenceTransitionsIntentService extends IntentService {
         switch (transitionType) {
             case Geofence.GEOFENCE_TRANSITION_ENTER:
                 return getString(R.string.geofence_transition_entered);
+            case Geofence.GEOFENCE_TRANSITION_DWELL:
+                return getString(R.string.geofence_transition_dwell);
             case Geofence.GEOFENCE_TRANSITION_EXIT:
                 return getString(R.string.geofence_transition_exited);
             default:

@@ -4,17 +4,16 @@
         <item>Начало</item>
         <item>Водитель</item>
         <item>Пассажир</item>
-        <item>Апеляция</item>
+        <item>Апелляция</item>
     </string-array>
 
     <string-array name="drawers_array_drawer">
-        <item>Старт</item>
+        <item>Начало</item>
         <item>Все поездки</item>
         <item>Настройки</item>
         <item>Подсказки</item>
     </string-array>
 
-    <string name="app_name">FastRide</string>
     <string name="mode_name_driver">Водитель</string>
     <string name="mode_name_passenger">Пассажир</string>
     <string name="yes">Да</string>
@@ -30,7 +29,7 @@
     <string name="edit_car_button_delete">Удалить</string>
     <string name="driverTabCaption">Водитель</string>
     <string name="btnFindRide">Найти поездку</string>
-    <string name="edit_car_dialog_caption1">Выберите номер машины</string>
+    <string name="edit_car_dialog_caption1">Укажите номер машины, которой вы управляете сейчас</string>
     <string name="dialog_confirm_registration">Заменить предыдущую регистрацию?</string>
     <string name="driver_tutorial_fragment">Подсказки водителю</string>
     <string name="edit_car_button_title">Изменить</string>
@@ -40,11 +39,11 @@
     <string name="registration_already_performed">Вы уже зарегистрированы в апликации</string>
     <string name="ride_code_label">Код поездки:</string>
     <string name="subtitle_activity_driver_role">Водитель</string>
-    <string name="subtitle_activity_my_rides">Все поездки</string>
+    <string name="subtitle_activity_my_rides">История поездок</string>
     <string name="subtitle_activity_passenger_role">Пассажир</string>
     <string name="title_activity_confirm_ride">Подтвердить</string>
-    <string name="title_activity_my_rides">Все поездки</string>
-    <string name="operating_modes">Выберите режим запуска</string>
+    <string name="title_activity_my_rides">Мои поездки</string>
+    <string name="operating_modes">Кто вы сейчас?</string>
     <string name="about">О программе</string>
     <string name="passengers_header">Пассажиры</string>
     <string name="drivers_header">Ваш водитель</string>
@@ -53,8 +52,13 @@
     <string name="subtitle_activity_tutorial">Подсказки</string>
     <string name="title_activity_about">О программе</string>
     <string name="title_activity_settings">Настройки</string>
-    <string name="title_activity_driver_role">Режим водителя</string>
-    <string name="title_activity_passenger_role">Режим пассажира</string>
+    <string name="title_activity_driver_role">Водитель</string>
+    <string name="title_activity_passenger_role">Пассажир</string>
     <string name="edit_car_button_title2">Указать</string>
     <string name="prompt_phone">Номер телефона</string>
+    <string name="geofence_transition_entered">Вы едите в зоне контроля</string>
+    <string name="passengerTabCaption">Пассажир</string>
+    <string name="ride_code_dialog_content">Вы можете увидеть этот код на дисплее телефона водителя</string>
+    <string name="ride_code_title">Введите код поездки</string>
+    <string name="ride_code_hint">7 цифр без тире</string>
 </resources>

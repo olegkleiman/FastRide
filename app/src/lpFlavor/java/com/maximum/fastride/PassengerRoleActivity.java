@@ -1,6 +1,5 @@
 package com.maximum.fastride;
 
-import android.app.PendingIntent;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -9,32 +8,30 @@ import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
 import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
-import android.os.Bundle;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.InputType;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.afollestad.materialdialogs.AlertDialogWrapper;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.Geofence;
-import com.google.android.gms.location.GeofencingRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.model.LatLng;
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.maximum.fastride.adapters.WiFiPeersAdapter2;
 import com.maximum.fastride.adapters.WifiP2pDeviceUser;
 import com.maximum.fastride.model.Join;
@@ -52,8 +49,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Map;
-import java.util.Random;
 import java.util.concurrent.ExecutionException;
 
 public class PassengerRoleActivity extends BaseActivityWithGeofences
@@ -89,6 +84,9 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
         setupUI(getString(R.string.title_activity_passenger_role), "");
         wamsInit();
 
+        // Keep device awake when discovering by Nearby host
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
+
         mTxtStatus = (TextView)findViewById(R.id.txtStatusPassenger);
 
         joinsTable = getMobileServiceClient().getTable("joins", Join.class);
@@ -97,6 +95,43 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
 
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         mUserID = sharedPrefs.getString(Globals.USERIDPREF, "");
+
+        final View v = findViewById(R.id.passenger_snackbar);
+        final TextView txtStatus = (TextView)findViewById(R.id.status_monitor);
+        new Thread() {
+            @Override
+            public void run(){
+                try {
+                    while (true) {
+                        if (Globals.isInGeofenceArea()) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+
+                                    if( v.getVisibility() != View.VISIBLE) {
+                                        v.setVisibility(View.VISIBLE);
+
+                                        txtStatus.setText(Globals.getMonitorStatus());
+                                    }
+                                }
+                            });
+                        } else {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    if( v.getVisibility() != View.GONE)
+                                        v.setVisibility(View.GONE);
+                                }
+                            });
+
+                        }
+                        Thread.sleep(1000);
+                    }
+                } catch(Exception ex) {
+                    Log.e(LOG_TAG, ex.getMessage());
+                }
+            }
+        }.start();
 
         // This will start serviceDiscovery
         // for (hopefully) already published service
@@ -149,6 +184,7 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
         wifiUtil.removeGroup();
         super.onStop();
     }
+
 //
 //    @Override
 //    protected void onPostCreate(Bundle savedInstanceState) {
@@ -171,10 +207,7 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
             onDebug(null);
             return true;
         } else if( id == R.id.action_code) {
-            LinearLayout layout = (LinearLayout)findViewById(R.id.ride_code_layout);
-            layout.setVisibility(View.VISIBLE);
-            FrameLayout transmitterLayout = (FrameLayout)findViewById(R.id.ride_transmitter_layout);
-            transmitterLayout.setVisibility(View.GONE);
+            showSubmitCodeDialog();
         } else if( id == R.id.action_pass_refresh) {
             LinearLayout layout = (LinearLayout) findViewById(R.id.ride_code_layout);
             layout.setVisibility(View.GONE);
@@ -183,6 +216,25 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void showSubmitCodeDialog() {
+        new MaterialDialog.Builder(this)
+                .title(R.string.ride_code_title)
+                .content(R.string.ride_code_dialog_content)
+                .inputType(InputType.TYPE_CLASS_TEXT | InputType.TYPE_CLASS_NUMBER)
+                .inputMaxLength(5)
+                .input(R.string.ride_code_hint,
+                        R.string.ride_code_refill,
+                        new MaterialDialog.InputCallback() {
+                            @Override
+                            public void onInput(MaterialDialog dialog, CharSequence input) {
+                                String rideCode = input.toString();
+                                onSubmitCode(rideCode);
+                            }
+                        }
+
+                ).show();
     }
 
     public void onDebug(View view){
@@ -216,12 +268,16 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
         return true;
     }
 
-
-    public void onSubmit(View view){
+    private void onSubmit(View view) {
         final EditText editRideCode = (EditText)findViewById(R.id.editTextRideCode);
         final String rideCode = editRideCode.getText().toString();
+        onSubmitCode(rideCode);
+    }
+
+    public void onSubmitCode(final String rideCode){
         final String android_id = Settings.Secure.getString(this.getContentResolver(),
                 Settings.Secure.ANDROID_ID);
+        final View v = findViewById(R.id.passenger_internal_layout);
 
         new AsyncTask<Void, Void, Void>() {
 
@@ -238,11 +294,18 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
                     if(tokens.length > 1)
                         msg = tokens[1];
 
-                    if( mEx instanceof ExecutionException) {
-                        editRideCode.setError(msg);
-                    } else {
-                        Toast.makeText(PassengerRoleActivity.this, msg, Toast.LENGTH_LONG).show();
-                    }
+                    Snackbar snackbar =
+                            Snackbar.make(v, msg, Snackbar.LENGTH_LONG);
+                    snackbar.setAction(R.string.code_retry_action,
+                                        new View.OnClickListener(){
+                                        @Override
+                                        public void onClick(View v){
+                                            showSubmitCodeDialog();
+                                        }
+                            });
+                    snackbar.setActionTextColor(getResources().getColor(R.color.white));
+                    //snackbar.setDuration(8000);
+                    snackbar.show();
                 }
             }
 

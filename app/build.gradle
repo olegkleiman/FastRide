@@ -50,8 +50,11 @@ dependencies {
     compile 'com.facebook.android:facebook-android-sdk:3.21.1'
     //compile 'com.facebook.android:facebook-android-sdk:4.0.0'
 
+    // See here: https://developers.google.com/android/guides/setup
+    // for detailed discussion about setting up GMS
     compile 'com.google.android.gms:play-services-location:7.5.0'
     compile 'com.google.android.gms:play-services-gcm:7.5.0'
+    compile 'com.google.android.gms:play-services-nearby:7.5.0'
     //compile 'com.google.android.gms:play-services:7.5.0'
 
     compile 'com.android.support:design:22.2.0'

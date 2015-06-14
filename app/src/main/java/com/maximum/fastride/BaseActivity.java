@@ -23,6 +23,7 @@ import android.widget.LinearLayout;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.nearby.Nearby;
 import com.maximum.fastride.adapters.DrawerAccountAdapter;
 import com.maximum.fastride.model.User;
 import com.maximum.fastride.utils.Globals;
@@ -77,7 +78,8 @@ public class BaseActivity extends ActionBarActivity
 
             GoogleApiClient.Builder builder =
                     new GoogleApiClient.Builder(this)
-                            .addApi(LocationServices.API);
+                            .addApi(LocationServices.API)
+                            .addApi(Nearby.CONNECTIONS_API);
 
             if( this instanceof GoogleApiClient.ConnectionCallbacks) {
                 GoogleApiClient.ConnectionCallbacks callbacksImplementer =

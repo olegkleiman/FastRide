@@ -27,6 +27,7 @@
             android:background="?attr/colorPrimary" />
 
         <RelativeLayout
+            android:id="@+id/passenger_internal_layout"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -63,7 +64,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Ride Code:"
+                    android:text="@string/ride_code_label"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:layout_marginStart="16dp"
                     android:layout_marginLeft="16dp"
@@ -103,6 +104,26 @@
 
 
         </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/passenger_snackbar"
+            android:layout_width="fill_parent"
+            android:layout_height="@dimen/snackbar_height"
+            android:animateLayoutChanges="true"
+            android:visibility="gone">
+            <TextView
+                android:id="@+id/status_monitor"
+                android:layout_width="fill_parent"
+                android:layout_height="fill_parent"
+                android:paddingLeft="@dimen/snackbar_leftpadding"
+                android:paddingRight="@dimen/snackbar_rightpadding"
+                android:background="@color/ColorPrimary"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:textColor="@color/white"
+                android:text="@string/geofence_transition_entered"
+                android:gravity="left|center_vertical|fill_vertical|start|center_horizontal" />
+
+        </LinearLayout>
 
 
         <LinearLayout

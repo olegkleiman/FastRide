@@ -14,7 +14,6 @@
         <item>עזרה</item>
     </string-array>
 
-    <string name="app_name">FastRide</string>
     <string name="mode_name_driver">נהג</string>
     <string name="mode_name_passenger">נוסע</string>
     <string name="btnFindRide">חפש נסיעה</string>
@@ -49,4 +48,12 @@
     <string name="add_car_button_cancel">ביטול</string>
     <string name="ride_code_label">קוד נסיעה</string>
     <string name="subtitle_activity_my_rides">הנסיעות שלי</string>
+    <string name="geofence_transition_entered">אתה רוכב באזור פיקוח</string>
+    <string name="add_car_button_add">הוספה</string>
+    <string name="add_car_hint">מספר רכב</string>
+    <string name="subtitle_activity_tutorial">הדרכות</string>
+    <string name="ride_code_dialog_content">אפשר לראות את הקוד הזה על מסך המכשיר של הנהג</string>
+    <string name="ride_code_title">הזן קוד נסיעה</string>
+    <string name="ride_code_hint">7 ספרות ללא מקף</string>
+    <string name="title_activity_passenger_role">מצב נוסע</string>
 </resources>

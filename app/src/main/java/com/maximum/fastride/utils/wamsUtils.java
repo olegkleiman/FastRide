@@ -39,6 +39,8 @@ public class wamsUtils {
                 tableDefinition.put("lat", ColumnDataType.Number);
                 tableDefinition.put("lon", ColumnDataType.Number);
                 tableDefinition.put("when_updated", ColumnDataType.Date);
+                tableDefinition.put("label", ColumnDataType.String);
+                tableDefinition.put("isactive", ColumnDataType.Boolean);
                 tableDefinition.put("__deleted", ColumnDataType.Boolean);
                 tableDefinition.put("__version", ColumnDataType.String);
 

@@ -16,6 +16,7 @@ import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Objects;
 
 /**
  * Created by Oleg Kleiman on 11-Apr-15.
@@ -85,6 +86,16 @@ public class Globals {
     public static final int MY_HANDLE = 0x400 + 2;
     public static final int TRACE_MESSAGE = 0x400 + 3;
 
+
+    /**
+     * Timeouts (in millis) for startAdvertising and startDiscovery.  At the end of these time
+     * intervals the app will silently stop advertising or discovering.
+     *
+     * To set advertising or discovery to run indefinitely, use 0L where timeouts are required.
+     */
+    public static final long TIMEOUT_ADVERTISE = 1000L * 30L;
+    public static final long TIMEOUT_DISCOVER = 1000L * 30L;
+
     // Geofences
     public static final HashMap<String, LatLng> FWY_AREA_LANDMARKS = new HashMap<String, LatLng>();
 //    static {
@@ -93,8 +104,37 @@ public class Globals {
     public static ArrayList<Geofence> GEOFENCES = new ArrayList<Geofence>();
     public static PendingIntent GeofencePendingIntent;
 
-    public static final long GEOFENCE_EXPIRATION_IN_HOURS = 12;
+    public static final long GEOFENCE_EXPIRATION_IN_HOURS = 2;
     public static final long GEOFENCE_EXPIRATION_IN_MILLISECONDS =
             GEOFENCE_EXPIRATION_IN_HOURS * 60 * 60 * 1000;
-    public static final float GEOFENCE_RADIUS_IN_METERS = 1609; // 1 mile, 1.6 km
+    public static final float GEOFENCE_RADIUS_IN_METERS = 300;
+    public static final int GEOFENCE_LOITERING_DELAY = 60000; // 1 min
+    public static final int GEOFENCE_RESPONSIVENESS = 5000; // 5 sec
+
+    private static Object lock = new Object();
+    private static boolean inGeofenceArea;
+    public static boolean isInGeofenceArea() {
+        synchronized (lock) {
+            return inGeofenceArea;
+        }
+    }
+    public static void setInGeofenceArea(boolean value) {
+        synchronized (lock) {
+            inGeofenceArea = value;
+        }
+    }
+
+    private static Object lock2 = new Object();
+    private static String MONITOR_STATUS;
+    public static String getMonitorStatus() {
+        synchronized (lock2) {
+            return MONITOR_STATUS;
+        }
+    }
+    public static void setMonitorStatus(String value) {
+        synchronized (lock2) {
+            MONITOR_STATUS = value;
+        }
+    }
+
 }

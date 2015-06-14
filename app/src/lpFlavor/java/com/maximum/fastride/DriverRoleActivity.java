@@ -14,6 +14,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -22,6 +23,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewOutlineProvider;
+import android.view.WindowManager;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -99,6 +101,9 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
 
         setupUI(getString(R.string.title_activity_driver_role), "");
         wamsInit();
+
+        // Keep device awake when advertising by Nearby host
+        getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         ridesTable = getMobileServiceClient().getTable("rides", Ride.class);
         new AsyncTask<Void, Void, Void>() {

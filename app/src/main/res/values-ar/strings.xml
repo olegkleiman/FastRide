@@ -9,8 +9,7 @@
     </string-array>
 
 
-    <string name="app_name">FastRide</string>
-    <string name="operating_modes">أوضاع التشغيل</string>
+    <string name="operating_modes">من أنت الآن؟</string>
     <string name="action_settings">الإعدادات</string>
     <string name="action_register">تسجيل</string>
     <string name="driverTabCaption">سائق</string>
@@ -44,4 +43,8 @@
     <string name="btnFindRide">ابحث عن سفر</string>
     <string name="driver_tutorial_fragment">مساعده السائق</string>
     <string name="title_activity_confirm_ride">موافقه</string>
+    <string name="title_activity_driver_role">سائق</string>
+    <string name="passengerTabCaption">راكب</string>
+    <string name="title_activity_passenger_role">راكب</string>
+    <string name="passengers_header">الركاب</string>
 </resources>

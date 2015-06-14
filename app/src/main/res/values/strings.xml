@@ -1,8 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">FastRide</string>
-    <string name="app_label">Fast Ride</string>
+    <!--
+    This is the service identifier for Nearby Connections.
+    -->
+    <string name="service_id">com.maximum.fastride.service</string>
+
+    <string name="app_name" translatable="false">FastRide</string>
+    <string name="app_label" translatable="false">Fast Ride</string>
     <string name="action_settings">Settings</string>
     <string name="title_activity_camera">CameraActivity</string>
     <string name="title_activity_register">Fast Ride: Registration</string>
@@ -26,13 +31,12 @@
 
     <string name="no_phone_number">Provide your phone number. You may prefer to not share it with others by switching off the following indicator</string>
 
-    <string name="facebook_app_id">1554616841424048</string>
+    <string name="facebook_app_id" translatable="false">1554616841424048</string>
     <string name="title_section_user">User Profile</string>
     <string name="title_section_cars">Cars</string>
     <string name="mode_name_driver">Driver</string>
     <string name="mode_name_passenger">Passenger</string>
     <string name="btnFindRide">Find a ride</string>
-
 
     <string name="title_activity_main">Fast Ride</string>
     <string name="title_activity_driver_role">Driver Mode</string>
@@ -55,6 +59,10 @@
 
     <string name="default_ride_code">00000</string>
     <string name="ride_code_label">Ride Code:</string>
+    <string name="ride_code_title">Type in Ride Code</string>
+    <string name="ride_code_dialog_content">You may see this code on the device\'s display of the driver</string>
+    <string name="ride_code_hint">7 digits without dashes</string>
+    <string name="ride_code_refill"></string>
 
     <string-array name="drawers_array_drawer">
         <item>Start</item>
@@ -67,7 +75,7 @@
         <item>Intro</item>
         <item>Driver</item>
         <item>Passenger</item>
-        <item>Reclamation</item>
+        <item>Re-claim</item>
     </string-array>
 
     <string name="operating_modes">Operating modes</string>
@@ -86,6 +94,7 @@
     <string name="add_car_hint">Car number</string>
     <string name="car_number_validation_error">Type in a valid car number</string>
     <string name="enable_wifi_question">Enable Wi-Fi on your device?</string>
+    <string name="code_retry_action">Try again</string>
 
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
@@ -101,7 +110,7 @@
     <string name="about">About</string>
 
     <string name="copyright">Copyright (&#169;) 2015 Maximum</string>
-        <string name="license">Licensed under the Apache License, Version 2.0 (the "License");
+    <string name="license" translatable="false">Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
@@ -125,8 +134,9 @@ limitations under the License.</string>
     <string name="intro_tutorial_fragment">Introduction tutorial</string>
 
     <!-- Transition type strings -->
-    <string name="geofence_transition_entered">Entered</string>
-    <string name="geofence_transition_exited">Exited</string>
+    <string name="geofence_transition_entered">You\'re entered the monitored area</string>
+    <string name="geofence_transition_dwell">You\'re riding in monitored area</string>
+    <string name="geofence_transition_exited">You exited geofences area</string>
     <string name="unknown_geofence_transition">Unknown Transition</string>
 
     <!-- Geofences Error strings -->
@@ -148,7 +158,5 @@ limitations under the License.</string>
     <string name="geofences_removed">Geofences removed</string>
     <string name="title_activity_register2">Register2Activity</string>
     <string name="title_activity_gfences">GFencesActivity</string>
-
-    <string name="hello_world">Hello world!</string>
 
 </resources>
