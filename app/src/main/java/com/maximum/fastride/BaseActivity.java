@@ -3,6 +3,8 @@ package com.maximum.fastride;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -36,8 +38,7 @@ import java.net.MalformedURLException;
  * Created by Oleg Kleiman on 22-May-14.
  */
 public class BaseActivity extends ActionBarActivity
-        implements //GoogleApiClient.ConnectionCallbacks,
-        GoogleApiClient.OnConnectionFailedListener{
+        implements GoogleApiClient.OnConnectionFailedListener{
 
     private GoogleApiClient mGoogleApiClient;
     public GoogleApiClient getGoogleApiClient() { return mGoogleApiClient; }
@@ -96,6 +97,16 @@ public class BaseActivity extends ActionBarActivity
             Log.e(LOG_TAG, ex.getMessage());
         }
 
+    }
+
+    private static int[] NETWORK_TYPES = {ConnectivityManager.TYPE_WIFI,
+            ConnectivityManager.TYPE_ETHERNET};
+    public boolean isConnectedToNetwork() {
+        ConnectivityManager connManager = (ConnectivityManager)
+                getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo info = connManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+
+        return (info != null && info.isConnectedOrConnecting());
     }
 
     protected void setupUI(String title, String subTitle) {

@@ -1,11 +1,14 @@
 package com.maximum.fastride;
 
+import android.app.Dialog;
 import android.app.DialogFragment;
 import android.app.FragmentManager;
 import android.app.FragmentTransaction;
+import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.os.AsyncTask;
@@ -29,6 +32,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
+import com.google.android.gms.common.GooglePlayServicesUtil;
 import com.google.android.gms.plus.Plus;
 
 import com.afollestad.materialdialogs.AlertDialogWrapper;
@@ -80,6 +84,37 @@ public class RegisterActivity extends FragmentActivity
     // GoogleApiClient wraps our service connection to Google Play services and
     // provides access to the users sign in state and Google's APIs.
     private GoogleApiClient mGoogleApiClient;
+
+    // We use mSignInProgress to track whether user has clicked sign in.
+    // mSignInProgress can be one of three values:
+    //
+    //       STATE_DEFAULT: The default state of the application before the user
+    //                      has clicked 'sign in', or after they have clicked
+    //                      'sign out'.  In this state we will not attempt to
+    //                      resolve sign in errors and so will display our
+    //                      Activity in a signed out state.
+    //       STATE_SIGN_IN: This state indicates that the user has clicked 'sign
+    //                      in', so resolve successive errors preventing sign in
+    //                      until the user has successfully authorized an account
+    //                      for our app.
+    //   STATE_IN_PROGRESS: This state indicates that we have started an intent to
+    //                      resolve an error, and so we should not start further
+    //                      intents until the current intent completes.
+    private int mSignInProgress;
+    private static final int STATE_DEFAULT = 0;
+    private static final int STATE_SIGN_IN = 1;
+    private static final int STATE_IN_PROGRESS = 2;
+
+    private static final int RC_SIGN_IN = 0;
+
+    // Used to store the PendingIntent most recently returned by Google Play
+    // services until the user clicks 'sign in'.
+    private PendingIntent mSignInIntent;
+
+    // Used to store the error code most recently returned by Google Play services
+    // until the user clicks 'sign in'.
+    private int mSignInError;
+
     private SignInButton mGoogleSignInButton;
 
     @Override
@@ -87,7 +122,6 @@ public class RegisterActivity extends FragmentActivity
 
         final String android_id = Settings.Secure.getString(this.getContentResolver(),
                 Settings.Secure.ANDROID_ID);
-
 
         new AsyncTask<Void, Void, Void>() {
 
@@ -157,37 +191,38 @@ public class RegisterActivity extends FragmentActivity
         toolbar.setTitleTextColor(getResources().getColor(R.color.white));
         toolbar.setTitle(getString(R.string.title_activity_register));
 
-        final EditText txtPhoneNumber = (EditText)findViewById(R.id.phone);
-        final String hint = getString(R.string.phone_hint);
-        txtPhoneNumber.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View view, boolean hasFocus) {
-                if( !hasFocus )
-                    txtPhoneNumber.setHint(hint);
-
-            }
-        });
-        txtPhoneNumber.setOnTouchListener(new View.OnTouchListener() {
-
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                txtPhoneNumber.setHint("");
-                return false;
-            }
-
-        });
+//        final EditText txtPhoneNumber = (EditText)findViewById(R.id.phone);
+//        final String hint = getString(R.string.phone_hint);
+//        txtPhoneNumber.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+//            @Override
+//            public void onFocusChange(View view, boolean hasFocus) {
+//                if( !hasFocus )
+//                    txtPhoneNumber.setHint(hint);
+//
+//            }
+//        });
+//        txtPhoneNumber.setOnTouchListener(new View.OnTouchListener() {
+//
+//            @Override
+//            public boolean onTouch(View v, MotionEvent event) {
+//                txtPhoneNumber.setHint("");
+//                return false;
+//            }
+//
+//        });
 
         // Google stuff
-        mGoogleApiClient = buildGoogleApiClient();
-        mGoogleSignInButton = (SignInButton) findViewById(R.id.google_sign_in_button);
-        mGoogleSignInButton.setOnClickListener(new View.OnClickListener(){
-            @Override
-            public void onClick(View v) {
+//        mGoogleApiClient = buildGoogleApiClient();
+//        mGoogleSignInButton = (SignInButton) findViewById(R.id.google_sign_in_button);
+//        mGoogleSignInButton.setOnClickListener(new View.OnClickListener(){
+//            @Override
+//            public void onClick(View v) {
+//                mSignInProgress = STATE_SIGN_IN;
+//                mGoogleApiClient.connect();
+//            }
+//        });
 
-            }
-        });
-
-        // FB stuuff
+        // FB stuff
         mFBLoginButton = (LoginButton) findViewById(R.id.loginButton);
         mFBLoginButton.setReadPermissions("email");
 
@@ -210,8 +245,8 @@ public class RegisterActivity extends FragmentActivity
                                 loginLayout.setVisibility(View.GONE);
 
                             progress = ProgressDialog.show(RegisterActivity.this,
-                                    "Almost there",
-                                    "Making things ready");
+                                    getString(R.string.registration_add_status),
+                                    getString(R.string.registration_add_status_wait) );
                         }
 
                         @Override
@@ -235,26 +270,22 @@ public class RegisterActivity extends FragmentActivity
                                 if( _users.getTotalCount() >= 1 ) {
                                     User registeredUser = _users.get(0);
 
-//                                    try {
-//                                        new AlertDialogWrapper.Builder(RegisterActivity.this)
-//                                                .setTitle(R.string.dialog_confirm_registration)
-//                                                .setMessage(R.string.registration_already_performed)
-//                                                .autoDismiss(true)
-//                                                .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
-//                                                    @Override
-//                                                    public void onClick(DialogInterface dialog, int which) {
-//                                                        //dialog.dismiss();
-//                                                    }
-//                                                })
-//                                                .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
-//                                                    @Override
-//                                                    public void onClick(DialogInterface dialog, int which) {
-//                                                        //dialog.dismiss();
-//                                                    }
-//                                                }).show();
-//                                    } catch (Exception e) {
-//                                        Log.e("FR", e.getMessage());
-//                                    }
+//                                    new AlertDialogWrapper.Builder(RegisterActivity.this)
+//                                            .setTitle(R.string.dialog_confirm_registration)
+//                                            .setMessage(R.string.registration_already_performed)
+//                                            .autoDismiss(true)
+//                                            .setPositiveButton(R.string.yes, new DialogInterface.OnClickListener() {
+//                                                @Override
+//                                                public void onClick(DialogInterface dialog, int which) {
+//                                                    //dialog.dismiss();
+//                                                }
+//                                            })
+//                                            .setNegativeButton(R.string.no, new DialogInterface.OnClickListener() {
+//                                                @Override
+//                                                public void onClick(DialogInterface dialog, int which) {
+//                                                    //dialog.dismiss();
+//                                                }
+//                                            }).show();
 
                                     //ConfirmRegistrationFragment dialog =
                                      new ConfirmRegistrationFragment()
@@ -311,6 +342,21 @@ public class RegisterActivity extends FragmentActivity
         }
 	}
 
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//        mGoogleApiClient.connect();
+//    }
+//
+//    @Override
+//    protected void onStop() {
+//        super.onStop();
+//
+//        if (mGoogleApiClient.isConnected()) {
+//            mGoogleApiClient.disconnect();
+//        }
+//    }
+
     private GoogleApiClient buildGoogleApiClient() {
         // When we build the GoogleApiClient we specify where connected and
         // connection failed callbacks should be returned, which Google APIs our
@@ -328,15 +374,17 @@ public class RegisterActivity extends FragmentActivity
     }
 
     /* onConnected is called when our Activity successfully connects to Google
- * Play services.  onConnected indicates that an account was selected on the
- * device, that the selected account has granted any requested permissions to
- * our app and that we were able to establish a service connection to Google
- * Play services.
- */
+     * Play services.  onConnected indicates that an account was selected on the
+     * device, that the selected account has granted any requested permissions to
+     * our app and that we were able to establish a service connection to Google
+     * Play services.
+     */
     @Override
     public void onConnected(Bundle connectionHint) {
         // Retrieve some profile information to personalize our app for the user.
         Person currentUser = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
+
+        mSignInProgress = STATE_DEFAULT;
     }
 
     @Override
@@ -353,12 +401,89 @@ public class RegisterActivity extends FragmentActivity
  */
     @Override
     public void onConnectionFailed(ConnectionResult result) {
+        Log.i(LOG_TAG, "onConnectionFailed: ConnectionResult.getErrorCode() = "
+                + result.getErrorCode());
 
+        if (result.getErrorCode() == ConnectionResult.API_UNAVAILABLE) {
+            Log.w(LOG_TAG, "API Unavailable.");
+        } else if (mSignInProgress != STATE_IN_PROGRESS) {
+            mSignInIntent = result.getResolution();
+            mSignInError = result.getErrorCode();
+
+            if (mSignInProgress == STATE_SIGN_IN) {
+                // STATE_SIGN_IN indicates the user already clicked the sign in button
+                // so we should continue processing errors until the user is signed in
+                // or they click cancel.
+                resolveSignInError();
+            }
+        }
     }
+
+    private void resolveSignInError() {
+        if (mSignInIntent != null) {
+            // We have an intent which will allow our user to sign in or
+            // resolve an error.  For example if the user needs to
+            // select an account to sign in with, or if they need to consent
+            // to the permissions your app is requesting.
+
+            try {
+                // Send the pending intent that we stored on the most recent
+                // OnConnectionFailed callback.  This will allow the user to
+                // resolve the error currently preventing our connection to
+                // Google Play services.
+                mSignInProgress = STATE_IN_PROGRESS;
+                startIntentSenderForResult(mSignInIntent.getIntentSender(),
+                        RC_SIGN_IN, null, 0, 0, 0);
+            } catch (IntentSender.SendIntentException e) {
+                Log.i(LOG_TAG, "Sign in intent could not be sent: "
+                        + e.getLocalizedMessage());
+                // The intent was canceled before it was sent.  Attempt to connect to
+                // get an updated ConnectionResult.
+                mSignInProgress = STATE_SIGN_IN;
+                mGoogleApiClient.connect();
+            }
+        } else {
+            // Google Play services wasn't able to provide an intent for some
+            // error types, so we show the default Google Play services error
+            // dialog which may still start an intent on our behalf if the
+            // user can resolve the issue.
+            createErrorDialog().show();
+        }
+    }
+
+    private Dialog createErrorDialog() {
+        if (GooglePlayServicesUtil.isUserRecoverableError(mSignInError)) {
+            return GooglePlayServicesUtil.getErrorDialog(
+                    mSignInError,
+                    this,
+                    RC_SIGN_IN,
+                    new DialogInterface.OnCancelListener() {
+                        @Override
+                        public void onCancel(DialogInterface dialog) {
+                            Log.e(LOG_TAG, "Google Play services resolution cancelled");
+                            mSignInProgress = STATE_DEFAULT;
+                         }
+                    });
+        } else {
+            return new android.app.AlertDialog.Builder(this)
+                    .setMessage(R.string.play_services_error)
+                    .setPositiveButton(R.string.close,
+                            new DialogInterface.OnClickListener() {
+                                @Override
+                                public void onClick(DialogInterface dialog, int which) {
+                                    Log.e(LOG_TAG, "Google Play services error could not be "
+                                            + "resolved: " + mSignInError);
+                                }
+                            }).create();
+        }
+    }
+
 
     private void showRegistrationForm() {
         LinearLayout form = (LinearLayout)findViewById(R.id.register_form);
         form.setVisibility(View.VISIBLE);
+        View buttonNext = findViewById(R.id.btnRegistrationNext);
+        buttonNext.setVisibility(View.VISIBLE);
     }
 
     private void hideRegistrationForm() {
@@ -437,11 +562,11 @@ public class RegisterActivity extends FragmentActivity
 
     }
 
-    boolean bCardsFragmentDisplayed = false;
+    boolean bCarsFragmentDisplayed = false;
 
     public void onRegisterNext(View v){
 
-        if( !bCardsFragmentDisplayed ) {
+        if( !bCarsFragmentDisplayed ) {
 
             EditText txtUser = (EditText) findViewById(R.id.phone);
             if (txtUser.getText().toString().isEmpty()) {
@@ -451,17 +576,16 @@ public class RegisterActivity extends FragmentActivity
                 return;
             }
 
-            final ProgressDialog progress = ProgressDialog.show(this, "Processing", "Adding your data");
             try {
 
-                User newUser = new User();
+                final User newUser = new User();
 
                 newUser.setRegistrationId(Globals.FB_PROVIDER_FOR_STORE + fbUser.getId());
-                newUser.setFirstName( fbUser.getFirstName() );
-                newUser.setLastName( fbUser.getLastName() );
+                newUser.setFirstName(fbUser.getFirstName());
+                newUser.setLastName(fbUser.getLastName());
                 String pictureURL = "http://graph.facebook.com/" + fbUser.getId() + "/picture?type=large";
                 newUser.setPictureURL(pictureURL);
-                newUser.setEmail((String)fbUser.getProperty("email"));
+                newUser.setEmail((String) fbUser.getProperty("email"));
                 newUser.setPhone(txtUser.getText().toString());
                 CheckBox cbUsePhone = (CheckBox)findViewById(R.id.cbUsePhone);
                 newUser.setUsePhone(cbUsePhone.isChecked());
@@ -474,39 +598,88 @@ public class RegisterActivity extends FragmentActivity
 
                 newUser.save(this);
 
-                // 'Users' table is defined with 'Anybody with the Application Key'
-                // permissions for READ and INSERT operations, so no authentication is
-                // required for adding new user to it
-                usersTable.insert(newUser, new TableOperationCallback<User>() {
+                new AsyncTask<Void, Void, Void>() {
+
+                    Exception mEx;
+                    ProgressDialog progress;
+
                     @Override
-                    public void onCompleted(User user, Exception e, ServiceFilterResponse serviceFilterResponse) {
+                    protected void onPreExecute() {
+                         progress = ProgressDialog.show(RegisterActivity.this,
+                                 getString(R.string.registration_add_title),
+                                 getString(R.string.registration_add_status));
+                    }
+
+                    @Override
+                    protected void onPostExecute(Void result){
                         progress.dismiss();
 
-                        if( e != null ) {
-                            Toast.makeText(RegisterActivity.this,
-                                    e.getMessage(), Toast.LENGTH_LONG).show();
-                        } else {
+                        //if( mEx == null )
 
-                            hideRegistrationForm();
+                        hideRegistrationForm();
 
-                            FragmentManager fragmentManager = getFragmentManager();
-                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+                        FragmentManager fragmentManager = getFragmentManager();
+                        FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
 
-                            RegisterCarsFragment fragment = new RegisterCarsFragment();
-                            fragmentTransaction.add(R.id.register_cars_form, fragment);
-                            fragmentTransaction.commit();
+                        RegisterCarsFragment fragment = new RegisterCarsFragment();
+                        fragmentTransaction.add(R.id.register_cars_form, fragment);
+                        fragmentTransaction.commit();
 
-                            bCardsFragmentDisplayed = true;
-                            Button btnNext = (Button)findViewById(R.id.btnRegistrationNext);
-                            btnNext.setText(R.string.registration_finish);
-                        }
+                        bCarsFragmentDisplayed = true;
+                        Button btnNext = (Button)findViewById(R.id.btnRegistrationNext);
+                        btnNext.setVisibility(View.VISIBLE);
+                        btnNext.setText(R.string.registration_finish);
                     }
-                });
+
+                    @Override
+                    protected Void doInBackground(Void... voids) {
+                        try {
+
+                            // 'Users' table is defined with 'Anybody with the Application Key'
+                            // permissions for READ and INSERT operations, so no authentication is
+                            // required for adding new user to it
+                            usersTable.insert(newUser).get();
+
+                        } catch (InterruptedException | ExecutionException e) {
+                            mEx = e;
+                        }
+
+                        return null;
+                    }
+                }.execute();
+
+//                // 'Users' table is defined with 'Anybody with the Application Key'
+//                // permissions for READ and INSERT operations, so no authentication is
+//                // required for adding new user to it
+//                usersTable.insert(newUser, new TableOperationCallback<User>() {
+//                    @Override
+//                    public void onCompleted(User user, Exception e, ServiceFilterResponse serviceFilterResponse) {
+//                        progress.dismiss();
+//
+//                        if( e != null ) {
+//                            Toast.makeText(RegisterActivity.this,
+//                                    e.getMessage(), Toast.LENGTH_LONG).show();
+//                        } else {
+//
+//                            hideRegistrationForm();
+//
+//                            FragmentManager fragmentManager = getFragmentManager();
+//                            FragmentTransaction fragmentTransaction = fragmentManager.beginTransaction();
+//
+//                            RegisterCarsFragment fragment = new RegisterCarsFragment();
+//                            fragmentTransaction.add(R.id.register_cars_form, fragment);
+//                            fragmentTransaction.commit();
+//
+//                            bCarsFragmentDisplayed = true;
+//                            Button btnNext = (Button)findViewById(R.id.btnRegistrationNext);
+//                            btnNext.setVisibility(View.VISIBLE);
+//                            btnNext.setText(R.string.registration_finish);
+//                        }
+//                    }
+//                });
 
             } catch(Exception ex){
                 Toast.makeText(this, ex.getMessage(), Toast.LENGTH_LONG).show();
-            } finally {
-                progress.dismiss();
             }
 
         } else { // Finish
@@ -517,8 +690,18 @@ public class RegisterActivity extends FragmentActivity
 
                 Exception mEx;
 
+                ProgressDialog progress;
+                @Override
+                protected void onPreExecute() {
+                    progress = ProgressDialog.show(RegisterActivity.this,
+                            getString(R.string.download_geofences),
+                            getString(R.string.download_geofences_desc));
+                }
+
                 @Override
                 protected void onPostExecute(Void result){
+
+                    progress.dismiss();
 
                     if( mEx == null ) {
 

@@ -4,11 +4,12 @@
     <!--
     This is the service identifier for Nearby Connections.
     -->
-    <string name="service_id">com.maximum.fastride.service</string>
+    <string name="service_id" translatable="false">com.maximum.fastride.service</string>
 
     <string name="app_name" translatable="false">FastRide</string>
     <string name="app_label" translatable="false">Fast Ride</string>
     <string name="action_settings">Settings</string>
+    <string name="complete_registration">Complete your info</string>
     <string name="title_activity_camera">CameraActivity</string>
     <string name="title_activity_register">Fast Ride: Registration</string>
     <string name="title_activity_confirm_ride">Confirm</string>
@@ -28,6 +29,9 @@
     <string name="error_incorrect_password">This password is incorrect</string>
     <string name="error_field_required">This field is required</string>
     <string name="action_register">Register</string>
+    <string name="registration_add_title">Performing registration</string>
+    <string name="registration_add_status">Adding your data</string>
+    <string name="registration_add_status_wait">Just few seconds</string>
 
     <string name="no_phone_number">Provide your phone number. You may prefer to not share it with others by switching off the following indicator</string>
 
@@ -61,7 +65,7 @@
     <string name="ride_code_label">Ride Code:</string>
     <string name="ride_code_title">Type in Ride Code</string>
     <string name="ride_code_dialog_content">You may see this code on the device\'s display of the driver</string>
-    <string name="ride_code_hint">7 digits without dashes</string>
+    <string name="ride_code_hint">5 digits without dashes</string>
     <string name="passenger_confirm">You want to confirm your ride with</string>
     <string name="ride_code_refill"></string>
 
@@ -93,11 +97,13 @@
     <string name="edit_car_button_delete">Delete</string>
     <string name="add_car_button_cancel">Cancel</string>
     <string name="add_car_hint">Car number</string>
+    <string name="add_car_nick">Car nick name</string>
     <string name="car_number_validation_error">Type in a valid car number</string>
     <string name="enable_wifi_question">Enable Wi-Fi on your device?</string>
     <string name="enable_location_question">Do you want to enable location services on the device?</string>
     <string name="code_retry_action">Try again</string>
     <string name="registration_finish">Finish</string>
+    <string name="registration_next">Next</string>
 
     <string name="drawer_open">Open navigation drawer</string>
     <string name="drawer_close">Close navigation drawer</string>
@@ -107,8 +113,13 @@
     <string name="version_title">Version Alpha 1</string>
     <string name="dialog_confirm_registration">Replace previous registration?</string>
     <string name="registration_already_performed">You already registered with Fast Ride app.</string>
+    <string name="add_cars_caption">Add your cars</string>
     <string name="yes">Yes</string>
     <string name="no">No</string>
+    <string name="close">Close</string>
+    <string name="download_geofences">Initializing geo-fences</string>
+    <string name="download_geofences_desc">Downloading...</string>
+    <string name="play_services_error">Google Play services is not available. Registration is impossible.</string>
     <string name="action_refresh_settings">Update GeoFences</string>
     <string name="about">About</string>
 
@@ -159,6 +170,9 @@ limitations under the License.</string>
     <string name="geofence_transition_invalid_type">
         Geofence transition error: invalid transition type %1$d
     </string>
+
+    <!-- Nearby Errors -->
+    <string name="nearby_error_nowifi">Not connected to WiFi network</string>
 
     <string name="geofence_transition_notification_text">Click notification to submit your ride</string>
     <string name="geofences_added">Geofences added</string>

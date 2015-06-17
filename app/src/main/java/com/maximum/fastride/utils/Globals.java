@@ -107,7 +107,7 @@ public class Globals {
     public static final long GEOFENCE_EXPIRATION_IN_HOURS = 2;
     public static final long GEOFENCE_EXPIRATION_IN_MILLISECONDS =
             GEOFENCE_EXPIRATION_IN_HOURS * 60 * 60 * 1000;
-    public static final float GEOFENCE_RADIUS_IN_METERS = 300;
+    public static final float GEOFENCE_RADIUS_IN_METERS = 100;
     public static final int GEOFENCE_LOITERING_DELAY = 60000; // 1 min
     public static final int GEOFENCE_RESPONSIVENESS = 5000; // 5 sec
 

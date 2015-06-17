@@ -39,7 +39,8 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="30dp"
                 android:layout_marginBottom="16dip"
-                android:enabled="false" />
+                android:enabled="false"
+                android:visibility="invisible" />
 
     </LinearLayout>
 
@@ -62,22 +63,21 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Complete your info"
+            android:text="@string/complete_registration"
             android:id="@+id/textView" />
 
         <android.support.design.widget.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentStart="true"
-            android:layout_below="@+id/textView">
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
             <EditText android:id="@+id/phone"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:hint="@string/prompt_phone"
                 android:inputType="phone"
-                android:maxLines="1"
-                android:singleLine="true"
+                android:ellipsize="end"
+                android:gravity="start"
+                android:ems="10"
+                android:textColorHint="@color/grey"
                 android:layout_below="@+id/textView"
                 android:layout_alignLeft="@+id/cbUsePhone"
                 android:layout_alignStart="@+id/cbUsePhone" />
@@ -105,8 +105,8 @@
 
     <LinearLayout
         android:id="@+id/register_cars_form"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
         android:orientation="vertical"
         android:layout_alignTop="@+id/fb_login_form">
 
@@ -120,7 +120,7 @@
         android:background="@color/ColorPrimary"
         android:layout_alignParentBottom="true"
         android:textColor="@color/white"
-        android:text="Next"
+        android:text="@string/registration_next"
         android:id="@+id/btnRegistrationNext"
         android:layout_gravity="bottom"
         android:paddingBottom="-16dp"

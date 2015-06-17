@@ -14,9 +14,5 @@
         android:orderInCategory="200"
         app:showAsAction="never" />
 
-    <item android:id="@+id/enforce_passenger_submit"
-        android:title="Enforce Submit"
-        android:orderInCategory="300"
-        app:showAsAction="never" />
 
 </menu>

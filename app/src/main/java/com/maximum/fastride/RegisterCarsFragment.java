@@ -19,6 +19,7 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.maximum.fastride.adapters.CarsAdapter;
+import com.maximum.fastride.model.RegisteredCar;
 import com.maximum.fastride.utils.Globals;
 
 import java.util.ArrayList;
@@ -30,8 +31,9 @@ import java.util.Set;
 public class RegisterCarsFragment extends Fragment {
 
     private EditText mCarInput;
+    private EditText mCarNickInput;
     private CarsAdapter mCarsAdapter;
-    List<String> mCars;
+    List<RegisteredCar> mCars;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -45,8 +47,13 @@ public class RegisterCarsFragment extends Fragment {
             Set<String> carsSet = sharedPrefs.getStringSet(Globals.CARS_PREF, new HashSet<String>());
             if( carsSet != null ) {
                 Iterator<String> iterator = carsSet.iterator();
+
                 while (iterator.hasNext()) {
-                    String car = iterator.next();
+                    String strCar= iterator.next();
+                    String[] tokens = strCar.split("~");
+                    RegisteredCar car = new RegisteredCar();
+                    car.setCarNumber(tokens[0]);
+                    car.setCarNick(tokens[1]);
                     mCars.add(car);
                 }
             }
@@ -86,7 +93,13 @@ public class RegisterCarsFragment extends Fragment {
                                 public void onPositive(MaterialDialog dialog) {
 
                                     String carNumber = mCarInput.getText().toString();
-                                    mCarsAdapter.add(carNumber);
+                                    String carNick =  mCarNickInput.getText().toString();
+
+                                    RegisteredCar car = new RegisteredCar();
+                                    car.setCarNumber(carNumber);
+                                    car.setCarNick(carNick);
+
+                                    mCarsAdapter.add(car);
                                     mCarsAdapter.notifyDataSetChanged();
 
                                     saveCars();
@@ -94,6 +107,7 @@ public class RegisterCarsFragment extends Fragment {
                             })
                             .build();
                     mCarInput = (EditText) dialog.getCustomView().findViewById(R.id.txtCarNumber);
+                    mCarNickInput = (EditText) dialog.getCustomView().findViewById(R.id.txtCarNick);
                     dialog.show();
 
                     //Toast.makeText(getActivity(), "Not implemented yet", Toast.LENGTH_LONG).show();
@@ -109,8 +123,9 @@ public class RegisterCarsFragment extends Fragment {
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
         SharedPreferences.Editor editor = sharedPrefs.edit();
         Set<String> carsSet = new HashSet<String>();
-        for (String _s : mCars) {
-            carsSet.add(_s);
+        for (RegisteredCar car : mCars) {
+            String s = car.getCarNumber() + "~" + car.getCarNick();
+            carsSet.add(s);
         }
         editor.putStringSet(Globals.CARS_PREF, carsSet);
         editor.apply();

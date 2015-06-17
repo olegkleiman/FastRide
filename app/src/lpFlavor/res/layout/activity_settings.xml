@@ -22,12 +22,12 @@
             <TextView
                 android:layout_width="fill_parent"
                 android:layout_height="34dp"
-                android:text="Personal Data"/>
+                android:text="Personal Data Placeholder"/>
         </LinearLayout>
 
         <RelativeLayout
             android:layout_width="fill_parent"
-            android:layout_height="220dp"
+            android:layout_height="fill_parent"
             android:layout_gravity="center_horizontal"
             android:background="@color/ColorBackground"
             android:layout_weight="0.5"

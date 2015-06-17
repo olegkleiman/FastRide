@@ -21,6 +21,7 @@ import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.maximum.fastride.adapters.CarsAdapter;
 import com.maximum.fastride.model.GFence;
+import com.maximum.fastride.model.RegisteredCar;
 import com.maximum.fastride.utils.FloatingActionButton;
 import com.maximum.fastride.utils.Globals;
 import com.maximum.fastride.utils.wamsUtils;
@@ -46,7 +47,7 @@ import java.util.concurrent.ExecutionException;
 
 public class SettingsActivity extends BaseActivity {
 
-    List<String> mCars;
+    List<RegisteredCar> mCars;
     CarsAdapter mCarsAdapter;
 
     private static final String LOG_TAG = "FR.Settings";
@@ -133,7 +134,12 @@ public class SettingsActivity extends BaseActivity {
         if( carsSet != null ) {
             Iterator<String> iterator = carsSet.iterator();
             while (iterator.hasNext()) {
-                String car = iterator.next();
+                String strCar = iterator.next();
+
+                String[] tokens = strCar.split("~");
+                RegisteredCar car = new RegisteredCar();
+                car.setCarNumber(tokens[0]);
+                car.setCarNick(tokens[1]);
                 mCars.add(car);
             }
         }
@@ -146,7 +152,7 @@ public class SettingsActivity extends BaseActivity {
                                     final View view,
                                     int position, long id) {
 
-                final String currentCarNumber =  mCarsAdapter.getItem(position);
+                final RegisteredCar currentCar =  mCarsAdapter.getItem(position);
 
                 MaterialDialog dialog = new MaterialDialog.Builder(SettingsActivity.this)
                         .title(R.string.edit_car_dialog_caption)
@@ -160,22 +166,27 @@ public class SettingsActivity extends BaseActivity {
                             @Override
                             public void onPositive(MaterialDialog dialog) {
 
-                                String carNumber = mCarInput.getText().toString();
-                                if( carNumber.length() < 7 ) {
+                                String strCarNumber = mCarInput.getText().toString();
+                                if( strCarNumber.length() < 7 ) {
                                     mCarInput.setError(getString(R.string.car_number_validation_error));
                                     return;
                                 }
 
-                                if( !carNumber.equals(currentCarNumber) ) {
+                                mCars.remove(currentCar);
 
-                                    mCars.remove(currentCarNumber);
-                                    mCars.add(carNumber);
+                                String carNick = mCarNick.getText().toString();
 
-                                    // Adapter's items will be updated since underlaying list changes
-                                    mCarsAdapter.notifyDataSetChanged();
+                                RegisteredCar registeredCar = new RegisteredCar();
+                                registeredCar.setCarNumber(strCarNumber);
+                                registeredCar.setCarNick(carNick);
 
-                                    saveCars();
-                                }
+                                mCars.add(registeredCar);
+
+                                // Adapter's items will be updated since underlaying list changes
+                                mCarsAdapter.notifyDataSetChanged();
+
+                                saveCars();
+
 
                                 dialog.dismiss();
                             }
@@ -189,17 +200,29 @@ public class SettingsActivity extends BaseActivity {
                             @Override
                             public void onNeutral(MaterialDialog dialog) {
                                 String carNumber = mCarInput.getText().toString();
-                                mCarsAdapter.remove(carNumber);
-                                mCarsAdapter.notifyDataSetChanged();
 
-                                saveCars();
+                                RegisteredCar carToRemove = null;
+                                for(RegisteredCar car : mCars) {
+                                    if( car.getCarNumber().equals(carNumber) ) {
+                                        carToRemove = car;
+                                    }
+                                }
+
+                                if( carToRemove!= null ) {
+
+                                    mCarsAdapter.remove(carToRemove);
+                                    mCarsAdapter.notifyDataSetChanged();
+
+                                    saveCars();
+                                }
                                 dialog.dismiss();
                             }
                         })
                         .build();
                 mCarInput = (EditText) dialog.getCustomView().findViewById(R.id.txtCarNumber);
-
-                mCarInput.setText(currentCarNumber);
+                mCarInput.setText(currentCar.getCarNumber());
+                mCarNick = (EditText) dialog.getCustomView().findViewById(R.id.txtCarNick);
+                mCarNick.setText(currentCar.getCarNick());
 
                 dialog.show();
 
@@ -225,6 +248,7 @@ public class SettingsActivity extends BaseActivity {
     }
 
     private EditText mCarInput;
+    private EditText mCarNick;
 
     public void onAddCar(View view){
 
@@ -240,7 +264,13 @@ public class SettingsActivity extends BaseActivity {
                     public void onPositive(MaterialDialog dialog) {
 
                         String carNumber = mCarInput.getText().toString();
-                        mCarsAdapter.add(carNumber);
+                        String carNick = mCarNick.getText().toString();
+
+                        RegisteredCar car = new RegisteredCar();
+                        car.setCarNumber(carNumber);
+                        car.setCarNick(carNick);
+
+                        mCarsAdapter.add(car);
                         mCarsAdapter.notifyDataSetChanged();
 
                         saveCars();
@@ -249,6 +279,7 @@ public class SettingsActivity extends BaseActivity {
                 .build();
 
         final View positiveAction = dialog.getActionButton(DialogAction.POSITIVE);
+        mCarNick = (EditText) dialog.getCustomView().findViewById(R.id.txtCarNick);
         mCarInput = (EditText) dialog.getCustomView().findViewById(R.id.txtCarNumber);
         mCarInput.addTextChangedListener(new TextWatcher() {
 
@@ -276,8 +307,11 @@ public class SettingsActivity extends BaseActivity {
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         SharedPreferences.Editor editor = sharedPrefs.edit();
         Set<String> carsSet = new HashSet<String>();
-        for (String _s : mCars) {
+        for (RegisteredCar car : mCars) {
+
+            String _s = car.getCarNumber() + "~" + car.getCarNick();
             carsSet.add(_s);
+
         }
         editor.putStringSet(Globals.CARS_PREF, carsSet);
         editor.apply();

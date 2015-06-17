@@ -54,7 +54,7 @@
     <string name="subtitle_activity_tutorial">הדרכות</string>
     <string name="ride_code_dialog_content">אפשר לראות את הקוד הזה על מסך המכשיר של הנהג</string>
     <string name="ride_code_title">הזן קוד נסיעה</string>
-    <string name="ride_code_hint">7 ספרות ללא מקף</string>
+    <string name="ride_code_hint">5 ספרות ללא מקף</string>
     <string name="title_activity_passenger_role">מצב נוסע</string>
     <string name="registration_finish">סיום</string>
     <string name="drivers_header">בחר את הנהג</string>
@@ -65,4 +65,17 @@
     <string name="geofence_positive_answer">כן, תזכירו לי</string>
     <string name="geofence_negative_answer">לא, אני אנסה מאוחר יותר</string>
     <string name="geofence_outside_title">להזכיר בכניסה לכביש?</string>
+    <string name="close">סגור</string>
+    <string name="complete_registration">השלמת הרישום</string>
+    <string name="registration_next">הבא</string>
+    <string name="add_cars_caption">הוסף רבכים</string>
+    <string name="add_car_nick">כינוי</string>
+    <string name="prompt_use_phone">אפשר להציג מספר זה למשתמשים אחרים</string>
+    <string name="edit_car_dialog_caption2">בחר\י את רכב הנוסע</string>
+    <string name="edit_car_dialog_text">טרם בחרת את הרכבים </string>
+    <string name="registration_add_status">רושם את הנתונים שלך</string>
+    <string name="registration_add_title">רישום מתבעצע</string>
+    <string name="registration_add_status_wait">נשאר רק כמה שניות</string>
+    <string name="download_geofences">אתחול הגדרות המיקום</string>
+    <string name="download_geofences_desc">מוריד הגדרות גיאוגרפיות</string>
 </resources>

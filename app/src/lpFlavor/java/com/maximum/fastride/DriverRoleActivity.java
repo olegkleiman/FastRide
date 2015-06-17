@@ -3,6 +3,7 @@ package com.maximum.fastride;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.graphics.Outline;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
@@ -14,7 +15,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
-import android.support.design.widget.Snackbar;
+import android.speech.tts.TextToSpeech;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -25,6 +26,7 @@ import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.view.WindowManager;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.TextView;
@@ -32,8 +34,11 @@ import android.widget.Toast;
 
 import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.nearby.Nearby;
+import com.google.android.gms.nearby.connection.Connections;
 import com.maximum.fastride.adapters.WiFiPeersAdapter2;
 import com.maximum.fastride.adapters.WifiP2pDeviceUser;
 import com.maximum.fastride.model.Ride;
@@ -55,10 +60,12 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public class DriverRoleActivity extends BaseActivityWithGeofences
+                                        //BaseActivityWithGeofencesBLE
                 implements ITrace,
                            IMessageTarget,
                            Handler.Callback,
@@ -67,6 +74,9 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
                            WiFiUtil.IPeersChangedListener,
                            WifiP2pManager.PeerListListener,
                            WifiP2pManager.ConnectionInfoListener,
+                           GoogleApiClient.ConnectionCallbacks,
+                           Connections.ConnectionRequestListener,
+                           Connections.MessageListener,
                            ResultCallback<Status> // for geofences' callback
 {
 
@@ -91,6 +101,8 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
     String mUserID;
     String mCarNumber;
 
+    TextToSpeech mTTS;
+
     final int WIFI_CONNECT_REQUEST = 1;// request code for starting WiFi connection
                                         // handled  in onActivityResult
 
@@ -98,6 +110,17 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_driver_role);
+
+        mTTS = new TextToSpeech(getApplicationContext(),
+                new TextToSpeech.OnInitListener(){
+
+                    @Override
+                    public void onInit(int status) {
+                        if( status != TextToSpeech.ERROR ) {
+                            mTTS.setLanguage(Locale.US);
+                        }
+                    }
+                });
 
         setupUI(getString(R.string.title_activity_driver_role), "");
         wamsInit();
@@ -208,13 +231,32 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
         mUserID = sharedPrefs.getString(Globals.USERIDPREF, "");
 
         // This will publish the service in DNS-SD and start serviceDiscovery()
-        wifiUtil.startRegistrationAndDiscovery(this, mUserID);
 
+        wifiUtil.startRegistrationAndDiscovery(this, mUserID);
+    }
+
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Log.i(LOG_TAG, "onConfigurationChanged");
     }
 
     @Override
     protected void setupUI(String title, String subTitle){
         super.setupUI(title, subTitle);
+
+        ImageView imgListen = (ImageView)findViewById(R.id.img_listen);
+        imgListen.setOnClickListener(new View.OnClickListener(){
+
+            @Override
+            public void onClick(View view) {
+                TextView txtRideCode = (TextView) findViewById(R.id.txtRideCode);
+
+                mTTS.speak(txtRideCode.getText().toString(), TextToSpeech.QUEUE_FLUSH, null);
+
+            }
+        });
 
         View fab = findViewById(R.id.submit_ride_button);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -242,16 +284,59 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
     }
 
     @Override
+    public void onConnected(Bundle bundle) {
+        super.onConnected(bundle);
+
+//        if (!isConnectedToNetwork()) {
+//            Log.e(LOG_TAG, "startAdvertising: not connected to WiFi network.");
+//            return;
+//        }
+//        List<AppIdentifier> appIdentifierList = new ArrayList<>();
+//        String packageName = getPackageName();
+//        appIdentifierList.add(new AppIdentifier(packageName));
+//        AppMetadata appMetadata = new AppMetadata(appIdentifierList);
+//
+//        // Advertise for Nearby Connections. This will broadcast the service id defined in
+//        // AndroidManifest.xml. By passing 'null' for the name, the Nearby Connections API
+//        // will construct a default name based on device model such as 'LGE Nexus 5'.
+//        String name =null;
+//        Nearby.Connections.startAdvertising(getGoogleApiClient(),
+//                name,
+//                appMetadata,
+//                0, //Globals.TIMEOUT_ADVERTISE,
+//                this)
+//                .setResultCallback(new ResultCallback<Connections.StartAdvertisingResult>() {
+//                    @Override
+//                    public void onResult(Connections.StartAdvertisingResult result) {
+//                        if (result.getStatus().isSuccess()) {
+//                            // Device is advertising
+//                        } else {
+//                            int statusCode = result.getStatus().getStatusCode();
+//                        }
+//                    }
+//                });
+
+    }
+
+        @Override
     public void onResume() {
-        super.onResume();
+            super.onResume();
 
         wifiUtil.registerReceiver(this);
     }
 
     @Override
     public void onPause() {
-        super.onPause();
+
         wifiUtil.unregisterReceiver();
+
+        if( mTTS != null) {
+            mTTS.stop();
+            mTTS.shutdown();
+        }
+
+        super.onPause();
+
     }
 
     @Override
@@ -352,6 +437,31 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
                     status.getStatusCode());
             Log.e(LOG_TAG, errorMessage);
         }
+    }
+
+    //
+    // Implementation of Connections.ConnectionRequestListener
+    //
+    @Override
+    public void onConnectionRequest(final String endpointId,
+                                    String deviceId,
+                                    String endpointName,
+                                    byte[] payload) {
+        Log.d(LOG_TAG, "onConnectionRequest:" + endpointId + ":" + endpointName);
+
+        Nearby.Connections.acceptConnectionRequest(getGoogleApiClient(),
+                endpointId, payload, this);
+    }
+
+    //
+    // Implementation of Connections.MessageListener
+    //
+    public void onMessageReceived(String endpointId, byte[] payload, boolean isReliable) {
+        Log.d(LOG_TAG, "onMessageReceived:" + endpointId + ":" + new String(payload));
+    }
+
+    public void onDisconnected(String endpointId){
+        Log.d(LOG_TAG, "onDisconnected:" + endpointId);
     }
 
     //

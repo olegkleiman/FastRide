@@ -60,10 +60,22 @@
     <string name="passengerTabCaption">Пассажир</string>
     <string name="ride_code_dialog_content">Вы можете увидеть этот код на дисплее телефона водителя</string>
     <string name="ride_code_title">Введите код поездки</string>
-    <string name="ride_code_hint">7 цифр без тире</string>
+    <string name="ride_code_hint">5 цифр без разделителя</string>
     <string name="registration_finish">Завершить</string>
     <string name="geofence_outside">Вы находитесь вне скоростной трассы</string>
     <string name="geofence_positive_answer">Напомнить</string>
     <string name="geofence_negative_answer">Отменить</string>
     <string name="geofence_outside_title">Напомнить при въезде на трассу?</string>
+    <string name="close">Закрыть</string>
+    <string name="complete_registration">Завершение регистрации</string>
+    <string name="registration_next">Следующий шаг</string>
+    <string name="add_cars_caption">Добавить описание машин</string>
+    <string name="add_car_nick">Название</string>
+    <string name="prompt_use_phone">Показывать этот номер другум пользователям</string>
+    <string name="edit_car_dialog_text">Не указаны машины, на которых осуществляются поездки.</string>
+    <string name="registration_add_status">Ваши данные регистрируются</string>
+    <string name="registration_add_title">Выполняется регистрация</string>
+    <string name="registration_add_status_wait">Осталось несколько секунд</string>
+    <string name="download_geofences">Инициализация</string>
+    <string name="download_geofences_desc">Загрузка привязок к местности</string>
 </resources>

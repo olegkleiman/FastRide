@@ -2,6 +2,7 @@ package com.maximum.fastride;
 
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.location.Location;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.provider.Settings;
@@ -13,6 +14,8 @@ import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.Geofence;
 import com.google.android.gms.location.GeofencingRequest;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
 import com.maximum.fastride.model.GFence;
@@ -25,6 +28,8 @@ import com.microsoft.windowsazure.mobileservices.table.query.Query;
 import com.microsoft.windowsazure.mobileservices.table.sync.MobileServiceSyncTable;
 
 import java.math.BigDecimal;
+import java.text.DateFormat;
+import java.util.Date;
 import java.util.Map;
 import java.util.Random;
 
@@ -33,13 +38,23 @@ import java.util.Random;
  */
 public class BaseActivityWithGeofences extends BaseActivity
                                         implements ResultCallback<Status>,
-                                        GoogleApiClient.ConnectionCallbacks{
+                                        GoogleApiClient.ConnectionCallbacks,
+                                        LocationListener {
 
     private static final String LOG_TAG = "FR.GeoFences";
     private MobileServiceSyncTable<GFence> mGFencesSyncTable;
 
+    LocationRequest mLocationRequest;
+    Location mCurrentLocation;
+    String mLastUpdateTime;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+
         super.onCreate(savedInstanceState);
     }
 
@@ -49,12 +64,28 @@ public class BaseActivityWithGeofences extends BaseActivity
 
     @Override
     public void onConnected(Bundle bundle) {
+
+        LocationServices
+                .FusedLocationApi
+                .requestLocationUpdates(getGoogleApiClient(),
+                                        mLocationRequest,
+                                        this);
+
         initGeofences();
     }
 
     @Override
     public void onConnectionSuspended(int i) {
 
+    }
+
+    //
+    // Implementation of LocationListener
+    //
+    @Override
+    public void onLocationChanged(Location location) {
+        mCurrentLocation = location;
+        mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
     }
 
     protected void initGeofences() {
@@ -175,6 +206,9 @@ public class BaseActivityWithGeofences extends BaseActivity
 
     @Override
     protected void onDestroy() {
+
+        LocationServices.FusedLocationApi.removeLocationUpdates(getGoogleApiClient(),
+                this);
 
         Globals.setInGeofenceArea(false);
         Globals.setMonitorStatus("");

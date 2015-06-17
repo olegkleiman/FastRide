@@ -118,7 +118,10 @@ public class GeofenceTransitionsIntentService extends IntentService {
         for (Geofence geofence : triggeringGeofences) {
             String requestId = geofence.getRequestId();
             String[] tokens = requestId.split(":");
-            triggeringGeofencesIdsList.add(tokens[0]);
+
+            // Add if not already added
+            if( !triggeringGeofencesIdsList.contains(tokens[0]) )
+                triggeringGeofencesIdsList.add(tokens[0]);
         }
         String triggeringGeofencesIdsString = TextUtils.join(", ", triggeringGeofencesIdsList);
 
@@ -133,11 +136,12 @@ public class GeofenceTransitionsIntentService extends IntentService {
         // Create an explicit content Intent that starts the main Activity.
         Intent notificationIntent = new Intent(getApplicationContext(), PassengerRoleActivity.class);
 
-        // Construct a task stack.
+        // This stack builder object will contain an artificial back stack for the PassengerRoleActivity
+        // This ensures that navigating backward from it leads out of the application to the Start screen.
         TaskStackBuilder stackBuilder = TaskStackBuilder.create(this);
 
         // Add the main Activity to the task stack as the parent.
-        stackBuilder.addParentStack(PassengerRoleActivity.class);
+        stackBuilder.addParentStack(MainActivity.class);
 
         // Push the content Intent onto the stack.
         stackBuilder.addNextIntent(notificationIntent);
@@ -149,6 +153,7 @@ public class GeofenceTransitionsIntentService extends IntentService {
         // Get a notification builder that's compatible with platform versions >= 4
         NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
 
+        String msg = getString(R.string.geofence_transition_notification_text);
         // Define the notification settings.
         builder.setSmallIcon(R.drawable.ic_launcher)
                 // In a real app, you may want to use a library like Volley
@@ -157,7 +162,9 @@ public class GeofenceTransitionsIntentService extends IntentService {
                         R.drawable.ic_launcher))
                 .setColor(Color.RED)
                 .setContentTitle(notificationDetails)
-                .setContentText(getString(R.string.geofence_transition_notification_text))
+                .setContentText(msg)
+                .setStyle(new NotificationCompat.BigTextStyle()
+                        .bigText(msg))
                 .setContentIntent(notificationPendingIntent);
 
         // Dismiss notification once the user touches it.

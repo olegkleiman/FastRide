@@ -53,60 +53,6 @@
                     android:layout_gravity="center_horizontal|top" />
 
             </FrameLayout>
-
-            <!--<LinearLayout-->
-                <!--android:id="@+id/ride_code_layout"-->
-                <!--android:orientation="horizontal"-->
-                <!--android:layout_width="fill_parent"-->
-                <!--android:layout_height="fill_parent"-->
-                <!--android:visibility="gone"-->
-                <!--android:weightSum="1">-->
-
-                <!--<TextView-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:text="@string/ride_code_label"-->
-                    <!--android:textAppearance="?android:attr/textAppearanceMedium"-->
-                    <!--android:layout_marginStart="16dp"-->
-                    <!--android:layout_marginLeft="16dp"-->
-                    <!--android:layout_marginTop="16dp"-->
-                    <!--android:id="@+id/textView5" />-->
-
-                <!--<android.support.design.widget.TextInputLayout-->
-                    <!--android:layout_width="wrap_content"-->
-                    <!--android:layout_height="wrap_content"-->
-                    <!--android:layout_gravity="center_vertical"-->
-                    <!--android:layout_weight="0.62">-->
-                    <!--<EditText-->
-                        <!--android:layout_width="fill_parent"-->
-                        <!--android:layout_height="wrap_content"-->
-                        <!--android:inputType="number"-->
-                        <!--android:maxLength="5"-->
-                        <!--android:hint="Type here"-->
-                        <!--android:id="@+id/editTextRideCode"-->
-                        <!--android:layout_gravity="center" />-->
-                <!--</android.support.design.widget.TextInputLayout>-->
-
-            <!--</LinearLayout>-->
-
-            <!-- <com.maximum.fastride.utils.FloatingActionButton -->
-            <!--<android.support.design.widget.FloatingActionButton-->
-                <!--android:id="@+id/submit_passenger_button"-->
-                <!--android:layout_width="@dimen/diameter"-->
-                <!--android:layout_height="@dimen/diameter"-->
-                <!--app:backgroundTint="@color/ColorAccent"-->
-                <!--app:borderWidth="0dp"-->
-                <!--android:onClick="onSubmit"-->
-                <!--android:src="@drawable/ic_action_done"-->
-                <!--android:layout_gravity="end"-->
-                <!--android:layout_alignParentBottom="true"-->
-                <!--android:layout_alignParentEnd="true"-->
-                <!--android:layout_alignParentRight="true"-->
-                <!--android:layout_marginEnd="16dp"-->
-                <!--android:layout_marginRight="16dp"-->
-                <!--android:layout_marginBottom="16dp"/>-->
-
-
         </RelativeLayout>
 
         <LinearLayout

@@ -21,4 +21,17 @@
             android:imeOptions="actionDone"
             android:textSize="18dp" />
     </android.support.design.widget.TextInputLayout>
+
+    <android.support.design.widget.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp">
+        <EditText
+            android:id="@+id/txtCarNick"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:inputType="text"
+            android:textSize="18dp"
+            android:hint="@string/add_car_nick"/>
+    </android.support.design.widget.TextInputLayout>
 </LinearLayout>

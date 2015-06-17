@@ -8,23 +8,24 @@ import android.widget.ArrayAdapter;
 import android.widget.TextView;
 
 import com.maximum.fastride.R;
+import com.maximum.fastride.model.RegisteredCar;
 
 import java.util.List;
 
 /**
  * Created by Oleg on 05-Jun-15.
  */
-public class CarsAdapter extends ArrayAdapter<String> {
+public class CarsAdapter extends ArrayAdapter<RegisteredCar> {
 
     Context context;
     int layoutResourceId;
-    List<String> mItems;
+    List<RegisteredCar> mItems;
 
     LayoutInflater mInflater;
 
     public CarsAdapter(Context context,
                        int viewResourceId,
-                       List<String> objects){
+                       List<RegisteredCar> objects){
         super(context, viewResourceId, objects);
 
         this.context = context;
@@ -41,7 +42,7 @@ public class CarsAdapter extends ArrayAdapter<String> {
     }
 
     @Override
-    public String getItem(int position) {
+    public RegisteredCar getItem(int position) {
         return mItems.get(position);
     }
 
@@ -50,25 +51,32 @@ public class CarsAdapter extends ArrayAdapter<String> {
         View row = convertView;
         CarHolder holder = null;
 
-        String carNumber = this.getItem(position);
+        RegisteredCar car = this.getItem(position);
 
         if( row == null ) {
             row = mInflater.inflate(layoutResourceId, parent, false);
             holder = new CarHolder();
             
-            holder.txtView = (TextView)row.findViewById(R.id.txtCarNumber);
+            holder.txtViewNumber = (TextView)row.findViewById(R.id.txtCarNumber);
             row.setTag(holder);
 
         } else {
             holder = (CarHolder)row.getTag();
         }
 
-        holder.txtView.setText(carNumber);
+        String s = "";
+        String carNick = car.getCarNick();
+        if( !carNick.isEmpty() ) {
+            s = " (" + carNick + ")";
+        }
+
+        s += car.getCarNumber();
+        holder.txtViewNumber.setText(s);
 
         return row;
     }
 
     static class CarHolder {
-        TextView txtView;
+        TextView txtViewNumber;
     }
 }

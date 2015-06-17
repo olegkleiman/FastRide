@@ -98,7 +98,7 @@
 
             <TextView
                 style="@style/SubCaptionStyle"
-                android:text="This product includes software from Google, Inc. Copyright (c) 2008, Google Inc. All rights reserved"
+                android:text="This product includes software from Google, Inc. Copyright (&#169;) 2008, Google Inc. All rights reserved"
                 android:id="@+id/textView12"
                 android:layout_marginTop="10dp" />
 
@@ -117,7 +117,7 @@
             <TextView
                 style="@style/SubCaptionStyle"
                 android:id="@+id/textViewVincentMi"
-                android:text="This product includes the software by Vincent Mi, Copyright (C) 2015 Vincent Mi distributed under Apache License, Version 2.0"
+                android:text="This product includes the software by Vincent Mi, Copyright (&#169;) 2015 Vincent Mi distributed under Apache License, Version 2.0"
                 android:layout_marginTop="10dp" />
 
             <TextView
@@ -137,6 +137,13 @@
                 android:text="This product includes the 'materialDesignLibrary' software by Ivan Navas (https://github.com/navasmdc/MaterialDesignLibrary) distributed under MIT licence. See file LICENCE. "
                 android:id="@+id/textView17"
                 android:layout_marginTop="10dp" />
+
+            <TextView
+                style="@style/SubCaptionStyle"
+                android:text="App icons by Icons4Android (http://icons4android.com)"
+                android:id="@+id/textView18"
+                android:layout_marginTop="10dp" />
+
 
         </LinearLayout>
 

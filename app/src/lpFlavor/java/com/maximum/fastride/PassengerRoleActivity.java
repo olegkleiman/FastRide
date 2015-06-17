@@ -1,16 +1,12 @@
 package com.maximum.fastride;
 
-import android.annotation.TargetApi;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.graphics.Outline;
-import android.graphics.drawable.Drawable;
+import android.content.res.Configuration;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
-import android.opengl.Visibility;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -25,10 +21,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewOutlineProvider;
 import android.view.WindowManager;
-import android.widget.EditText;
-import android.widget.FrameLayout;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
@@ -36,11 +29,14 @@ import android.widget.TextView;
 
 import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.afollestad.materialdialogs.MaterialDialog;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.nearby.Nearby;
+import com.google.android.gms.nearby.connection.Connections;
 import com.maximum.fastride.adapters.WiFiPeersAdapter2;
 import com.maximum.fastride.adapters.WifiP2pDeviceUser;
 import com.maximum.fastride.model.Join;
 import com.maximum.fastride.utils.ClientSocketHandler;
-import com.maximum.fastride.utils.FloatingActionButton;
 import com.maximum.fastride.utils.Globals;
 import com.maximum.fastride.utils.GroupOwnerSocketHandler;
 import com.maximum.fastride.utils.IRecyclerClickListener;
@@ -61,7 +57,10 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
         IRecyclerClickListener,
         IRefreshable,
         WiFiUtil.IPeersChangedListener,
-        WifiP2pManager.ConnectionInfoListener {
+        WifiP2pManager.ConnectionInfoListener,
+        GoogleApiClient.ConnectionCallbacks,
+        Connections.EndpointDiscoveryListener,
+        Connections.MessageListener{
 
     private static final String LOG_TAG = "FR.Passenger";
 
@@ -75,18 +74,7 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
     TextView mTxtStatus;
     String mUserID;
 
-    Object _lock = new Object();
-    private Boolean mEnforcedSubmit = false;
-    public void toggleSubmit() {
-        synchronized( _lock ) {
-            mEnforcedSubmit = !mEnforcedSubmit;
-        }
-    }
-    public Boolean isSubmitEnforced() {
-        synchronized (_lock ) {
-            return mEnforcedSubmit;
-        }
-    }
+    Boolean mDriversShown;
 
     private android.os.Handler handler = new android.os.Handler(this);
     public android.os.Handler getHandler() {
@@ -153,6 +141,13 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
         // for (hopefully) already published service
         wifiUtil.startRegistrationAndDiscovery(this, mUserID);
 
+
+    }
+
+    @Override
+    public void onConfigurationChanged(Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        Log.i(LOG_TAG, "onConfigurationChanged");
     }
 
     protected void setupUI(String title, String subTitle){
@@ -166,6 +161,40 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
 
         mDriversAdapter = new WiFiPeersAdapter2(this, R.layout.drivers_header, drivers);
         driversRecycler.setAdapter(mDriversAdapter);
+
+        mDriversShown = false;
+
+    }
+
+    @Override
+    public void onConnected(Bundle bundle) {
+        super.onConnected(bundle);
+
+//        /**
+//         * Begin discovering devices advertising Nearby Connections, if possible.
+//         */
+//        String serviceId = getString(R.string.service_id);
+//
+//        if (!isConnectedToNetwork()) {
+//            Log.e(LOG_TAG, "startDiscovery: not connected to WiFi network");
+//            return;
+//        }
+//
+//        Nearby.Connections.startDiscovery(getGoogleApiClient(),
+//                serviceId,
+//                0, //Globals.TIMEOUT_DISCOVER,
+//                this)
+//                .setResultCallback(new ResultCallback<Status>() {
+//                    @Override
+//                    public void onResult(Status status) {
+//                        if (status.isSuccess()) {
+//                            Log.d(LOG_TAG, "startDiscovery:onResult: SUCCESS");
+//                        } else {
+//                            int statusCode = status.getStatusCode();
+//                            Log.e(LOG_TAG, "startDiscovery:onResult: FAILURE");
+//                        }
+//                    }
+//                });
 
     }
 
@@ -188,17 +217,15 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
         super.onStop();
     }
 
-//
-//    @Override
-//    protected void onPostCreate(Bundle savedInstanceState) {
-//        super.onPostCreate(savedInstanceState);
-//        mDrawerToggle.syncState();
-//    }
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_passenger, menu);
+
+        if( mDriversShown ) {
+            menu.findItem(R.id.action_code).setVisible(false);
+        }
+
         return true;
     }
 
@@ -211,8 +238,6 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
             return true;
         } else if( id == R.id.action_code) {
             showSubmitCodeDialog();
-        } else if( id == R.id.enforce_passenger_submit) {
-            toggleSubmit();
         }
 
         return super.onOptionsItemSelected(item);
@@ -329,6 +354,64 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
     }
 
     //
+    // Implementation of EndpointDiscoveryListener
+    //
+    @Override
+    public void onEndpointFound(final String endpointId,
+                                String deviceId,
+                                String serviceId,
+                                final String endpointName) {
+        Log.d(LOG_TAG, "onEndpointFound:" + endpointId + ":" + endpointName);
+        WifiP2pDeviceUser device = new WifiP2pDeviceUser(endpointName,
+                                                         endpointId);
+        mDriversAdapter.add(device);
+        mDriversAdapter.notifyDataSetChanged();
+        connectTo(endpointId, endpointName);
+    }
+
+    @Override
+    public void onEndpointLost(String endpointId) {
+        Log.d(LOG_TAG, "onEndpointLost:" + endpointId);
+    }
+
+    private void connectTo(String endpointId, final String endpointName) {
+        Log.d(LOG_TAG, "connectTo:" + endpointId + ":" + endpointName);
+
+        String myName = null;
+        byte[] myPayload = null;
+        Nearby.Connections.sendConnectionRequest(getGoogleApiClient(),
+                myName, endpointId, myPayload,
+                new Connections.ConnectionResponseCallback() {
+                    @Override
+                    public void onConnectionResponse(String endpointId, Status status,
+                                                     byte[] bytes) {
+                        Log.d(LOG_TAG, "onConnectionResponse:" + endpointId + ":" + status);
+                        if (status.isSuccess()) {
+                            Log.d(LOG_TAG, "onConnectionResponse: " + endpointName + " SUCCESS");
+                        }else {
+                            Log.d(LOG_TAG, "onConnectionResponse: " + endpointName + " FAILURE");
+                        }
+                    }},
+                this);
+    }
+
+    //
+    // Implementation of Connections.MessageListener
+    //
+    @Override
+    public void onMessageReceived(String endpointId,
+                                  byte[] payload,
+                                  boolean isReliable) {
+        // A message has been received from a remote endpoint.
+        Log.d(LOG_TAG, "onMessageReceived:" + endpointId + ":" + new String(payload));
+    }
+
+    @Override
+    public void onDisconnected(String endpointId) {
+        Log.d(LOG_TAG, "onDisconnected:" + endpointId);
+    }
+
+    //
     // Implementation of WifiP2pManager.ConnectionInfoListener
     //
 
@@ -411,11 +494,16 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
     //
     @Override
     public void add(final WifiP2pDeviceUser device) {
+
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
                 mDriversAdapter.add(device);
                 mDriversAdapter.notifyDataSetChanged();
+
+                // remove 'type code' menu item
+                mDriversShown = true;
+                invalidateOptionsMenu();
             }
         });
     }

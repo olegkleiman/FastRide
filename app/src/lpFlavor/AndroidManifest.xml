@@ -1,6 +1,8 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.maximum.fastride">
 
     <application
+        android:allowBackup="true"
         android:name="android.support.multidex.MultiDexApplication">
 
         <activity
@@ -12,6 +14,7 @@
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
             </intent-filter>
         </activity>
 
@@ -23,6 +26,7 @@
 
         <activity android:name="com.maximum.fastride.DriverRoleActivity"
             android:label="@string/title_activity_driver_role"
+            android:configChanges="orientation|screenSize"
             android:parentActivityName="com.maximum.fastride.MainActivity"
             android:theme="@style/AppTheme">
         </activity>
@@ -30,6 +34,7 @@
         <activity android:name="com.maximum.fastride.PassengerRoleActivity"
             android:parentActivityName="com.maximum.fastride.MainActivity"
             android:label="@string/title_activity_passenger_role"
+            android:configChanges="orientation|screenSize"
             android:theme="@style/AppTheme">
         </activity>
 

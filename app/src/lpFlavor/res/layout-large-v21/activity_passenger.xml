@@ -22,6 +22,7 @@
             android:background="?attr/colorPrimary" />
 
         <RelativeLayout
+            android:id="@+id/passenger_internal_layout"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
@@ -46,24 +47,6 @@
                     android:scrollbars="vertical"/>
 
             </FrameLayout>
-
-
-            <ImageButton
-            android:id="@+id/submit_passenger_button"
-            android:layout_width="@dimen/diameter"
-            android:layout_height="@dimen/diameter"
-            android:background="@drawable/oval_ripple"
-            android:tint="@android:color/white"
-            android:stateListAnimator="@anim/button_elevation"
-            android:elevation="@dimen/elevation_high"
-            android:src="@drawable/ic_action_done"
-            android:layout_gravity="end|bottom"
-            android:onClick="onSubmit"
-            android:layout_alignParentBottom="true"
-            android:layout_alignParentEnd="true"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"/>
-
         </RelativeLayout>
 
         <LinearLayout

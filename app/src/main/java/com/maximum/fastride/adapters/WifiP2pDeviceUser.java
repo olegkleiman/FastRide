@@ -18,4 +18,10 @@ public class WifiP2pDeviceUser extends WifiP2pDevice {
         super(device);
     }
 
+    public WifiP2pDeviceUser(String deviceName,
+                             String deviceAddress) {
+        this.deviceName = deviceName;
+        this.deviceAddress = deviceAddress;
+    }
+
 }
