@@ -16,6 +16,7 @@ import android.view.ViewOutlineProvider;
 import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -84,6 +85,32 @@ public class SettingsActivity extends BaseActivity {
 
         new AsyncTask<Void, Void, Void>() {
 
+            Exception mEx;
+            MaterialDialog progress;
+
+            @Override
+            protected void onPreExecute() {
+                progress = new MaterialDialog.Builder(SettingsActivity.this)
+                         .title("Updating geofences")
+                        .content("Please_wait")
+                        .progress(true, 0)
+                        .show();
+            }
+
+            @Override
+            protected void onPostExecute(Void result){
+                progress.dismiss();
+
+                String msg = "Geofences updated";
+
+                if( mEx != null ) {
+                    msg = mEx.getMessage() + " Cause: " + mEx.getCause();
+                }
+
+                Toast.makeText(SettingsActivity.this, msg,
+                                Toast.LENGTH_LONG).show();
+            }
+
             @Override
             protected Void doInBackground(Void... voids) {
 
@@ -110,11 +137,16 @@ public class SettingsActivity extends BaseActivity {
                     for (GFence _gFence : gFences) {
                         double lat = _gFence.getLat();
                         double lon = _gFence.getLon();
+                        String label = _gFence.getLabel();
+                        String[] tokens = label.split(":");
+                        if( tokens.length > 1 )
+                            Log.i(LOG_TAG, "GFence: " + tokens[0] + " " + tokens[1]);
                         Log.i(LOG_TAG, "GFence: " + lat + " " + lon);
                     }
 
                 } catch(MalformedURLException | InterruptedException | ExecutionException ex ) {
                     Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
+                    mEx = ex;
                 }
 
                 return null;
@@ -139,7 +171,8 @@ public class SettingsActivity extends BaseActivity {
                 String[] tokens = strCar.split("~");
                 RegisteredCar car = new RegisteredCar();
                 car.setCarNumber(tokens[0]);
-                car.setCarNick(tokens[1]);
+                if( tokens.length > 1 )
+                    car.setCarNick(tokens[1]);
                 mCars.add(car);
             }
         }

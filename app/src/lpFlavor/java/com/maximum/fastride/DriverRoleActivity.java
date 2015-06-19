@@ -97,6 +97,7 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
     }
 
     TextView mTxtStatus;
+    TextView mTxtMonitorStatus;
 
     String mUserID;
     String mCarNumber;
@@ -125,7 +126,7 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
         setupUI(getString(R.string.title_activity_driver_role), "");
         wamsInit();
 
-        // Keep device awake when advertising by Nearby host
+        // Keep device awake when advertising fow Wi-Fi Direct
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
         ridesTable = getMobileServiceClient().getTable("rides", Ride.class);
@@ -231,8 +232,40 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
         mUserID = sharedPrefs.getString(Globals.USERIDPREF, "");
 
         // This will publish the service in DNS-SD and start serviceDiscovery()
-
         wifiUtil.startRegistrationAndDiscovery(this, mUserID);
+
+        new Thread() {
+            @Override
+            public void run(){
+
+                try{
+
+                    while (true) {
+
+                        runOnUiThread(new Runnable() {
+
+                            @Override
+                            public void run() {
+
+                                String message = Globals.isInGeofenceArea() ?
+                                        Globals.getMonitorStatus() :
+                                        getString(R.string.geofence_outside);
+
+                                mTxtMonitorStatus.setText(message);
+
+                            }
+                        });
+
+                        Thread.sleep(1000);
+                    }
+                }
+                catch(InterruptedException ex) {
+                    Log.e(LOG_TAG, ex.getMessage());
+                }
+
+            }
+        }.start();
+
     }
 
 
@@ -281,6 +314,9 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
 
         mPeersAdapter = new WiFiPeersAdapter2(this, R.layout.peers_header, peers);
         mPeersRecyclerView.setAdapter(mPeersAdapter);
+
+        mTxtMonitorStatus = (TextView)findViewById(R.id.status_monitor);
+        Globals.setMonitorStatus(getString(R.string.geofence_outside));
     }
 
     @Override

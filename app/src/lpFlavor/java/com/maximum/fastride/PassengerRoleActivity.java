@@ -64,7 +64,6 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
 
     private static final String LOG_TAG = "FR.Passenger";
 
-
     MobileServiceTable<Join> joinsTable;
 
     WiFiUtil wifiUtil;
@@ -75,6 +74,7 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
     String mUserID;
 
     Boolean mDriversShown;
+    TextView mTxtMonitorStatus;
 
     private android.os.Handler handler = new android.os.Handler(this);
     public android.os.Handler getHandler() {
@@ -101,9 +101,6 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
         SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         mUserID = sharedPrefs.getString(Globals.USERIDPREF, "");
 
-        final TextView txtStatus = (TextView)findViewById(R.id.status_monitor);
-
-        Globals.setMonitorStatus(getString(R.string.geofence_outside));
 
         new Thread() {
             @Override
@@ -122,7 +119,7 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
                                             Globals.getMonitorStatus() :
                                             getString(R.string.geofence_outside);
 
-                                    txtStatus.setText(message);
+                                    mTxtMonitorStatus.setText(message);
 
                             }
                         });
@@ -163,6 +160,9 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
         driversRecycler.setAdapter(mDriversAdapter);
 
         mDriversShown = false;
+
+        mTxtMonitorStatus = (TextView)findViewById(R.id.status_monitor);
+        Globals.setMonitorStatus(getString(R.string.geofence_outside));
 
     }
 

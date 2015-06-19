@@ -95,6 +95,26 @@
     </RelativeLayout>
 
     <LinearLayout
+        android:id="@+id/passenger_snackbar"
+        android:layout_width="fill_parent"
+        android:layout_height="@dimen/snackbar_height"
+        android:animateLayoutChanges="true">
+        <TextView
+            android:id="@+id/status_monitor"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:paddingLeft="@dimen/snackbar_leftpadding"
+            android:paddingRight="@dimen/snackbar_rightpadding"
+            android:paddingEnd="@dimen/snackbar_rightpadding"
+            android:background="@color/ColorPrimary"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@color/white"
+            android:text="@string/geofence_outside"
+            android:gravity="left|center_vertical|fill_vertical|start|center_horizontal" />
+
+    </LinearLayout>
+
+    <LinearLayout
         android:id="@+id/debugLayout"
         android:animateLayoutChanges="true"
         android:orientation="vertical"

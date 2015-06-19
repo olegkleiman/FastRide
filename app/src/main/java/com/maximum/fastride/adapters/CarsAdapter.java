@@ -66,7 +66,7 @@ public class CarsAdapter extends ArrayAdapter<RegisteredCar> {
 
         String s = "";
         String carNick = car.getCarNick();
-        if( !carNick.isEmpty() ) {
+        if( carNick != null &&  !carNick.isEmpty() ) {
             s = " (" + carNick + ")";
         }
 
