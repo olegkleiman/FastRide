@@ -78,4 +78,11 @@
     <string name="registration_add_status_wait">Осталось несколько секунд</string>
     <string name="download_geofences">Инициализация</string>
     <string name="download_geofences_desc">Загрузка привязок к местности</string>
+    <string name="new_version_conent">Мы настоятельно рекомендуем вам установить новую версию программы. Вы согласны?</string>
+    <string name="new_version_title">Новая версия </string>
+    <string name="geofence_transition_dwell">Вы находитесь в зоне контроля</string>
+    <string name="action_camera">Фотография</string>
+    <string name="edit_car_dialog_caption">Описание машины</string>
+    <string name="edit_phone_dialog_caption">Номер телефона</string>
+    <string name="title_section_cars">Мои машины</string>
 </resources>

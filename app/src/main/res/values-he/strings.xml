@@ -48,7 +48,7 @@
     <string name="add_car_button_cancel">ביטול</string>
     <string name="ride_code_label">קוד נסיעה</string>
     <string name="subtitle_activity_my_rides">הנסיעות שלי</string>
-    <string name="geofence_transition_entered">אתה רוכב באזור פיקוח</string>
+    <string name="geofence_transition_entered">אתה נכנס לאזור פיקוח</string>
     <string name="add_car_button_add">הוספה</string>
     <string name="add_car_hint">מספר רכב</string>
     <string name="subtitle_activity_tutorial">הדרכות</string>
@@ -74,9 +74,16 @@
     <string name="edit_car_dialog_caption2">בחר\י את רכב הנוסע</string>
     <string name="edit_car_dialog_text">טרם בחרת את הרכבים </string>
     <string name="registration_add_status">רושם את הנתונים שלך</string>
-    <string name="registration_add_title">רישום מתבעצע</string>
+    <string name="registration_add_title">רישום מתבצע</string>
     <string name="registration_add_status_wait">נשאר רק כמה שניות</string>
     <string name="download_geofences">אתחול הגדרות המיקום</string>
     <string name="download_geofences_desc">מוריד הגדרות גיאוגרפיות</string>
+    <string name="new_version_conent">אנו ממליצים לך להתקין את הגרסה החדשה ביותר של התכנית. האם אתה רוצה לעשות זאת?</string>
+    <string name="new_version_title">גרסה חדשה מוכנה להורדה</string>
+    <string name="geofence_transition_dwell">אתה רוכב באזור פיקוח</string>
+    <string name="action_camera">מצלמה</string>
+    <string name="edit_car_dialog_caption">תאור רכב</string>
+    <string name="edit_phone_dialog_caption">מספר טלפון</string>
+    <string name="title_section_cars">רכבים</string>
 
 </resources>

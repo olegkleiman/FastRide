@@ -4,6 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
+import android.net.Uri;
 import android.net.wifi.p2p.WifiP2pInfo;
 import android.net.wifi.p2p.WifiP2pManager;
 import android.os.AsyncTask;
@@ -30,9 +31,6 @@ import android.widget.TextView;
 import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.common.api.Status;
-import com.google.android.gms.nearby.Nearby;
-import com.google.android.gms.nearby.connection.Connections;
 import com.maximum.fastride.adapters.WiFiPeersAdapter2;
 import com.maximum.fastride.adapters.WifiP2pDeviceUser;
 import com.maximum.fastride.model.Join;
@@ -42,6 +40,7 @@ import com.maximum.fastride.utils.GroupOwnerSocketHandler;
 import com.maximum.fastride.utils.IRecyclerClickListener;
 import com.maximum.fastride.utils.IRefreshable;
 import com.maximum.fastride.utils.ITrace;
+import com.maximum.fastride.utils.WAMSVersionTable;
 import com.maximum.fastride.utils.WiFiUtil;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
 
@@ -59,8 +58,7 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
         WiFiUtil.IPeersChangedListener,
         WifiP2pManager.ConnectionInfoListener,
         GoogleApiClient.ConnectionCallbacks,
-        Connections.EndpointDiscoveryListener,
-        Connections.MessageListener{
+        WAMSVersionTable.IVersionMismatchListener{
 
     private static final String LOG_TAG = "FR.Passenger";
 
@@ -87,7 +85,7 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_passenger);
         setupUI(getString(R.string.title_activity_passenger_role), "");
-        wamsInit();
+        wamsInit(true);
 
         // Keep device awake when discovering by Nearby host
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -169,34 +167,49 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
     @Override
     public void onConnected(Bundle bundle) {
         super.onConnected(bundle);
+    }
 
-//        /**
-//         * Begin discovering devices advertising Nearby Connections, if possible.
-//         */
-//        String serviceId = getString(R.string.service_id);
-//
-//        if (!isConnectedToNetwork()) {
-//            Log.e(LOG_TAG, "startDiscovery: not connected to WiFi network");
-//            return;
-//        }
-//
-//        Nearby.Connections.startDiscovery(getGoogleApiClient(),
-//                serviceId,
-//                0, //Globals.TIMEOUT_DISCOVER,
-//                this)
-//                .setResultCallback(new ResultCallback<Status>() {
-//                    @Override
-//                    public void onResult(Status status) {
-//                        if (status.isSuccess()) {
-//                            Log.d(LOG_TAG, "startDiscovery:onResult: SUCCESS");
-//                        } else {
-//                            int statusCode = status.getStatusCode();
-//                            Log.e(LOG_TAG, "startDiscovery:onResult: FAILURE");
-//                        }
-//                    }
-//                });
+    //
+    // Implementation of IVersionMismatchListener
+    //
+    public void mismatch(int major, int minor, final String url){
+        try {
+            new MaterialDialog.Builder(this)
+                    .title(getString(R.string.new_version_title))
+                    .content(getString(R.string.new_version_conent))
+                    .positiveText(R.string.yes)
+                    .negativeText(R.string.no)
+                    .callback(new MaterialDialog.ButtonCallback() {
+                        @Override
+                        public void onPositive(MaterialDialog dialog) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            intent.setData(Uri.parse(url));
+                            //intent.setDataAndType(Uri.parse(url), "application/vnd.android.package-archive");
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                        }
+                    })
+                    .show();
+        } catch (MaterialDialog.DialogException e) {
+            // better that catch the exception here would be use handle to send events the activity
+        }
 
     }
+
+    public void match() {
+
+    }
+
+    public void connectionFailure(Exception ex) {
+
+        if( ex != null ) {
+
+            View v = findViewById(R.id.drawer_layout);
+            Snackbar.make(v, ex.getMessage(), Snackbar.LENGTH_LONG);
+        }
+
+    }
+
 
     @Override
     public void onResume() {
@@ -351,64 +364,6 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
                 return null;
             }
         }.execute();
-    }
-
-    //
-    // Implementation of EndpointDiscoveryListener
-    //
-    @Override
-    public void onEndpointFound(final String endpointId,
-                                String deviceId,
-                                String serviceId,
-                                final String endpointName) {
-        Log.d(LOG_TAG, "onEndpointFound:" + endpointId + ":" + endpointName);
-        WifiP2pDeviceUser device = new WifiP2pDeviceUser(endpointName,
-                                                         endpointId);
-        mDriversAdapter.add(device);
-        mDriversAdapter.notifyDataSetChanged();
-        connectTo(endpointId, endpointName);
-    }
-
-    @Override
-    public void onEndpointLost(String endpointId) {
-        Log.d(LOG_TAG, "onEndpointLost:" + endpointId);
-    }
-
-    private void connectTo(String endpointId, final String endpointName) {
-        Log.d(LOG_TAG, "connectTo:" + endpointId + ":" + endpointName);
-
-        String myName = null;
-        byte[] myPayload = null;
-        Nearby.Connections.sendConnectionRequest(getGoogleApiClient(),
-                myName, endpointId, myPayload,
-                new Connections.ConnectionResponseCallback() {
-                    @Override
-                    public void onConnectionResponse(String endpointId, Status status,
-                                                     byte[] bytes) {
-                        Log.d(LOG_TAG, "onConnectionResponse:" + endpointId + ":" + status);
-                        if (status.isSuccess()) {
-                            Log.d(LOG_TAG, "onConnectionResponse: " + endpointName + " SUCCESS");
-                        }else {
-                            Log.d(LOG_TAG, "onConnectionResponse: " + endpointName + " FAILURE");
-                        }
-                    }},
-                this);
-    }
-
-    //
-    // Implementation of Connections.MessageListener
-    //
-    @Override
-    public void onMessageReceived(String endpointId,
-                                  byte[] payload,
-                                  boolean isReliable) {
-        // A message has been received from a remote endpoint.
-        Log.d(LOG_TAG, "onMessageReceived:" + endpointId + ":" + new String(payload));
-    }
-
-    @Override
-    public void onDisconnected(String endpointId) {
-        Log.d(LOG_TAG, "onDisconnected:" + endpointId);
     }
 
     //

@@ -32,6 +32,7 @@
     <string name="registration_add_title">Performing registration</string>
     <string name="registration_add_status">Adding your data</string>
     <string name="registration_add_status_wait">Just few seconds</string>
+    <string name="default_value">no value</string>
 
     <string name="no_phone_number">Provide your phone number. You may prefer to not share it with others by switching off the following indicator</string>
 
@@ -60,6 +61,9 @@
 
     <string name="passengers_header">Passengers</string>
     <string name="drivers_header">Select the driver</string>
+
+    <string name="new_version_title">New version is ready</string>
+    <string name="new_version_conent">We strongly recommend you to install the newest version. Would you like to do so?</string>
 
     <string name="default_ride_code">00000</string>
     <string name="ride_code_label">Ride Code:</string>
@@ -92,12 +96,13 @@
     <string name="edit_car_dialog_text">You have not yet specified the car(s) belongs to you.</string>
     <string name="add_car_dialog_caption">Add a car</string>
     <string name="edit_car_dialog_caption">Edit a car</string>
+    <string name="edit_phone_dialog_caption">Edir Phone Number</string>
     <string name="add_car_button_add">Add</string>
     <string name="edit_car_button_save">Save</string>
     <string name="edit_car_button_delete">Delete</string>
     <string name="add_car_button_cancel">Cancel</string>
     <string name="add_car_hint">Car number</string>
-    <string name="add_car_nick">Car nick name</string>
+    <string name="add_car_nick">Car nickname</string>
     <string name="car_number_validation_error">Type in a valid car number</string>
     <string name="enable_wifi_question">Enable Wi-Fi on your device?</string>
     <string name="enable_location_question">Do you want to enable location services on the device?</string>
@@ -110,7 +115,7 @@
     <string name="fb_error">No network access</string>
     <string name="fb_error_msg">The error was: </string>
     <string name="title_activity_about">About</string>
-    <string name="version_title">Version Alpha 1</string>
+    <string name="version_title">Version </string>
     <string name="dialog_confirm_registration">Replace previous registration?</string>
     <string name="registration_already_performed">You already registered with Fast Ride app.</string>
     <string name="add_cars_caption">Add your cars</string>
@@ -118,9 +123,11 @@
     <string name="no">No</string>
     <string name="close">Close</string>
     <string name="download_geofences">Initializing geo-fences</string>
-    <string name="download_geofences_desc">Downloading...</string>
+    <string name="download_geofences_desc">Downloading&#8230;</string>
     <string name="play_services_error">Google Play services is not available. Registration is impossible.</string>
     <string name="action_refresh_settings">Update GeoFences</string>
+    <string name="action_check_updates">Check for Update&#8230;</string>
+    <string name="latest_version">You already have a latest version of FastRide.</string>
     <string name="about">About</string>
 
     <string name="copyright">Copyright (&#169;) 2015 Maximum</string>
@@ -141,6 +148,7 @@ limitations under the License.</string>
     <string name="action_refresh">Refresh</string>
     <string name="action_code">Ride Code</string>
     <string name="action_debug">Debug</string>
+    <string name="action_camera">Camera</string>
 
     <string name="passenger_tutorial_fragment">Passenger tutorial</string>
     <string name="driver_tutorial_fragment">Driver tutorial</string>
@@ -148,7 +156,7 @@ limitations under the License.</string>
     <string name="intro_tutorial_fragment">Introduction tutorial</string>
 
     <!-- Transition type strings -->
-    <string name="geofence_transition_entered">You\'re entered the monitored area</string>
+    <string name="geofence_transition_entered">You\'ve entered the monitored area</string>
     <string name="geofence_transition_dwell">You\'re riding in monitored area</string>
     <string name="geofence_transition_exited">You exited geofences area</string>
     <string name="unknown_geofence_transition">Unknown Transition</string>

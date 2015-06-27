@@ -10,8 +10,8 @@ android {
         applicationId "com.maximum.fastride"
         minSdkVersion 16
         targetSdkVersion 22
-        versionCode 1
-        versionName "1.0"
+        versionCode 2
+        versionName '1.1'
         multiDexEnabled = true
         //testPackageName "com.maximum.fastride.tests"
         //testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
@@ -36,8 +36,9 @@ android {
 //        }
         lpFlavor {
             minSdkVersion 16
-            versionName '1.0'
+            versionName '1.1'
             applicationId 'com.maximum.fastride.lpFlavor'
+            versionCode 2
         }
     }
 
@@ -48,10 +49,8 @@ android {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-
     // Unit testing dependencies
     androidTestCompile 'junit:junit:4.12'
-
     compile files('libs/mobileservices-2.0.1-beta.jar')
     //compile 'com.microsoft.azure:azure-mobile-services-android-sdk:2.0.2+'
     compile files('libs/notifications-1.0.1.jar')
@@ -61,18 +60,14 @@ dependencies {
     compile 'com.android.support:recyclerview-v7:+'
     compile 'com.microsoft.azure.android:azure-storage-android:0.3.0@aar'
     compile 'com.google.guava:guava:17.+'
-
     compile 'com.facebook.android:facebook-android-sdk:3.21.1'
     //compile 'com.facebook.android:facebook-android-sdk:4.0.0'
-
     // See here: https://developers.google.com/android/guides/setup
     // for detailed discussion about setting up GMS
     compile 'com.google.android.gms:play-services-location:7.5.0'
     compile 'com.google.android.gms:play-services-gcm:7.5.0'
-    compile 'com.google.android.gms:play-services-nearby:7.5.0'
     compile 'com.google.android.gms:play-services-plus:7.5.0'
     //compile 'com.google.android.gms:play-services:7.5.0'
-
     compile 'com.android.support:design:22.2.0'
     compile 'com.android.support:multidex:1.0.0'
     compile 'com.afollestad:material-dialogs:0.7.5.2'

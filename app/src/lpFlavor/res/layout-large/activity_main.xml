@@ -25,7 +25,7 @@
             android:background="?attr/colorPrimary" />
 
         <ImageView
-            android:layout_width="128dp"
+            android:layout_width="@dimen/avatar_size"
             android:layout_height="@dimen/avatar_size"
             android:src="@drawable/ic_action_car"
             android:layout_marginEnd="@dimen/avatar_margin_end"

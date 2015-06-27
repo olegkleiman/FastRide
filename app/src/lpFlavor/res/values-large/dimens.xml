@@ -5,9 +5,15 @@
     <dimen name="avatar_margin_end">40dp</dimen>
     <dimen name="avatar_margin_top">-64dp</dimen>
     <dimen name="avatar_size">128dp</dimen>
+    <dimen name="avatar_settings_size">196dp</dimen>
+    <dimen name="avatar_settings_height">340dp</dimen>
+    <dimen name="avatar_background_settings_width">340dp</dimen>
 
     <dimen name="mode_image_height">48dp</dimen>
     <dimen name="mode_image_width">48dp</dimen>
+
+    <dimen name="settings_card_height_land">128dp</dimen>
+    <dimen name="settings_card_row_height">64dp</dimen>
 
     <!-- Default screen margins, per the Android Design guidelines. -->
     <dimen name="activity_horizontal_margin">16dp</dimen>
@@ -20,5 +26,6 @@
     <dimen name="adjustedActionBarSize">54dp</dimen>
     <dimen name="card_backpanel_height">64dp</dimen>
     <dimen name="card_icon_size">24dp</dimen>
+
 
 </resources>

@@ -1,12 +1,15 @@
 package com.maximum.fastride;
 
 import android.content.SharedPreferences;
+import android.graphics.Color;
 import android.graphics.Outline;
+import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Editable;
+import android.text.InputType;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Menu;
@@ -15,7 +18,10 @@ import android.view.View;
 import android.view.ViewOutlineProvider;
 import android.widget.AdapterView;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.DialogAction;
@@ -23,8 +29,9 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.maximum.fastride.adapters.CarsAdapter;
 import com.maximum.fastride.model.GFence;
 import com.maximum.fastride.model.RegisteredCar;
-import com.maximum.fastride.utils.FloatingActionButton;
+import com.maximum.fastride.model.User;
 import com.maximum.fastride.utils.Globals;
+import com.maximum.fastride.utils.RoundedDrawable;
 import com.maximum.fastride.utils.wamsUtils;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.MobileServiceList;
@@ -50,6 +57,7 @@ public class SettingsActivity extends BaseActivity {
 
     List<RegisteredCar> mCars;
     CarsAdapter mCarsAdapter;
+    User mUser;
 
     private static final String LOG_TAG = "FR.Settings";
 
@@ -156,128 +164,172 @@ public class SettingsActivity extends BaseActivity {
 
     }
 
+    private void displayUser() {
+        mUser = getUser();
+
+        ImageView userPicture = (ImageView)findViewById(R.id.imageProfileView);
+
+        Drawable drawable = null;
+        try {
+
+            TextView txtView = (TextView)findViewById(R.id.textUserName);
+            txtView.setText(mUser.getFirstName() + " " + mUser.getLastName());
+
+            txtView = (TextView)findViewById(R.id.textUserEmail);
+            txtView.setText(mUser.getEmail());
+
+            txtView = (TextView)findViewById(R.id.textUserPhone);
+            txtView.setText(mUser.getPhone());
+
+            drawable = (Globals.drawMan.userDrawable(this,
+                    "1",
+                    mUser.getPictureURL())).get();
+            drawable = RoundedDrawable.fromDrawable(drawable);
+            ((RoundedDrawable) drawable)
+                    .setCornerRadius(Globals.PICTURE_CORNER_RADIUS)
+                    .setBorderColor(Color.LTGRAY)
+                    .setBorderWidth(Globals.PICTURE_BORDER_WIDTH)
+                    .setOval(true);
+
+            userPicture.setImageDrawable(drawable);
+        } catch(InterruptedException | ExecutionException ex) {
+            Log.e(LOG_TAG, ex.getMessage());
+        }
+
+    }
+
     @Override
     protected void setupUI(String title, String subTitle) {
         super.setupUI(title, subTitle);
 
-        mCars = new ArrayList<>();
-        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-        Set<String> carsSet = sharedPrefs.getStringSet(Globals.CARS_PREF, new HashSet<String>());
-        if( carsSet != null ) {
-            Iterator<String> iterator = carsSet.iterator();
-            while (iterator.hasNext()) {
-                String strCar = iterator.next();
+        displayUser();
 
-                String[] tokens = strCar.split("~");
-                RegisteredCar car = new RegisteredCar();
-                car.setCarNumber(tokens[0]);
-                if( tokens.length > 1 )
-                    car.setCarNick(tokens[1]);
-                mCars.add(car);
-            }
-        }
+        try{
 
-        ListView listView = (ListView)findViewById(R.id.carsListView);
-        mCarsAdapter = new CarsAdapter(this, R.layout.car_item_row, mCars);
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent,
-                                    final View view,
-                                    int position, long id) {
+                mCars = new ArrayList<>();
+                SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                Set<String> carsSet = sharedPrefs.getStringSet(Globals.CARS_PREF, new HashSet<String>());
+                if( carsSet != null ) {
+                    Iterator<String> iterator = carsSet.iterator();
+                    while (iterator.hasNext()) {
+                        String strCar = iterator.next();
 
-                final RegisteredCar currentCar =  mCarsAdapter.getItem(position);
-
-                MaterialDialog dialog = new MaterialDialog.Builder(SettingsActivity.this)
-                        .title(R.string.edit_car_dialog_caption)
-                        .customView(R.layout.dialog_add_car, true)
-                        .positiveText(R.string.edit_car_button_save)
-                        .negativeText(R.string.add_car_button_cancel)
-                        .neutralText(R.string.edit_car_button_delete)
-                        .autoDismiss(false)
-                        .cancelable(true)
-                        .callback(new MaterialDialog.ButtonCallback() {
-                            @Override
-                            public void onPositive(MaterialDialog dialog) {
-
-                                String strCarNumber = mCarInput.getText().toString();
-                                if( strCarNumber.length() < 7 ) {
-                                    mCarInput.setError(getString(R.string.car_number_validation_error));
-                                    return;
-                                }
-
-                                mCars.remove(currentCar);
-
-                                String carNick = mCarNick.getText().toString();
-
-                                RegisteredCar registeredCar = new RegisteredCar();
-                                registeredCar.setCarNumber(strCarNumber);
-                                registeredCar.setCarNick(carNick);
-
-                                mCars.add(registeredCar);
-
-                                // Adapter's items will be updated since underlaying list changes
-                                mCarsAdapter.notifyDataSetChanged();
-
-                                saveCars();
-
-
-                                dialog.dismiss();
-                            }
-
-                            @Override
-                            public void onNegative(MaterialDialog dialog) {
-                                dialog.dismiss();
-                            }
-
-
-                            @Override
-                            public void onNeutral(MaterialDialog dialog) {
-                                String carNumber = mCarInput.getText().toString();
-
-                                RegisteredCar carToRemove = null;
-                                for(RegisteredCar car : mCars) {
-                                    if( car.getCarNumber().equals(carNumber) ) {
-                                        carToRemove = car;
-                                    }
-                                }
-
-                                if( carToRemove!= null ) {
-
-                                    mCarsAdapter.remove(carToRemove);
-                                    mCarsAdapter.notifyDataSetChanged();
-
-                                    saveCars();
-                                }
-                                dialog.dismiss();
-                            }
-                        })
-                        .build();
-                mCarInput = (EditText) dialog.getCustomView().findViewById(R.id.txtCarNumber);
-                mCarInput.setText(currentCar.getCarNumber());
-                mCarNick = (EditText) dialog.getCustomView().findViewById(R.id.txtCarNick);
-                mCarNick.setText(currentCar.getCarNick());
-
-                dialog.show();
-
-            }
-        });
-        listView.setAdapter(mCarsAdapter);
-
-        View addButton = findViewById(R.id.add_car_button);
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            FloatingActionButton fab = (FloatingActionButton)addButton;
-            fab.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_add));
-            fab.setBackgroundColor(getResources().getColor(R.color.ColorAccent));
-        } else {
-            addButton.setOutlineProvider(new ViewOutlineProvider() {
-                public void getOutline(View view, Outline outline) {
-                    int diameter = getResources().getDimensionPixelSize(R.dimen.diameter);
-                    outline.setOval(0, 0, diameter, diameter);
+                        String[] tokens = strCar.split("~");
+                        RegisteredCar car = new RegisteredCar();
+                        car.setCarNumber(tokens[0]);
+                        if( tokens.length > 1 )
+                            car.setCarNick(tokens[1]);
+                        mCars.add(car);
+                    }
                 }
-            });
-            addButton.setClipToOutline(true);
-        }
 
+                ListView listView = (ListView)findViewById(R.id.carsListView);
+                mCarsAdapter = new CarsAdapter(this, R.layout.car_item_row, mCars);
+                listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> parent,
+                                            final View view,
+                                            int position, long id) {
+
+                        final RegisteredCar currentCar =  mCarsAdapter.getItem(position);
+
+                        MaterialDialog dialog = new MaterialDialog.Builder(SettingsActivity.this)
+                                .title(R.string.edit_car_dialog_caption)
+                                .customView(R.layout.dialog_add_car, true)
+                                .positiveText(R.string.edit_car_button_save)
+                                .negativeText(R.string.add_car_button_cancel)
+                                .neutralText(R.string.edit_car_button_delete)
+                                .autoDismiss(false)
+                                .cancelable(true)
+                                .callback(new MaterialDialog.ButtonCallback() {
+                                    @Override
+                                    public void onPositive(MaterialDialog dialog) {
+
+                                        String strCarNumber = mCarInput.getText().toString();
+                                        if( strCarNumber.length() < 7 ) {
+                                            mCarInput.setError(getString(R.string.car_number_validation_error));
+                                            return;
+                                        }
+
+                                        mCars.remove(currentCar);
+
+                                        String carNick = mCarNick.getText().toString();
+
+                                        RegisteredCar registeredCar = new RegisteredCar();
+                                        registeredCar.setCarNumber(strCarNumber);
+                                        registeredCar.setCarNick(carNick);
+
+                                        mCars.add(registeredCar);
+
+                                        // Adapter's items will be updated since underlaying list changes
+                                        mCarsAdapter.notifyDataSetChanged();
+
+                                        saveCars();
+
+
+                                        dialog.dismiss();
+                                    }
+
+                                    @Override
+                                    public void onNegative(MaterialDialog dialog) {
+                                        dialog.dismiss();
+                                    }
+
+
+                                    @Override
+                                    public void onNeutral(MaterialDialog dialog) {
+                                        String carNumber = mCarInput.getText().toString();
+
+                                        RegisteredCar carToRemove = null;
+                                        for(RegisteredCar car : mCars) {
+                                            if( car.getCarNumber().equals(carNumber) ) {
+                                                carToRemove = car;
+                                            }
+                                        }
+
+                                        if( carToRemove!= null ) {
+
+                                            mCarsAdapter.remove(carToRemove);
+                                            mCarsAdapter.notifyDataSetChanged();
+
+                                            saveCars();
+                                        }
+                                        dialog.dismiss();
+                                    }
+                                })
+                                .build();
+                        mCarInput = (EditText) dialog.getCustomView().findViewById(R.id.txtCarNumber);
+                        mCarInput.setText(currentCar.getCarNumber());
+                        mCarNick = (EditText) dialog.getCustomView().findViewById(R.id.txtCarNick);
+                        mCarNick.setText(currentCar.getCarNick());
+
+                        dialog.show();
+
+                    }
+                });
+                listView.setAdapter(mCarsAdapter);
+
+                View fab = findViewById(R.id.add_car_button);
+                if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+        //            FloatingActionButton fab = (FloatingActionButton)addButton;
+        //            fab.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_add));
+        //            fab.setBackgroundColor(getResources().getColor(R.color.ColorAccent));
+                    android.support.design.widget.FloatingActionButton _fab = (android.support.design.widget.FloatingActionButton)fab;
+                    RelativeLayout.LayoutParams p = (RelativeLayout.LayoutParams) _fab.getLayoutParams();
+                    p.setMargins(0, 0, 0, 0); // get rid of margins since shadow area is now the margin
+                    _fab.setLayoutParams(p);
+                } else {
+                    fab.setOutlineProvider(new ViewOutlineProvider() {
+                        public void getOutline(View view, Outline outline) {
+                            int diameter = getResources().getDimensionPixelSize(R.dimen.diameter);
+                            outline.setOval(0, 0, diameter, diameter);
+                        }
+                    });
+                    fab.setClipToOutline(true);
+                }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private EditText mCarInput;
@@ -348,6 +400,38 @@ public class SettingsActivity extends BaseActivity {
         }
         editor.putStringSet(Globals.CARS_PREF, carsSet);
         editor.apply();
+    }
+
+    public void onPhoneClick(View v) {
+        MaterialDialog dialog = new MaterialDialog.Builder(this)
+                .title(R.string.edit_phone_dialog_caption)
+                .input(mUser.getPhone(), mUser.getPhone(), new MaterialDialog.InputCallback() {
+                    @Override
+                    public void onInput(MaterialDialog dialog, CharSequence input) {
+
+                    }
+                })
+                .inputMaxLength(10)
+                .inputType(InputType.TYPE_CLASS_PHONE)
+                .positiveText(R.string.edit_car_button_save)
+                .negativeText(R.string.add_car_button_cancel)
+                .callback((new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        String phoneNumber = dialog.getInputEditText().getText().toString();
+                        mUser.setPhone(phoneNumber);
+                        mUser.save(SettingsActivity.this);
+
+                        // Actually, this is a refresh
+                        displayUser();
+                    }
+
+                }
+
+                ))
+                .build();
+
+        dialog.show();
     }
 }
 

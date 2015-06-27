@@ -47,4 +47,17 @@
     <string name="passengerTabCaption">راكب</string>
     <string name="title_activity_passenger_role">راكب</string>
     <string name="passengers_header">الركاب</string>
+    <string name="new_version_title">الإصدار الجديد جاهز</string>
+    <string name="new_version_conent">ونحن نوصي بشدة لك لتثبيت الإصدار الأحدث. تريد أن تفعل ذلك؟</string>
+    <string name="ride_code_hint">5 أرقام دون شرطات</string>
+    <string name="add_car_button_add">إضافة</string>
+    <string name="add_car_nick">لقب سيارة</string>
+    <string name="close">قريب</string>
+    <string name="dialog_confirm_registration">استبدال تسجيل السابقة؟</string>
+    <string name="download_geofences_desc">تحميل ...</string>
+    <string name="geofence_positive_answer">نعم، يذكرني</string>
+    <string name="geofence_outside_title">أذكركم عند الحصول على الداخل؟</string>
+    <string name="geofence_outside">كنت خارج منطقة المراقبة</string>
+    <string name="geofence_negative_answer">لا، سأحاول لاحقا</string>
+    <string name="geofence_transition_entered">كنت دخلت منطقة المراقبة</string>
 </resources>

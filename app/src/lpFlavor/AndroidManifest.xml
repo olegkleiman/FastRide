@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.maximum.fastride">
 
+
+
     <application
         android:allowBackup="true"
         android:name="android.support.multidex.MultiDexApplication">
@@ -53,6 +55,14 @@
             android:label="@string/title_activity_about"
             android:theme="@style/AppTheme" >
         </activity>
+
+        <!-- Jobs are supported only on 5.0 -->
+        <service
+            android:name=".jobs.GeofencesDownloadService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:enabled="true"
+            android:exported="true">
+        </service>
 
     </application>
 

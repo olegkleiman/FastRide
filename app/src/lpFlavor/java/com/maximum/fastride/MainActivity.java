@@ -1,6 +1,11 @@
 package com.maximum.fastride;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.Application;
+import android.app.PendingIntent;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
@@ -8,9 +13,12 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -19,17 +27,24 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.gson.JsonObject;
 import com.maximum.fastride.adapters.ModesPeersAdapter;
 import com.maximum.fastride.gcm.GCMHandler;
+import com.maximum.fastride.jobs.GeofencesDownloadService;
 import com.maximum.fastride.model.FRMode;
 import com.maximum.fastride.model.User;
+import com.maximum.fastride.model.Version;
+import com.maximum.fastride.services.AutoUpdateService;
 import com.maximum.fastride.utils.Globals;
 import com.maximum.fastride.utils.IRecyclerClickListener;
 import com.maximum.fastride.utils.RoundedDrawable;
+import com.maximum.fastride.utils.WAMSVersionTable;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
+import com.microsoft.windowsazure.mobileservices.MobileServiceList;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceAuthenticationProvider;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceUser;
+import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
 import com.microsoft.windowsazure.notifications.NotificationsManager;
 
 import java.io.UnsupportedEncodingException;
@@ -38,19 +53,24 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.StringTokenizer;
 import java.util.concurrent.ExecutionException;
 
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
+
 public class MainActivity extends BaseActivity
-                        implements IRecyclerClickListener{
+                        implements WAMSVersionTable.IVersionMismatchListener,
+                                   IRecyclerClickListener{
 static final int REGISTER_USER_REQUEST = 1;
 
 	private static final String LOG_TAG = "FR.Main";
 
     public static MobileServiceClient wamsClient;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,16 +114,113 @@ static final int REGISTER_USER_REQUEST = 1;
 
         } else {
             NotificationsManager.handleNotifications(this, Globals.SENDER_ID,
-                                                    GCMHandler.class);
+                    GCMHandler.class);
 
             String accessToken = sharedPrefs.getString(Globals.TOKENPREF, "");
 
             // Don't mess with BaseActivity.wamsInit();
             wamsInit(accessToken);
 
+//            Intent autoUpdate = new Intent(this, AutoUpdateService.class);
+//            startService(autoUpdate);
+
+            //Application.ActivityLifecycleCallbacks.
+
+            WAMSVersionTable wamsVersionTable = new WAMSVersionTable(this, this);
+            try {
+
+                PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), 0);
+                String packageVersionName = info.versionName;
+                if (!packageVersionName.isEmpty()) {
+
+                    StringTokenizer tokens = new StringTokenizer(packageVersionName, ".");
+                    if( tokens.countTokens() > 0 ) {
+                        int majorPackageVersion = Integer.parseInt(tokens.nextToken());
+                        int minorPackageVersion = Integer.parseInt(tokens.nextToken());
+
+                        wamsVersionTable.compare(majorPackageVersion, minorPackageVersion);
+                    }
+                }
+
+            }catch(PackageManager.NameNotFoundException ex) {
+
+                Log.e(LOG_TAG, ex.getMessage());
+            }
+
             setupUI(getString(R.string.title_activity_main), "");
 
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
+                JobScheduler jobScheduler =
+                        (JobScheduler) getApplication().getSystemService(Context.JOB_SCHEDULER_SERVICE);
+                ComponentName mServiceComponent;
+                mServiceComponent = new ComponentName(this, GeofencesDownloadService.class);
+                int jobId = 1;
+                JobInfo.Builder builder = new JobInfo.Builder(jobId, mServiceComponent)
+                        .setOverrideDeadline(Long.valueOf(10) * 1000)
+                        .setRequiredNetworkType(JobInfo.NETWORK_TYPE_ANY);
+
+                int result = jobScheduler.schedule(builder.build());
+                if (result == JobScheduler.RESULT_SUCCESS)
+                    Log.d(LOG_TAG, "Geofences Update Job scheduled successfully!");
+            } else {
+
+                final long REPEAT_TIME = 1000 * 30;
+
+                Calendar cal = Calendar.getInstance();
+
+                AlarmManager alarm =
+                        (AlarmManager) getSystemService(Context.ALARM_SERVICE);
+                Intent intent = new Intent(this, AutoUpdateService.class);
+                PendingIntent pintent = PendingIntent.getService(this, 0, intent, 0);
+
+//              InexactRepeating allows Android to optimize the energy consumption
+//                alarm.setInexactRepeating(AlarmManager.RTC_WAKEUP,
+//                                          cal.getTimeInMillis(),
+//                                          REPEAT_TIME, pintent);
+                alarm.setRepeating(AlarmManager.RTC_WAKEUP, cal.getTimeInMillis(), 30*1000, pintent);
+            }
         }
+    }
+
+    //
+    // Implementation of IVersionMismatchListener
+    //
+    public void mismatch(int major, int minor, final String url){
+        try {
+
+            new MaterialDialog.Builder(this)
+                    .title(getString(R.string.new_version_title))
+                    .content(getString(R.string.new_version_conent))
+                    .positiveText(R.string.yes)
+                    .negativeText(R.string.no)
+                    .callback(new MaterialDialog.ButtonCallback() {
+                        @Override
+                        public void onPositive(MaterialDialog dialog) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            intent.setData(Uri.parse(url));
+                            //intent.setDataAndType(Uri.parse(url), "application/vnd.android.package-archive");
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                        }
+                    })
+                    .show();
+        } catch (MaterialDialog.DialogException e) {
+            // better that catch the exception here would be use handle to send events the activity
+        }
+    }
+
+    public void match() {
+
+    }
+
+    public void connectionFailure(Exception ex) {
+
+        if( ex != null ) {
+
+            View v = findViewById(R.id.drawer_layout);
+            Snackbar.make(v, ex.getMessage(), Snackbar.LENGTH_LONG);
+        }
+
     }
 
     protected void setupUI(String title, String subTitle) {
@@ -138,7 +255,7 @@ static final int REGISTER_USER_REQUEST = 1;
         recycler.setLayoutManager(new LinearLayoutManager(this));
         recycler.setItemAnimator(new DefaultItemAnimator());
 
-        List<FRMode> modes = new ArrayList<FRMode>();
+        List<FRMode> modes = new ArrayList<>();
         FRMode mode1 = new FRMode();
         mode1.setName( getString(R.string.mode_name_driver));
         mode1.setImageId(R.drawable.driver64);

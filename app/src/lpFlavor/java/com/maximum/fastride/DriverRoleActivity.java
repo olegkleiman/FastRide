@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.graphics.Outline;
+import android.net.Uri;
 import android.net.wifi.p2p.WifiP2pDevice;
 import android.net.wifi.p2p.WifiP2pDeviceList;
 import android.net.wifi.p2p.WifiP2pInfo;
@@ -16,6 +17,8 @@ import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
 import android.speech.tts.TextToSpeech;
+import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -29,6 +32,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -37,20 +41,18 @@ import com.afollestad.materialdialogs.MaterialDialog;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.ResultCallback;
 import com.google.android.gms.common.api.Status;
-import com.google.android.gms.nearby.Nearby;
-import com.google.android.gms.nearby.connection.Connections;
 import com.maximum.fastride.adapters.WiFiPeersAdapter2;
 import com.maximum.fastride.adapters.WifiP2pDeviceUser;
 import com.maximum.fastride.model.Ride;
 import com.maximum.fastride.services.GeofenceErrorMessages;
 import com.maximum.fastride.utils.ClientSocketHandler;
-import com.maximum.fastride.utils.FloatingActionButton;
 import com.maximum.fastride.utils.Globals;
 import com.maximum.fastride.utils.GroupOwnerSocketHandler;
 import com.maximum.fastride.utils.IMessageTarget;
 import com.maximum.fastride.utils.IRecyclerClickListener;
 import com.maximum.fastride.utils.IRefreshable;
 import com.maximum.fastride.utils.ITrace;
+import com.maximum.fastride.utils.WAMSVersionTable;
 import com.maximum.fastride.utils.WiFiUtil;
 import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
 
@@ -65,7 +67,6 @@ import java.util.Set;
 import java.util.concurrent.ExecutionException;
 
 public class DriverRoleActivity extends BaseActivityWithGeofences
-                                        //BaseActivityWithGeofencesBLE
                 implements ITrace,
                            IMessageTarget,
                            Handler.Callback,
@@ -75,8 +76,7 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
                            WifiP2pManager.PeerListListener,
                            WifiP2pManager.ConnectionInfoListener,
                            GoogleApiClient.ConnectionCallbacks,
-                           Connections.ConnectionRequestListener,
-                           Connections.MessageListener,
+                           WAMSVersionTable.IVersionMismatchListener,
                            ResultCallback<Status> // for geofences' callback
 {
 
@@ -124,7 +124,7 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
                 });
 
         setupUI(getString(R.string.title_activity_driver_role), "");
-        wamsInit();
+        wamsInit(true);
 
         // Keep device awake when advertising fow Wi-Fi Direct
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
@@ -293,9 +293,13 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
 
         View fab = findViewById(R.id.submit_ride_button);
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+//            FloatingActionButton _fab = (FloatingActionButton)fab;
+//            _fab.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_done));
+//            _fab.setBackgroundColor(getResources().getColor(R.color.ColorAccent));
             FloatingActionButton _fab = (FloatingActionButton)fab;
-            _fab.setDrawableIcon(getResources().getDrawable(R.drawable.ic_action_done));
-            _fab.setBackgroundColor(getResources().getColor(R.color.ColorAccent));
+            RelativeLayout.LayoutParams p = (RelativeLayout.LayoutParams) _fab.getLayoutParams();
+            p.setMargins(0, 0, 0, 0); // get rid of margins since shadow area is now the margin
+            _fab.setLayoutParams(p);
         } else {
             fab.setOutlineProvider(new ViewOutlineProvider() {
                 public void getOutline(View view, Outline outline) {
@@ -322,39 +326,50 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
     @Override
     public void onConnected(Bundle bundle) {
         super.onConnected(bundle);
+    }
 
-//        if (!isConnectedToNetwork()) {
-//            Log.e(LOG_TAG, "startAdvertising: not connected to WiFi network.");
-//            return;
-//        }
-//        List<AppIdentifier> appIdentifierList = new ArrayList<>();
-//        String packageName = getPackageName();
-//        appIdentifierList.add(new AppIdentifier(packageName));
-//        AppMetadata appMetadata = new AppMetadata(appIdentifierList);
-//
-//        // Advertise for Nearby Connections. This will broadcast the service id defined in
-//        // AndroidManifest.xml. By passing 'null' for the name, the Nearby Connections API
-//        // will construct a default name based on device model such as 'LGE Nexus 5'.
-//        String name =null;
-//        Nearby.Connections.startAdvertising(getGoogleApiClient(),
-//                name,
-//                appMetadata,
-//                0, //Globals.TIMEOUT_ADVERTISE,
-//                this)
-//                .setResultCallback(new ResultCallback<Connections.StartAdvertisingResult>() {
-//                    @Override
-//                    public void onResult(Connections.StartAdvertisingResult result) {
-//                        if (result.getStatus().isSuccess()) {
-//                            // Device is advertising
-//                        } else {
-//                            int statusCode = result.getStatus().getStatusCode();
-//                        }
-//                    }
-//                });
+    //
+    // Implementation of IVersionMismatchListener
+    //
+    public void mismatch(int major, int minor, final String url){
+        try {
+            new MaterialDialog.Builder(getApplicationContext())
+                    .title(getString(R.string.new_version_title))
+                    .content(getString(R.string.new_version_conent))
+                    .positiveText(R.string.yes)
+                    .negativeText(R.string.no)
+                    .callback(new MaterialDialog.ButtonCallback() {
+                        @Override
+                        public void onPositive(MaterialDialog dialog) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            intent.setData(Uri.parse(url));
+                            //intent.setDataAndType(Uri.parse(url), "application/vnd.android.package-archive");
+                            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                            startActivity(intent);
+                        }
+                    })
+                    .show();
+        } catch (MaterialDialog.DialogException e) {
+            // better that catch the exception here would be use handle to send events the activity
+        }
+    }
+
+    public void match() {
 
     }
 
-        @Override
+    public void connectionFailure(Exception ex) {
+
+        if( ex != null ) {
+
+            View v = findViewById(R.id.drawer_layout);
+            Snackbar.make(v, ex.getMessage(), Snackbar.LENGTH_LONG);
+        }
+
+    }
+
+
+    @Override
     public void onResume() {
             super.onResume();
 
@@ -388,6 +403,11 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
             layout.setVisibility(View.GONE);
         else
             layout.setVisibility(View.VISIBLE);
+    }
+
+    public void onCamera(View view) {
+        Intent intent = new Intent(this, CameraActivity.class);
+        startActivity(intent);
     }
 
     @Override
@@ -447,6 +467,9 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
         if (id == R.id.action_debug) {
             onDebug(null);
             return true;
+        } else if( id == R.id.action_camera ) {
+            onCamera(null);
+            return true;
         }
 
         return super.onOptionsItemSelected(item);
@@ -473,20 +496,6 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
                     status.getStatusCode());
             Log.e(LOG_TAG, errorMessage);
         }
-    }
-
-    //
-    // Implementation of Connections.ConnectionRequestListener
-    //
-    @Override
-    public void onConnectionRequest(final String endpointId,
-                                    String deviceId,
-                                    String endpointName,
-                                    byte[] payload) {
-        Log.d(LOG_TAG, "onConnectionRequest:" + endpointId + ":" + endpointName);
-
-        Nearby.Connections.acceptConnectionRequest(getGoogleApiClient(),
-                endpointId, payload, this);
     }
 
     //
@@ -638,7 +647,7 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
             // if( resultCode == RESULT_OK ) {
             // How to distinguish between successful connection
             // and just pressing back from there?
-                wamsInit();
+                wamsInit(true);
             //}
         }
     }

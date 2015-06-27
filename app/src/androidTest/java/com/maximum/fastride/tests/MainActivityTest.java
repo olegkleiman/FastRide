@@ -1,6 +1,9 @@
 package com.maximum.fastride.tests;
 
+import android.content.Intent;
+import android.net.Uri;
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.widget.ImageView;
 
@@ -8,7 +11,7 @@ import com.maximum.fastride.MainActivity;
 import com.maximum.fastride.R;
 
 /**
- * Created by Oleg on 19-Jun-15.
+ * Created by Oleg Kleiman on 19-Jun-15.
  */
 public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActivity> {
 
@@ -33,6 +36,19 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
     public void testLayout() {
         ImageView imageAvatar = (ImageView)activity.findViewById(R.id.userAvatarView);
         assertNotNull(imageAvatar);
+    }
+
+    @MediumTest
+    public void testGetLatestVersion(){
+
+        String url = "https://www.dropbox.com/s/txoch9xp6k71b8y/app-lpFlavor-debug.apk?dl=0";
+
+        Intent intent = new Intent(Intent.ACTION_VIEW);
+        intent.setData(Uri.parse(url));
+        //intent.setDataAndType(Uri.parse(url), "application/vnd.android.package-archive");
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if( activity != null )
+            activity.startActivity(intent);
     }
 
     @Override

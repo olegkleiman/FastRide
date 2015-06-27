@@ -27,7 +27,7 @@
             <ImageView
                 android:layout_width="@dimen/avatar_settings_size"
                 android:layout_height="@dimen/avatar_settings_size"
-                android:src="@drawable/ic_action_car"
+                android:src="@drawable/driver64"
                 android:id="@+id/imageProfileView"
                 android:layout_gravity="center_vertical"
                 android:layout_centerVertical="true"
@@ -38,8 +38,8 @@
                 android:layout_height="wrap_content"
                 android:textAppearance="?android:attr/textAppearanceLarge"
                 android:text="@string/default_value"
-                android:id="@+id/textUserName"
                 android:textColor="@color/white"
+                android:id="@+id/textUserName"
                 android:layout_gravity="center_vertical"
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentLeft="true"
@@ -47,6 +47,7 @@
                 android:layout_marginStart="12dp"
                 android:layout_marginLeft="12dp"
                 android:layout_marginBottom="12dp" />
+
 
         </RelativeLayout>
 
@@ -60,7 +61,6 @@
             android:layout_marginRight="@dimen/card_horizontal_margin"
             android:layout_marginBottom="@dimen/card_horizontal_margin"
             android:layout_marginTop="@dimen/card_horizontal_margin">
-
 
             <LinearLayout
                 android:layout_width="fill_parent"
@@ -81,9 +81,6 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="12dp"
                     android:layout_marginLeft="12dp"
-                    android:ellipsize="end"
-                    android:maxLines="1"
-                    android:scrollHorizontally="true"
                     android:textAppearance="?android:attr/textAppearanceMedium"
                     android:text="@string/default_value"
                     android:id="@+id/textUserEmail"
@@ -93,8 +90,8 @@
             <LinearLayout
                 android:layout_width="fill_parent"
                 android:layout_height="@dimen/settings_card_row_height"
-                android:orientation="horizontal"
-                android:layout_marginTop="@dimen/settings_card_row_height">
+                android:layout_marginTop="@dimen/settings_card_row_height"
+                android:orientation="horizontal">
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -117,20 +114,21 @@
                     android:id="@+id/textUserPhone"
                     android:layout_gravity="center_vertical" />
             </LinearLayout>
+
         </android.support.v7.widget.CardView>
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginStart="12dp"
-            android:layout_marginLeft="12dp"
-            android:textColor="@color/ColorPrimary"
+            android:layout_marginLeft="@dimen/card_horizontal_margin"
+            android:layout_marginStart="@dimen/card_horizontal_margin"
             android:textAppearance="?android:attr/textAppearanceLarge"
+            android:textColor="@color/ColorPrimary"
             android:text="@string/title_section_cars" />
 
         <android.support.v7.widget.CardView
             android:layout_width="fill_parent"
-            android:layout_height="0dp"
+            android:layout_height="fill_parent"
             android:layout_gravity="center_horizontal"
             android:background="@color/ColorBackground"
             android:layout_weight="0.5"
@@ -176,13 +174,13 @@
                 app:backgroundTint="@color/ColorAccent"
                 app:borderWidth="0dp"
                 android:onClick="onAddCar"
-                android:layout_marginStart="16dp"
-                android:layout_marginLeft="16dp"
+                android:layout_marginEnd="16dp"
+                android:layout_marginRight="16dp"
+                android:layout_marginBottom="16dp"
+
                 android:layout_alignParentBottom="true"
                 android:layout_alignParentLeft="true"
-                android:layout_alignParentStart="true">
-
-            </android.support.design.widget.FloatingActionButton>
+                android:layout_alignParentStart="true"/>
 
         </android.support.v7.widget.CardView>
 

@@ -3,6 +3,8 @@ package com.maximum.fastride;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -25,14 +27,15 @@ import android.widget.LinearLayout;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.nearby.Nearby;
 import com.maximum.fastride.adapters.DrawerAccountAdapter;
 import com.maximum.fastride.model.User;
 import com.maximum.fastride.utils.Globals;
+import com.maximum.fastride.utils.WAMSVersionTable;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceUser;
 
 import java.net.MalformedURLException;
+import java.util.StringTokenizer;
 
 /**
  * Created by Oleg Kleiman on 22-May-14.
@@ -60,6 +63,9 @@ public class BaseActivity extends ActionBarActivity
     private DrawerLayout mDrawerLayout;
     private ActionBarDrawerToggle mDrawerToggle;
 
+    private User mUser;
+    public User getUser() { return mUser; }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -79,8 +85,7 @@ public class BaseActivity extends ActionBarActivity
 
             GoogleApiClient.Builder builder =
                     new GoogleApiClient.Builder(this)
-                            .addApi(LocationServices.API)
-                            .addApi(Nearby.CONNECTIONS_API);
+                            .addApi(LocationServices.API);
 
             if( this instanceof GoogleApiClient.ConnectionCallbacks) {
                 GoogleApiClient.ConnectionCallbacks callbacksImplementer =
@@ -146,16 +151,16 @@ public class BaseActivity extends ActionBarActivity
         mDrawerRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mDrawerRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
-        User user = User.load(this);
+        mUser = User.load(this);
 
         mDrawerTitles = getResources().getStringArray(R.array.drawers_array_drawer);
         DrawerAccountAdapter drawerRecyclerAdapter =
                 new DrawerAccountAdapter(this,
                         mDrawerTitles,
                         DRAWER_ICONS,
-                        user.getFirstName() + " " + user.getLastName(),
-                        user.getEmail(),
-                        user.getPictureURL());
+                        mUser.getFirstName() + " " + mUser.getLastName(),
+                        mUser.getEmail(),
+                        mUser.getPictureURL());
         mDrawerRecyclerView.setAdapter(drawerRecyclerAdapter);
 
         final Context ctx = this;
@@ -212,7 +217,7 @@ public class BaseActivity extends ActionBarActivity
         super.onStop();
     }
 
-    public void wamsInit() {
+    public void wamsInit(Boolean withAutoUpdate) {
         try {
             wamsClient = new MobileServiceClient(
                     Globals.WAMS_URL,
@@ -230,9 +235,41 @@ public class BaseActivity extends ActionBarActivity
 
             wamsClient.setCurrentUser(wamsUser);
 
+            if( withAutoUpdate ) {
+                startAutoUpdate();
+            }
+
         } catch(MalformedURLException ex ) {
             Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
         }
 
     }
+
+    private void startAutoUpdate() {
+        try {
+
+            WAMSVersionTable.IVersionMismatchListener listener = null;
+            if (this instanceof WAMSVersionTable.IVersionMismatchListener) {
+                listener = (WAMSVersionTable.IVersionMismatchListener) this;
+            }
+            wamsVersionTable = new WAMSVersionTable(this, listener);
+            PackageInfo info = getPackageManager().getPackageInfo(getPackageName(), 0);
+            String packageVersionName = info.versionName;
+            if (!packageVersionName.isEmpty()) {
+
+                StringTokenizer tokens = new StringTokenizer(packageVersionName, ".");
+                if (tokens.countTokens() > 0) {
+                    int majorPackageVersion = Integer.parseInt(tokens.nextToken());
+                    int minorPackageVersion = Integer.parseInt(tokens.nextToken());
+                    wamsVersionTable.compare(majorPackageVersion, minorPackageVersion);
+                }
+            }
+
+        } catch (PackageManager.NameNotFoundException ex) {
+
+            Log.e(LOG_TAG, ex.getMessage());
+        }
+    }
+
+    private WAMSVersionTable wamsVersionTable;
 }
