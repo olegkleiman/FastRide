@@ -6,9 +6,8 @@
 
     <SurfaceView
         android:id="@+id/preview"
-        android:layout_centerInParent="true"
         android:layout_height="fill_parent"
         android:layout_width="fill_parent"
-        android:visibility="visible"></SurfaceView>
+        android:visibility="visible" />
 
 </FrameLayout>

@@ -85,4 +85,5 @@
     <string name="edit_car_dialog_caption">תאור רכב</string>
     <string name="edit_phone_dialog_caption">מספר טלפון</string>
     <string name="title_section_cars">רכבים</string>
+    <string name="title_activity_ride_detail">פרטי נסיעה</string>
 </resources>

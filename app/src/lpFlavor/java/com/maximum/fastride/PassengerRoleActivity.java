@@ -1,5 +1,11 @@
 package com.maximum.fastride;
 
+import android.annotation.TargetApi;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothProfile;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -34,6 +40,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.maximum.fastride.adapters.WiFiPeersAdapter2;
 import com.maximum.fastride.adapters.WifiP2pDeviceUser;
 import com.maximum.fastride.model.Join;
+import com.maximum.fastride.utils.BLEUtil;
 import com.maximum.fastride.utils.ClientSocketHandler;
 import com.maximum.fastride.utils.Globals;
 import com.maximum.fastride.utils.GroupOwnerSocketHandler;
@@ -56,6 +63,7 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
         IRecyclerClickListener,
         IRefreshable,
         WiFiUtil.IPeersChangedListener,
+        BLEUtil.IDeviceDiscoveredListener,
         WifiP2pManager.ConnectionInfoListener,
         GoogleApiClient.ConnectionCallbacks,
         WAMSVersionTable.IVersionMismatchListener{
@@ -136,6 +144,8 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
         // for (hopefully) already published service
         wifiUtil.startRegistrationAndDiscovery(this, mUserID);
 
+        BLEUtil bleUtil = new BLEUtil(this);
+        bleUtil.startScan();
 
     }
 
@@ -532,6 +542,62 @@ public class PassengerRoleActivity extends BaseActivityWithGeofences
                     }
                 },
                 5000);
+    }
+
+    //
+    // Implementation of BLEUtil.IDeviceDiscoveredListener
+    //
+    @Override
+    public void discovered(final BluetoothDevice device) {
+        String deviceName = device.getName();
+        String deviceAddress = device.getAddress();
+        int state = device.getBondState(); // != BluetoothDevice.BOND_BONDED)
+
+        checkAndConnect(device);
+    }
+
+    @TargetApi(18)
+    private void checkAndConnect(BluetoothDevice device) {
+        if( device.getType() == BluetoothDevice.DEVICE_TYPE_LE ) {
+            device.connectGatt(this, true, new BluetoothGattCallback() {
+                @Override
+                public void onConnectionStateChange(BluetoothGatt gatt,
+                                                    int status,
+                                                    int newState) {
+                    super.onConnectionStateChange(gatt, status, newState);
+
+                    String intentAction;
+                    if (newState == BluetoothProfile.STATE_CONNECTED) {
+                        Log.i(LOG_TAG, "Connected to GATT server.");
+                        Log.i(LOG_TAG, "Attempting to start service discovery:" +
+                                gatt.discoverServices());
+                    } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+                        Log.i(LOG_TAG, "Disconnected from GATT server.");
+                    }
+                }
+
+                @Override
+                // New services discovered
+                public void onServicesDiscovered(BluetoothGatt gatt, int status) {
+                    if (status == BluetoothGatt.GATT_SUCCESS) {
+                        Log.d(LOG_TAG, "GATT_SUCCESS");
+                    } else {
+                        Log.d(LOG_TAG, "onServicesDiscovered received: " + status);
+                    }
+                }
+
+                @Override
+                // Result of a characteristic read operation
+                public void onCharacteristicRead(BluetoothGatt gatt,
+                                                 BluetoothGattCharacteristic characteristic,
+                                                 int status) {
+                    if (status == BluetoothGatt.GATT_SUCCESS) {
+                        Log.d(LOG_TAG, "GATT_SUCCESS");
+                    }
+
+                }
+            });
+        }
     }
 
 }
