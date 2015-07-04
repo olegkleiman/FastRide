@@ -87,6 +87,11 @@
         <item>Re-claim</item>
     </string-array>
 
+    <string-array name="my_rides_titles">
+        <item>General</item>
+        <item>Rejected</item>
+    </string-array>
+
     <string name="operating_modes">Operating modes</string>
 
     <string name="edit_car_button_title">Edit</string>
