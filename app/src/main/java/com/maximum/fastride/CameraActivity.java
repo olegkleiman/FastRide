@@ -20,6 +20,8 @@ import android.view.SurfaceView;
 import android.view.ViewGroup.LayoutParams;
 import android.widget.Toast;
 
+import com.maximum.fastride.fastcv.FastCVWrapper;
+
 public class CameraActivity extends Activity 
 		implements SurfaceHolder.Callback {
 
@@ -37,7 +39,11 @@ public class CameraActivity extends Activity
 	private OrientationEventListener mOrientationEventListener;
     private int midScreenWidth;
     private int midScreenHeight;
-	
+
+    static {
+        System.loadLibrary("fastcvUtils");
+    }
+
 	private FaceDetectionListener faceDetectionListener = new FaceDetectionListener() {
 
 		@Override
@@ -77,6 +83,9 @@ public class CameraActivity extends Activity
         Display display = getWindowManager().getDefaultDisplay();
         midScreenHeight = display.getHeight() / 2;
         midScreenWidth = display.getWidth() / 2;
+
+        FastCVWrapper cvWrapper = new FastCVWrapper();
+        cvWrapper.FrameTick();
 	}
 
 	@Override
@@ -201,6 +210,7 @@ public class CameraActivity extends Activity
         if( mCamera == null ) {
             Toast.makeText(this, "Camera was not opened yet",
                     Toast.LENGTH_LONG).show();
+            return;
         }
 
         try {
@@ -226,12 +236,14 @@ public class CameraActivity extends Activity
 	public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
         Log.d(LOG_TAG, "surfaceDestroyed");
 
-		mCamera.setPreviewCallback(null);
-		mCamera.setFaceDetectionListener(null);
-		mCamera.setErrorCallback(null);
-        mCamera.stopFaceDetection();
-		mCamera.release();
-		mCamera = null;
+        if( mCamera != null ) {
+            mCamera.setPreviewCallback(null);
+            mCamera.setFaceDetectionListener(null);
+            mCamera.setErrorCallback(null);
+            mCamera.stopFaceDetection();
+            mCamera.release();
+            mCamera = null;
+        }
 		
 	}
 

@@ -34,7 +34,6 @@
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!-- Needed for Geofences -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
     <uses-permission android:name="android.permission.CAMERA" />
 
     <!--
@@ -42,15 +41,14 @@
      option is required to comply with the Google+ Sign-In developer policies
     -->
     <!-- To retrieve the account name (email) as part of sign-in: -->
-    <!--<uses-permission android:name="android.permission.USE_CREDENTIALS" />-->
-    <!--<uses-permission android:name="android.permission.READ_PROFILE" />-->
-    <!--<uses-permission android:name="android.permission.READ_CONTACTS" />-->
+    <!-- <uses-permission android:name="android.permission.USE_CREDENTIALS" /> -->
+    <!-- <uses-permission android:name="android.permission.READ_PROFILE" /> -->
+    <!-- <uses-permission android:name="android.permission.READ_CONTACTS" /> -->
 
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" />
-    <uses-feature
-        android:name="android.hardware.camera.autofocus" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <application
         android:allowBackup="true"
@@ -67,13 +65,12 @@
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
 
-        <!--android:screenOrientation="landscape"-->
+        <!-- android:screenOrientation="landscape" -->
         <activity
             android:name=".CameraActivity"
             android:label="@string/title_activity_camera"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen" >
         </activity>
-
         <activity
             android:name="com.facebook.LoginActivity"
             android:configChanges="keyboard|keyboardHidden|screenLayout|screenSize|orientation"
@@ -116,10 +113,13 @@
         <service android:name=".GeofenceTransitionsIntentService" />
         <service
             android:name=".services.AutoUpdateService"
-            android:enabled="true">
+            android:enabled="true" >
         </service>
 
-
+        <activity
+            android:name=".CameraCVActivity"
+            android:label="@string/title_activity_camera_cv" >
+        </activity>
     </application>
 
 </manifest>

@@ -13,15 +13,27 @@ android {
         versionCode 2
         versionName '1.1'
         multiDexEnabled = true
-        //testPackageName "com.maximum.fastride.tests"
-        //testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
+        testApplicationId "com.maximum.fastride.tests"
+        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
         ndk {
             moduleName "libfastcvUtils"
             abiFilters "armeabi"
             ldLibs "EGL", "GLESv3", "dl", "log"
         }
+
+
     }
+
+    sourceSets{
+        main {
+            jniLibs.srcDir 'src/main/libs' //set .so files location to libs
+            jni.srcDirs = [] // This prevents the auto generation of Android.mk
+            //jni.srcDirs 'src/jni'
+        }
+    }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -56,8 +68,8 @@ dependencies {
     compile files('libs/notifications-1.0.1.jar')
     compile 'com.google.code.gson:gson:2+'
     compile 'com.android.support:appcompat-v7:22.2.0'
-    compile 'com.android.support:cardview-v7:+'
-    compile 'com.android.support:recyclerview-v7:+'
+    compile 'com.android.support:cardview-v7:22.2.0'
+    compile 'com.android.support:recyclerview-v7:22.2.0'
     compile 'com.microsoft.azure.android:azure-storage-android:0.3.0@aar'
     compile 'com.google.guava:guava:17.+'
     compile 'com.facebook.android:facebook-android-sdk:3.21.1'
@@ -71,46 +83,66 @@ dependencies {
     compile 'com.android.support:design:22.2.0'
     compile 'com.android.support:multidex:1.0.0'
     compile 'com.afollestad:material-dialogs:0.7.5.2'
+    compile project(':libraries:opencv')
 }
 
-//task buildNative(type: Exec, description: 'Compile JNI source via NDK') {
-//    //def ndkDir = android.plugin.ndkFolder //'D:\\android-ndk-r10d'
-//    //println( project.getPlugins().getPlugin('android').getProperties() )
-//    def ndkDir = 'D:\\android-ndk-r10d'
-//    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-//        println "Using NDK from $ndkDir"
-//        commandLine "$ndkDir\\ndk-build.cmd",
-//                '-C', file('src/main/jni').absolutePath,
-//                '-j', Runtime.runtime.availableProcessors()
-//        // 'NDK_APPLICATION_MK', 'src/main/jni/Application.mk'
-//        // 'all',
-//        // '-d',
-//        // 'NDK_DEBUG=1'
-//    } else {
-//        commandLine "$ndkDir\\ndk-build",
-//                '-C', file('src/main/jni').absolutePath,
-//                '-j', Runtime.runtime.availableProcessors(),
-//                //'all',
-//                '-d',
-//                'NDK_DEBUG=1'
-//    }
+//def getVersionCodeFromManifest() {
+//    def manifestFile = file(android.sourceSets.main.manifest.srcFile)
+//    def pattern = Pattern.compile("versionCode=\"(\\d+)\"")
+//    def matcher = pattern.matcher(manifestFile.getText())
+//    matcher.find()
+//    return Integer.parseInt(matcher.group(1))
 //}
-//
-//task cleanNative(type: Exec, description: 'Clean JNI object files') {
-//    def ndkDir = 'D:\\android-ndk-r10d'
-//    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-//        commandLine "$ndkDir/ndk-build.cmd",
-//                '-C', file('src/main/jni').absolutePath, // Change src/main/jni the relative path to your jni source
-//                'clean'
-//    } else {
-//        commandLine "$ndkDir/ndk-build",
-//                '-C', file('src/main/jni').absolutePath, // Change src/main/jni the relative path to your jni source
-//                'clean'
-//    }
-//}
-//
-//clean.dependsOn 'cleanNative'
 
-//tasks.withType(JavaCompile) {
-//    compileTask -> compileTask.dependsOn buildNative
+
+
+task buildNative(type: Exec, description: 'Compile JNI source via NDK') {
+    //def ndkDir = android.plugin.ndkFolder //'D:\\android-ndk-r10d'
+    def ndkDir = 'D:\\android-ndk-r10d'
+    //def ndkDir = project.getPlugins().getPlugin('android').getProperties()
+
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        println "Building sources by NDK from $ndkDir"
+        commandLine "$ndkDir\\ndk-build.cmd",
+                '-C', file('src/main/jni').absolutePath,
+                '-j', Runtime.runtime.availableProcessors()
+        // 'NDK_APPLICATION_MK', 'src/main/jni/Application.mk'
+        // 'all',
+        // '-d',
+        // 'NDK_DEBUG=1'
+    } else {
+        commandLine "$ndkDir\\ndk-build",
+                '-C', file('src/main/jni').absolutePath,
+                '-j', Runtime.runtime.availableProcessors(),
+                //'all',
+                '-d',
+                'NDK_DEBUG=1'
+    }
+}
+
+task cleanNative(type: Exec, description: 'Clean JNI object files') {
+    def ndkDir = 'D:\\android-ndk-r10d'
+    //def ndkDir = plugins.getPlugin('android').sdkHandler.getNdkFolder()
+    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+        println "Cleaning project with NDK from $ndkDir"
+        commandLine "$ndkDir/ndk-build.cmd",
+                '-C', file('src/main/jni').absolutePath, // Change src/main/jni the relative path to your jni source
+                'clean'
+    } else {
+        commandLine "$ndkDir/ndk-build",
+                '-C', file('src/main/jni').absolutePath, // Change src/main/jni the relative path to your jni source
+                'clean'
+    }
+}
+
+//task copyNativeLibs(dependsOn:buildNative, type: Copy) {
+//    println 'Copying *.so files from /src/main/libs to /build/lib'
+//    from(new File('src/main/libs')) { include '**/*.so' }
+//    into new File(buildDir, 'lib')
 //}
+
+clean.dependsOn 'cleanNative'
+
+tasks.withType(JavaCompile) {
+    compileTask -> compileTask.dependsOn buildNative
+}

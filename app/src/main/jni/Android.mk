@@ -20,8 +20,8 @@ UTILS_DIR := $(LOCAL_PATH)/utils
 #include $(call all-makefiles-under,$(LOCAL_PATH))
 #include $(call all-makefiles-under,$(LOCAL_PATH)/apis)
 
-#include $(LOCAL_PATH)/utils/Android.mk
-include $(LOCAL_PATH)/apis/featureDetection/Android.mk
+include $(LOCAL_PATH)/utils/Android.mk
+#include $(LOCAL_PATH)/apis/featureDetection/Android.mk
 
 
 

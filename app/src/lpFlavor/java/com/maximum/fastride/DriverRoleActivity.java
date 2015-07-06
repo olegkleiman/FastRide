@@ -418,7 +418,8 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
     }
 
     public void onCamera(View view) {
-        Intent intent = new Intent(this, CameraActivity.class);
+        //Intent intent = new Intent(this, CameraActivity.class);
+        Intent intent = new Intent(this, CameraCVActivity.class);
         startActivity(intent);
     }
 
