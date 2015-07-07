@@ -13,7 +13,8 @@
     <uses-permission android:name="android.permission.VIBRATE" />
 
     <!-- Needed for BLE -->
-    <uses-permission android:name="android.permission.bluetooth_admin" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
+    <uses-permission android:name="android.permission.BLUETOOTH" />
 
     <!-- Needed, for example, for WAMS -->
     <uses-permission
@@ -27,12 +28,12 @@
     <uses-permission
         android:name="android.permission.CHANGE_WIFI_STATE"
         android:required="true" />
+    <!-- Needed if camera pictures are stored locally -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <!-- Location -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <!-- Needed for Geofences -->
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-
     <uses-permission android:name="android.permission.CAMERA" />
 
     <!--
@@ -40,13 +41,14 @@
      option is required to comply with the Google+ Sign-In developer policies
     -->
     <!-- To retrieve the account name (email) as part of sign-in: -->
-    <!--<uses-permission android:name="android.permission.USE_CREDENTIALS" />-->
-    <!--<uses-permission android:name="android.permission.READ_PROFILE" />-->
-    <!--<uses-permission android:name="android.permission.READ_CONTACTS" />-->
+    <!-- <uses-permission android:name="android.permission.USE_CREDENTIALS" /> -->
+    <!-- <uses-permission android:name="android.permission.READ_PROFILE" /> -->
+    <!-- <uses-permission android:name="android.permission.READ_CONTACTS" /> -->
 
     <uses-feature
         android:name="android.hardware.camera"
         android:required="true" />
+    <uses-feature android:name="android.hardware.camera.autofocus" />
 
     <application
         android:allowBackup="true"
@@ -63,6 +65,7 @@
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
 
+        <!-- android:screenOrientation="landscape" -->
         <activity
             android:name=".CameraActivity"
             android:label="@string/title_activity_camera"
@@ -81,6 +84,11 @@
             android:name=".TutorialActivity"
             android:label="@string/title_activity_tutorial"
             android:parentActivityName=".MainActivity" >
+        </activity>
+        <activity
+            android:name=".RideDetailsActivity"
+            android:label="@string/title_activity_ride_detail"
+            android:parentActivityName=".MyRidesActivity" >
         </activity>
 
         <receiver
@@ -105,10 +113,13 @@
         <service android:name=".GeofenceTransitionsIntentService" />
         <service
             android:name=".services.AutoUpdateService"
-            android:enabled="true">
+            android:enabled="true" >
         </service>
 
-
+        <activity
+            android:name=".CameraCVActivity"
+            android:label="@string/title_activity_camera_cv" >
+        </activity>
     </application>
 
 </manifest>

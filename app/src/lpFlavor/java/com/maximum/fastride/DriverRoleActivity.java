@@ -1,5 +1,11 @@
 package com.maximum.fastride;
 
+import android.annotation.TargetApi;
+import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothGatt;
+import android.bluetooth.BluetoothGattCallback;
+import android.bluetooth.BluetoothGattCharacteristic;
+import android.bluetooth.BluetoothProfile;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -45,6 +51,7 @@ import com.maximum.fastride.adapters.WiFiPeersAdapter2;
 import com.maximum.fastride.adapters.WifiP2pDeviceUser;
 import com.maximum.fastride.model.Ride;
 import com.maximum.fastride.services.GeofenceErrorMessages;
+import com.maximum.fastride.utils.BLEUtil;
 import com.maximum.fastride.utils.ClientSocketHandler;
 import com.maximum.fastride.utils.Globals;
 import com.maximum.fastride.utils.GroupOwnerSocketHandler;
@@ -231,6 +238,11 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
 
         mUserID = sharedPrefs.getString(Globals.USERIDPREF, "");
 
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+            BLEUtil bleUtil = new BLEUtil(this);
+            Boolean bleRes = bleUtil.startAdvertise();
+        }
+
         // This will publish the service in DNS-SD and start serviceDiscovery()
         wifiUtil.startRegistrationAndDiscovery(this, mUserID);
 
@@ -410,6 +422,12 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
         startActivity(intent);
     }
 
+    public void onCameraCV(View view) {
+        Intent intent = new Intent(this, CameraCVActivity.class);
+        startActivity(intent);
+    }
+
+
     @Override
     public boolean handleMessage(Message msg) {
 
@@ -470,6 +488,8 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
         } else if( id == R.id.action_camera ) {
             onCamera(null);
             return true;
+        } else if ( id == R.id.action_camera_cv ) {
+            onCameraCV(null);
         }
 
         return super.onOptionsItemSelected(item);
@@ -665,4 +685,7 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
             }
         });
     }
+
+
+
 }

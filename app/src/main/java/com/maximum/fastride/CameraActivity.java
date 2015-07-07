@@ -1,5 +1,6 @@
 package com.maximum.fastride;
 
+import java.io.IOException;
 import java.util.List;
 
 import android.app.Activity;
@@ -12,10 +13,14 @@ import android.hardware.Camera.FaceDetectionListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.OrientationEventListener;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.view.ViewGroup.LayoutParams;
+import android.widget.Toast;
+
+import com.maximum.fastride.fastcv.FastCVWrapper;
 
 public class CameraActivity extends Activity 
 		implements SurfaceHolder.Callback {
@@ -32,13 +37,25 @@ public class CameraActivity extends Activity
 	
 	private int mOrientation;
 	private OrientationEventListener mOrientationEventListener;
-	
+    private int midScreenWidth;
+    private int midScreenHeight;
+
+    static {
+        System.loadLibrary("fastcvUtils");
+    }
+
 	private FaceDetectionListener faceDetectionListener = new FaceDetectionListener() {
 
 		@Override
 		public void onFaceDetection(Face[] faces, Camera camera) {
 			Log.d(LOG_TAG, "Number of faces detected: " + faces.length);
 			mFaceView.setFaces(faces);
+
+            for(int i = 0 ; i < faces.length ; i++){
+                int posX = midScreenWidth - faces[0].rect.centerX();
+                int posY = midScreenHeight + faces[0].rect.centerY();
+                //myCustomView.setPoints(posX, posY);
+            }
 		}
 		
 	};
@@ -62,6 +79,13 @@ public class CameraActivity extends Activity
 //		// Create and Start the Orientation Listener
 //		mOrientationEventListener = new SimpleOrientationEventListener(this);
 //		mOrientationEventListener.enable();
+
+        Display display = getWindowManager().getDefaultDisplay();
+        midScreenHeight = display.getHeight() / 2;
+        midScreenWidth = display.getWidth() / 2;
+
+        FastCVWrapper cvWrapper = new FastCVWrapper();
+        cvWrapper.FrameTick();
 	}
 
 	@Override
@@ -82,8 +106,14 @@ public class CameraActivity extends Activity
 		//mOrientationEventListener.enable();
 		super.onResume();
 
-        mCamera = Camera.open();
-        startPreview();
+        try {
+            int nCamerasCount = Camera.getNumberOfCameras();
+            mCamera = Camera.open();
+        } catch(Exception ex) {
+            Log.e(LOG_TAG, ex.getMessage());
+            Toast.makeText(this, ex.getMessage(), Toast.LENGTH_LONG).show();
+        }
+
 	}
 
     private void initPreview(int width, int height) {
@@ -94,31 +124,62 @@ public class CameraActivity extends Activity
             catch (Throwable t) {
                 Log.e(LOG_TAG, "Exception in setPreviewDisplay()", t);
             }
+
+            Camera.Parameters parameters= mCamera.getParameters();
+            Camera.Size size= getBestPreviewSize(width, height, parameters);
+            if( size != null ) {
+                parameters.setPreviewSize(size.width, size.height);
+            }
         }
     }
 
-    private void startPreview() {
-        mCamera.startPreview();
-    }
-
-        //
+    //
     // Implementation of SurfaceHolder.Callback
     //
 
 	@Override
 	public void surfaceChanged(SurfaceHolder surfaceHolder,
                                int format, int width, int height) {
-		
-//		if( surfaceHolder.getSurface() == null ) {
-//			return;
-//		}
-//
-//		try {
-//			mCamera.stopPreview();
-//		}
-//		catch(Exception e){
-//			// Ignore...
-//		}
+        // If your preview can change or rotate, take care of those events here.
+        // Make sure to stop the preview before resizing or reformatting it.
+        Log.d(LOG_TAG, "surfaceChanged");
+
+        if( surfaceHolder.getSurface() == null ) {
+            Log.d(LOG_TAG, "No surface yet");
+			return;
+		}
+
+        // stop preview before making changes
+        try {
+            mCamera.stopPreview();
+        } catch (Exception e){
+            // ignore: tried to stop a non-existent preview
+        }
+
+        // set preview size and make any resize, rotate or
+        // reformatting changes
+
+
+        // start preview with new settings
+
+        try {
+            initPreview(width, height);
+
+            mCamera.startPreview();
+
+            if( isFaceDetectionEnabled() ) { // re-start face detection feature
+                mCamera.setFaceDetectionListener(faceDetectionListener);
+                mCamera.startFaceDetection();
+            } else {
+                Toast.makeText(this, getString(R.string.no_face_detection),
+                        Toast.LENGTH_LONG).show();
+            }
+
+        } catch (Exception e){
+            Log.d(LOG_TAG, "Error starting camera preview: " + e.getMessage());
+        }
+
+
 //
 //		// Get supported preview sizes:
 //		Camera.Parameters parameters = mCamera.getParameters();
@@ -138,36 +199,86 @@ public class CameraActivity extends Activity
 //			mFaceView.setDisplayOrientation(mDisplayOrientation);
 //		}
 //
-        initPreview(width, height);
-		startPreview();
+
 	}
 
 	@Override
 	public void surfaceCreated(SurfaceHolder surfaceHolder) {
-//		mCamera = Camera.open();
-//		mCamera.setFaceDetectionListener(faceDetectionListener);
-//		mCamera.startFaceDetection();
-//
-//		try{
-//			mCamera.setPreviewDisplay(surfaceHolder);
-//		} catch(Exception e){
-//			Log.e(LOG_TAG, "Could not preview the image", e);
-//		}
-	
+        // The Surface has been created, now tell the camera where to draw the preview.
+        Log.d(LOG_TAG, "surfaceCreated");
+
+        if( mCamera == null ) {
+            Toast.makeText(this, "Camera was not opened yet",
+                    Toast.LENGTH_LONG).show();
+            return;
+        }
+
+        try {
+            mCamera.setPreviewDisplay(mPreviewHolder);
+            mCamera.startPreview();
+
+
+            if( isFaceDetectionEnabled() ) { // start face detection feature
+                mCamera.setFaceDetectionListener(faceDetectionListener);
+                mCamera.startFaceDetection();
+            } else {
+                Toast.makeText(this, getString(R.string.no_face_detection),
+                        Toast.LENGTH_LONG).show();
+            }
+
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "Error setting camera preview: " + e.getMessage());
+        }
+
 	}
 
 	@Override
 	public void surfaceDestroyed(SurfaceHolder surfaceHolder) {
-		
-		mCamera.setPreviewCallback(null);
-		mCamera.setFaceDetectionListener(null);
-		mCamera.setErrorCallback(null);
-		mCamera.release();
-		mCamera = null;
+        Log.d(LOG_TAG, "surfaceDestroyed");
+
+        if( mCamera != null ) {
+            mCamera.setPreviewCallback(null);
+            mCamera.setFaceDetectionListener(null);
+            mCamera.setErrorCallback(null);
+            mCamera.stopFaceDetection();
+            mCamera.release();
+            mCamera = null;
+        }
 		
 	}
-	
-	private class SimpleOrientationEventListener extends OrientationEventListener{
+
+    // start face detection only *after* preview has started
+    public boolean isFaceDetectionEnabled(){
+        // Try starting Face Detection
+        Camera.Parameters params = mCamera.getParameters();
+
+        return (params.getMaxNumDetectedFaces() > 0) ? true : false;
+    }
+
+    private Camera.Size getBestPreviewSize(int width, int height,
+                                           Camera.Parameters parameters) {
+        Camera.Size result=null;
+
+        for (Camera.Size size : parameters.getSupportedPreviewSizes()) {
+            if (size.width<=width && size.height<=height) {
+                if (result==null) {
+                    result=size;
+                }
+                else {
+                    int resultArea=result.width*result.height;
+                    int newArea=size.width*size.height;
+
+                    if (newArea>resultArea) {
+                        result=size;
+                    }
+                }
+            }
+        }
+
+        return(result);
+    }
+
+    private class SimpleOrientationEventListener extends OrientationEventListener{
 
 		public SimpleOrientationEventListener(Context context) {
 			super(context, SensorManager.SENSOR_DELAY_NORMAL);
