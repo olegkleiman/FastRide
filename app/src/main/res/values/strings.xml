@@ -157,7 +157,8 @@ limitations under the License.</string>
     <string name="action_refresh">Refresh</string>
     <string name="action_code">Ride Code</string>
     <string name="action_debug">Debug</string>
-    <string name="action_camera">Camera</string>
+    <string name="action_camera">FD</string>
+    <string name="action_camera_cv">Camera CV</string>
 
     <string name="passenger_tutorial_fragment">Passenger tutorial</string>
     <string name="driver_tutorial_fragment">Driver tutorial</string>

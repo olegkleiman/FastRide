@@ -418,10 +418,15 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
     }
 
     public void onCamera(View view) {
-        //Intent intent = new Intent(this, CameraActivity.class);
+        Intent intent = new Intent(this, CameraActivity.class);
+        startActivity(intent);
+    }
+
+    public void onCameraCV(View view) {
         Intent intent = new Intent(this, CameraCVActivity.class);
         startActivity(intent);
     }
+
 
     @Override
     public boolean handleMessage(Message msg) {
@@ -483,6 +488,8 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
         } else if( id == R.id.action_camera ) {
             onCamera(null);
             return true;
+        } else if ( id == R.id.action_camera_cv ) {
+            onCameraCV(null);
         }
 
         return super.onOptionsItemSelected(item);
