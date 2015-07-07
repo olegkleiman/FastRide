@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+    android:layout_marginEnd="4dp"
+    android:layout_marginRight="4dp"
+    android:clickable="true"
+    android:layout_width="fill_parent"
+    android:layout_height="64dp"
+    android:background="#fff6f6f6"
+    android:orientation="horizontal"
+    android:id="@+id/PassRow"
+    >
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/imagePass"
+        android:src="@drawable/passenger64"
+        android:layout_alignParentLeft="true"
+        android:layout_marginLeft="0dp"
+        android:layout_alignParentTop="true"
+        android:layout_marginTop="0dp" />
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:text="date Text"
+            android:id="@+id/txtPassengerName"
+            android:layout_gravity="left|center"
+            android:layout_marginTop="18dp"/>
+
+    </LinearLayout>
+
+</LinearLayout>

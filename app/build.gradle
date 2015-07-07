@@ -16,11 +16,12 @@ android {
         //testPackageName "com.maximum.fastride.tests"
         //testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
 
-        ndk {
-            moduleName "libfastcvUtils"
-            abiFilters "armeabi"
-            ldLibs "EGL", "GLESv3", "dl", "log"
-        }
+//        ndk {
+//            moduleName "libfastcvUtils"
+//            abiFilters "armeabi"
+//            ldLibs "EGL", "GLESv3", "dl", "log"
+//        }
+
     }
     buildTypes {
         release {
@@ -50,7 +51,7 @@ android {
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
     // Unit testing dependencies
-    androidTestCompile 'junit:junit:4.12'
+    //   -----------   don't commit need to clear this comment before sending --------------     androidTestCompile 'junit:junit:4.12'
     compile files('libs/mobileservices-2.0.1-beta.jar')
     //compile 'com.microsoft.azure:azure-mobile-services-android-sdk:2.0.2+'
     compile files('libs/notifications-1.0.1.jar')

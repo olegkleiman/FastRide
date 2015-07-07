@@ -97,8 +97,8 @@
             android:checked="true"
             android:id="@+id/cbUsePhone"
             android:layout_below="@+id/switchUsePhone"
-            android:layout_alignLeft="@+id/textView2"
-            android:layout_alignStart="@+id/textView2" />
+            android:layout_alignLeft="@+id/txtCarNumber"
+            android:layout_alignStart="@+id/txtCarNumber" />
 
 
     </LinearLayout>

@@ -1,11 +1,12 @@
 package com.maximum.fastride.model;
 
+import java.io.Serializable;
 import java.util.Date;
 
 /**
  * Created by Oleg Kleiman on 13-Apr-15.
  */
-public class Ride {
+public class Ride implements Serializable  {
 
     @com.google.gson.annotations.SerializedName("id")
     public String Id;
@@ -21,6 +22,11 @@ public class Ride {
     private Date created;
     public Date getCreated() { return created; }
     public void setCreated(Date value) { created = value; }
+
+    @com.google.gson.annotations.SerializedName("namedriver")
+    private String nameDriver;
+    public String getNameDriver() { return nameDriver; }
+    public void setNameDriver(String value) { nameDriver = value; }
 
     @com.google.gson.annotations.SerializedName("carnumber")
     private String carNumber;
