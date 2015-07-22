@@ -52,11 +52,35 @@ public class MyRidesAdapter extends RecyclerView.Adapter<MyRidesAdapter.ViewHold
 
         Ride ride = items.get(position);
 
-        holder.DriverImage.setImageResource(R.drawable.driver64);
-        holder.carNumber.setText(ride.getCarNumber());
 
-        DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm");
+        //TODO: need to enter the real name of driver
+        if(ride.getNameDriver() != "current Driver")
+        {
+            holder.driverName.setText(ride.getNameDriver());
+            holder.ApprovedSing.setVisibility(View.GONE);
+            holder.SteeringWheel.setVisibility(View.GONE);
 
+        }
+        else {
+
+                holder.driverName.setVisibility(View.GONE);
+
+                if(ride.getApproved() == null){
+
+                }
+                else if(ride.getApproved() == true){
+
+                    holder.ApprovedSing.setImageResource(R.drawable.v_sing_26);
+                }
+                else if ( ride.getApproved() == false){
+                    holder.ApprovedSing.setImageResource(R.drawable.ex_sing_26);
+                }
+        }
+
+
+        holder.DriverImage.setImageResource(R.drawable.driver50);
+
+        DateFormat df = new SimpleDateFormat("MM.dd.yy");
         holder.created.setText(df.format(ride.getCreated()));
 
     }
@@ -70,6 +94,9 @@ public class MyRidesAdapter extends RecyclerView.Adapter<MyRidesAdapter.ViewHold
             implements View.OnClickListener {
 
         ImageView DriverImage;
+        ImageView ApprovedSing;
+        ImageView SteeringWheel;
+        TextView driverName;
         TextView carNumber;
         TextView created;
         LinearLayout rawLayout;
@@ -82,7 +109,9 @@ public class MyRidesAdapter extends RecyclerView.Adapter<MyRidesAdapter.ViewHold
 
             mClickListener = clickListener;
             DriverImage = (ImageView) itemView.findViewById(R.id.imageDriver);
-            carNumber = (TextView) itemView.findViewById(R.id.txtCarNumber);
+            ApprovedSing = (ImageView) itemView.findViewById(R.id.ApprovedSing);
+            SteeringWheel = (ImageView) itemView.findViewById(R.id.SteeringWheel);
+            driverName = (TextView) itemView.findViewById(R.id.txtDriverName);
             created = (TextView) itemView.findViewById(R.id.txtCreated);
             rawLayout = (LinearLayout) itemView.findViewById(R.id.myRideRaw);
 
