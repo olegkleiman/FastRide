@@ -10,6 +10,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.maximum.fastride.R;
@@ -30,7 +31,7 @@ public class RideDetailsActivity extends BaseActivity
     TextView carNumber;
     TextView created;
     TextView nameDriver;
-    LinearLayout rawLayout;
+    RelativeLayout rawLayout;
 
     List<User> lstPassenger;
 
@@ -46,9 +47,9 @@ public class RideDetailsActivity extends BaseActivity
         carNumber = (TextView) findViewById(R.id.txtCarNumber);
         nameDriver = (TextView) findViewById(R.id.txtNameDriver);
         created = (TextView) findViewById(R.id.txtCreated);
-        rawLayout = (LinearLayout) findViewById(R.id.myRideDetail);
+        rawLayout = (RelativeLayout) findViewById(R.id.myRideDetail);
 
-        DriverImage.setImageResource(R.drawable.driver64);
+        DriverImage.setImageResource(R.drawable.driver50);
 
         DateFormat df = new SimpleDateFormat("MM/dd/yyyy HH:mm");
 
