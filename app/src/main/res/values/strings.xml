@@ -95,6 +95,9 @@
         <item>Rejected</item>
     </string-array>
 
+    <string name="drive_details">drive details</string>
+    <string name="list_of_passengers">passengers list</string>
+
     <string name="operating_modes">Operating modes</string>
 
     <string name="edit_car_button_title">Edit</string>
