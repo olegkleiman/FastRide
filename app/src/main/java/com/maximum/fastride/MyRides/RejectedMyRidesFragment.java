@@ -17,6 +17,8 @@ import com.maximum.fastride.model.Ride;
 import com.maximum.fastride.utils.IRecyclerClickListener;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 
@@ -56,38 +58,75 @@ public class RejectedMyRidesFragment extends Fragment {
         recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
         recycler.setItemAnimator(new DefaultItemAnimator());
 
+
         // TODO: get the rides list from WAMS
         rides = new ArrayList<Ride>();
         Ride ride1 = new Ride();
-        ride1.setNameDriver("efi");
-        ride1.setCreated(new Date());
+        ride1.setNameDriver("current Driver");
+        ride1.setCreated(new Date(91, 1, 10));
         ride1.setCarNumber("66-111-88");
         ride1.setApproved(true);
         rides.add(ride1);
 
         Ride ride2 = new Ride();
-        ride2.setNameDriver("efi");
-        ride2.setCreated(new Date());
+        ride2.setNameDriver("current Driver");
+        ride2.setCreated(new Date(82, 1, 10));
         ride2.setCarNumber("66-222-88");
-        ride2.setApproved(true);
+        ride2.setApproved(false);
         rides.add(ride2);
 
         Ride ride3 = new Ride();
-        ride3.setNameDriver("efi");
-        ride3.setCreated(new Date());
+        ride3.setNameDriver("current Driver");
+        ride3.setCreated(new Date(73, 1, 10));
         ride3.setCarNumber("66-333-88");
-        ride3.setApproved(false);
+        //ride3.setApproved(false);
         rides.add(ride3);
 
         Ride ride4 = new Ride();
-        ride4.setNameDriver("efi");
-        ride4.setCreated(new Date());
+        ride4.setNameDriver("shol");
+        ride4.setCreated(new Date(70, 1, 10));
         ride4.setCarNumber("66-444-88");
         ride4.setApproved(true);
         rides.add(ride4);
 
+        Ride ride5 = new Ride();
+        ride5.setNameDriver("current Driver");
+        ride5.setCreated(new Date(86, 1, 10));
+        ride5.setCarNumber("66-444-88");
+        ride5.setApproved(true);
+        rides.add(ride5);
 
-        FilteringApprove();
+        Ride ride6 = new Ride();
+        ride6.setNameDriver("current Driver");
+        ride6.setCreated(new Date(70, 9, 10));
+        ride6.setCarNumber("66-444-88");
+        ride6.setApproved(true);
+        rides.add(ride6);
+
+        Ride ride7 = new Ride();
+        ride7.setNameDriver("fisa");
+        ride7.setCreated(new Date(95, 1, 16));
+        ride7.setCarNumber("66-444-88");
+        ride7.setApproved(true);
+        rides.add(ride7);
+
+        Ride ride8 = new Ride();
+        ride8.setNameDriver("current Driver");
+        ride8.setCreated(new Date(12, 1, 10));
+        ride8.setCarNumber("66-444-88");
+        ride8.setApproved(false);
+        rides.add(ride8);
+
+        Ride ride9 = new Ride();
+        ride9.setNameDriver("current Driver");
+        ride9.setCreated(new Date(15, 1, 10));
+        ride9.setCarNumber("66-444-88");
+        //ride9.setApproved(true);
+        rides.add(ride9);
+
+        sort();
+
+        FilteringApproveAndOtherDrivers();
         MyRidesAdapter adapter = new MyRidesAdapter(rides);
         adapter.setOnClickListener(new IRecyclerClickListener() {
 
@@ -109,15 +148,28 @@ public class RejectedMyRidesFragment extends Fragment {
 
     }
 
-    private  void FilteringApprove(){
+    private  void FilteringApproveAndOtherDrivers(){
         List<Ride> tempList = new ArrayList<Ride>();
 
         for (Ride ride : rides ){
-
-            if(ride.getApproved()== false){
-                tempList.add(ride);
+            //TODO: the condition: if approve != null need fix
+            if(ride.getApproved()!=  null){
+                if (ride.getApproved() == false && ride.getNameDriver() == "current Driver") {
+                    tempList.add(ride);
+                }
             }
         }
         rides =  tempList;
+    }
+
+
+
+    private void sort(){
+
+        Collections.sort(rides, new Comparator<Ride>() {
+            public int compare(Ride r1, Ride r2) {
+                return r1.getCreated().compareTo(r2.getCreated());
+            }
+        });
     }
 }
