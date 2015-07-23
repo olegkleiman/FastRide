@@ -37,13 +37,14 @@
                         android:layout_marginLeft="16dp"
                         android:layout_height="@dimen/settings_card_row_height"
                         android:gravity="center_vertical"
-                        android:id="@+id/linearLayout4">
+                        android:id="@+id/linearLayout4"
+                        >
 
                         <TextView
                             android:layout_width="fill_parent"
                             android:layout_height="40dp"
                             android:textAppearance="?android:attr/textAppearanceMedium"
-                            android:text="@string/operating_modes"
+                            android:text="@string/drive_details"
                             android:id="@+id/textView4"
                             android:layout_gravity="center_vertical" />
 
@@ -184,8 +185,8 @@
                         android:layout_width="fill_parent"
                         android:layout_height="40dp"
                         android:textAppearance="?android:attr/textAppearanceMedium"
-                        android:text="@string/operating_modes"
-                        android:id="@+id/textView3"
+                        android:text="@string/list_of_passengers"
+                        android:id="@+id/textViewListPass"
                         android:layout_gravity="center_vertical" />
 
                     <View
@@ -203,6 +204,13 @@
                     android:layout_width="match_parent"
                     android:layout_below="@+id/linearLayout6"
                     />
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@+id/linearLayout6"
+                    android:id="@+id/selfi"
+                    android:src="@drawable/selfi_car_sec"/>
+
 
                     <android.support.design.widget.FloatingActionButton
                         android:id="@+id/new_request"
@@ -219,7 +227,7 @@
 
                         app:backgroundTint="@color/ColorAccent"
                         app:borderWidth="0dp"
-                        android:onClick="new_request"
+                        android:onClick="onClickSendAppeal"
 
                         android:layout_alignParentBottom="true"
                         android:layout_alignRight="@+id/linearLayout6"
