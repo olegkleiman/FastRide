@@ -13,6 +13,7 @@ import com.maximum.fastride.R;
 import com.maximum.fastride.model.FRMode;
 import com.maximum.fastride.model.Ride;
 import com.maximum.fastride.utils.IRecyclerClickListener;
+import com.maximum.fastride.views.LayoutRipple;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -99,7 +100,8 @@ public class MyRidesAdapter extends RecyclerView.Adapter<MyRidesAdapter.ViewHold
         TextView driverName;
         TextView carNumber;
         TextView created;
-        LinearLayout rawLayout;
+        //LinearLayout rowLayout;
+        LayoutRipple rowLayout;
 
         IRecyclerClickListener mClickListener;
 
@@ -113,9 +115,9 @@ public class MyRidesAdapter extends RecyclerView.Adapter<MyRidesAdapter.ViewHold
             SteeringWheel = (ImageView) itemView.findViewById(R.id.SteeringWheel);
             driverName = (TextView) itemView.findViewById(R.id.txtDriverName);
             created = (TextView) itemView.findViewById(R.id.txtCreated);
-            rawLayout = (LinearLayout) itemView.findViewById(R.id.myRideRaw);
+            rowLayout = (LayoutRipple) itemView.findViewById(R.id.myRideRaw);
 
-            rawLayout.setOnClickListener(this);
+            rowLayout.setOnClickListener(this);
         }
 
         @Override
