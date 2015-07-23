@@ -1,5 +1,6 @@
 package com.maximum.fastride;
 
+import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -13,6 +14,7 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.maximum.fastride.R;
 import com.maximum.fastride.adapters.PassengerListAdapter;
 import com.maximum.fastride.model.Ride;
@@ -28,10 +30,14 @@ public class RideDetailsActivity extends BaseActivity
         implements IRecyclerClickListener {
 
     ImageView DriverImage;
+    ImageView SelfiImage;
     TextView carNumber;
     TextView created;
     TextView nameDriver;
+    RecyclerView recyclerViewPass;
     RelativeLayout rawLayout;
+
+    Boolean boolPassengersList;
 
     List<User> lstPassenger;
 
@@ -44,6 +50,7 @@ public class RideDetailsActivity extends BaseActivity
         Ride ride = (Ride) getIntent().getSerializableExtra("ride");
 
         DriverImage = (ImageView) findViewById(R.id.imageDriver);
+        SelfiImage = (ImageView) findViewById(R.id.selfi);
         carNumber = (TextView) findViewById(R.id.txtCarNumber);
         nameDriver = (TextView) findViewById(R.id.txtNameDriver);
         created = (TextView) findViewById(R.id.txtCreated);
@@ -58,18 +65,30 @@ public class RideDetailsActivity extends BaseActivity
         created.setText(df.format(ride.getCreated()));
         carNumber.setText(ride.getCarNumber());
 
+        //TODO:  for test
+        boolPassengersList = true;
+        //------
+
+        if(boolPassengersList == true) {
+
+            SelfiImage.setVisibility(View.GONE);
 
 
+            RecyclerView recycler = (RecyclerView) findViewById(R.id.recyclerPassengers);
+            recycler.setHasFixedSize(true);
+            recycler.setLayoutManager(new LinearLayoutManager(this));
+            recycler.setItemAnimator(new DefaultItemAnimator());
 
-        RecyclerView recycler = (RecyclerView)findViewById(R.id.recyclerPassengers);
-        recycler.setHasFixedSize(true);
-        recycler.setLayoutManager(new LinearLayoutManager(this));
-        recycler.setItemAnimator(new DefaultItemAnimator());
+            getPassenger();
 
-        getPassenger();
-
-        PassengerListAdapter adapter = new PassengerListAdapter(this,lstPassenger);
-        recycler.setAdapter(adapter);
+            PassengerListAdapter adapter = new PassengerListAdapter(this, lstPassenger);
+            recycler.setAdapter(adapter);
+        }
+        else {
+            findViewById(R.id.recyclerPassengers).setVisibility(View.GONE);
+            ((TextView)findViewById(R.id.textViewListPass)).setText(R.string.ride_photo);
+            //TODO:  need implementation
+        }
     }
 
     @Override
@@ -117,8 +136,30 @@ public class RideDetailsActivity extends BaseActivity
         lstPassenger.add(pass3);
     }
 
+
     @Override
     public void clicked(View view, int position) {
 
+    }
+
+    public void onClickSendAppeal(View view) {
+
+        new MaterialDialog.Builder(this)
+                .title("")
+                .content("")
+                .customView(R.layout.dialog_write_appeal, true)
+                .autoDismiss(true)
+                .cancelable(true)
+                .positiveText(R.string.add_car_button_add)
+                .negativeText(R.string.add_car_button_cancel)
+                .callback(new MaterialDialog.ButtonCallback() {
+                    @Override
+                    public void onPositive(MaterialDialog dialog) {
+                        Intent intent = new Intent(getApplicationContext(),
+                                SettingsActivity.class);
+                        startActivity(intent);
+                    }
+                })
+                .show();
     }
 }
