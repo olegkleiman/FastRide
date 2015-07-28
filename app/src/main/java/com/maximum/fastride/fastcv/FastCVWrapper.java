@@ -13,4 +13,5 @@ public class FastCVWrapper {
 
     }
     public native void FrameTick();
+    public native void FindFeatures(long matAddrGr, long matAddrRgba);
 }

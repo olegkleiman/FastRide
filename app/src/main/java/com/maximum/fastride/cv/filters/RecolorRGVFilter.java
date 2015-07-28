@@ -9,9 +9,10 @@ import java.util.ArrayList;
  * Created by Oleg Kleiman on 07-Jul-15.
  */
 
-// The effect of this filter is to turn greens and blues to cyan,
-// leaving a limited color palette of red and cyan.
-public class RecolorRCFilter implements Filter {
+// The effect of this filter is to desaturate blues,
+// leaving a limited color palette of red, green, and white
+// (old movies old computer games)
+public class RecolorRGVFilter implements Filter {
 
     private final ArrayList<Mat> mChannels = new ArrayList<>(4);
 
@@ -21,12 +22,14 @@ public class RecolorRCFilter implements Filter {
         // 0 - red
         // 1 - green
         // 2 - blue
-        final Mat g = mChannels.get(1);
-        final Mat b = mChannels.get(2);
+        Mat r = mChannels.get(0);
+        Mat g = mChannels.get(1);
+        Mat b = mChannels.get(2);
+        Core.min(b, r, b);
+        Core.min(b, g, b);
 
-        Core.addWeighted(g, 0.5, b, 0.5, 0.0, g);
-
-        mChannels.set(2, g);
+        // dst.b = min(dst.r, dst.g, dst.b)
+        mChannels.set(3, b);
         Core.merge(mChannels, dst);
     }
 }

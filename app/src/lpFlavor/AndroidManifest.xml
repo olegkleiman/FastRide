@@ -56,12 +56,12 @@
 
 
 
-        <activity
-            android:name="com.maximum.fastride.RideDetailsActivity"
-            android:label="@string/title_activity_ride_details"
-            android:parentActivityName="com.maximum.fastride.MyRidesActivity"
-            android:theme="@style/AppTheme" >
-        </activity>
+        <!--<activity-->
+            <!--android:name="com.maximum.fastride.RideDetailsActivity"-->
+            <!--android:label="@string/title_activity_ride_details"-->
+            <!--android:parentActivityName="com.maximum.fastride.MyRidesActivity"-->
+            <!--android:theme="@style/AppTheme" >-->
+        <!--</activity>-->
 
         <!-- Jobs are supported only on 5.0 -->
         <service

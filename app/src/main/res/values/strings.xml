@@ -141,8 +141,8 @@
     <string name="action_check_updates">Check for Update&#8230;</string>
     <string name="latest_version">You already have a latest version of FastRide.</string>
     <string name="about">About</string>
-
-    <string name="copyright">Copyright (&#169;) 2015 Maximum</string>
+    <string name="no_face_detection">This camera does not support Face detection feature</string>
+    <string name="copyright">&#169; 2015 Maximum. All rights reserved.</string>
     <string name="license" translatable="false">Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
@@ -160,8 +160,8 @@ limitations under the License.</string>
     <string name="action_refresh">Refresh</string>
     <string name="action_code">Ride Code</string>
     <string name="action_debug">Debug</string>
-    <string name="action_camera">Camera</string>
-
+    <string name="action_camera">FD</string>
+    <string name="action_camera_cv">Camera CV</string>
     <string name="passenger_tutorial_fragment">Passenger tutorial</string>
     <string name="driver_tutorial_fragment">Driver tutorial</string>
     <string name="reclaim_tutorial_fragment">Reclamation tutorial</string>
@@ -199,5 +199,9 @@ limitations under the License.</string>
     <string name="geofences_removed">Geofences removed</string>
     <string name="title_activity_register2">Register2Activity</string>
     <string name="title_activity_gfences">GFencesActivity</string>
-
+    <string name="title_activity_camera_cv">CameraCVActivity</string>
+    <string name="menu_next_curve_filter">Curve</string>
+    <string name="menu_next_mixed_filter">Mix</string>
+    <string name="menu_next_convultion_filter">Conv</string>
+    <string name="menu_next_detection_filter">Detection</string>
 </resources>

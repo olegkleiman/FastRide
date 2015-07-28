@@ -86,7 +86,7 @@ public class RideDetailsActivity extends BaseActivity
         }
         else {
             findViewById(R.id.recyclerPassengers).setVisibility(View.GONE);
-            ((TextView)findViewById(R.id.textViewListPass)).setText(R.string.ride_photo);
+            //((TextView)findViewById(R.id.textViewListPass)).setText(R.string.ride_photo);
             //TODO:  need implementation
         }
     }

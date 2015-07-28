@@ -22,11 +22,3 @@ UTILS_DIR := $(LOCAL_PATH)/utils
 
 include $(LOCAL_PATH)/utils/Android.mk
 #include $(LOCAL_PATH)/apis/featureDetection/Android.mk
-
-
-
-
-
-
-
-
