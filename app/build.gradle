@@ -25,6 +25,8 @@ android {
 
     }
 
+    def libsDir = projectDir.path + "/libs"
+
     sourceSets{
         main {
             jniLibs.srcDir 'src/main/libs' //set .so files location to libs
@@ -37,6 +39,10 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+        }
+        debug {
+            jniDebuggable true
+            debuggable true
         }
     }
     productFlavors {
@@ -57,6 +63,7 @@ android {
                 moduleName "fastcvUtils"
                 abiFilters "armeabi-v7a"
                 versionCode 1
+                ldLibs libsDir + "armeabi/libopencv_core.a"
             }
 
         }
@@ -91,7 +98,6 @@ dependencies {
     compile 'com.android.support:design:22.2.0'
     compile 'com.android.support:multidex:1.0.0'
     compile 'com.afollestad:material-dialogs:0.7.5.2'
-
     compile 'org.apache.commons:commons-math3:3.2'
     compile project(':libraries:opencv')
 }
@@ -106,18 +112,22 @@ dependencies {
 
 task buildNative(type: Exec, description: 'Compile JNI source via NDK') {
     //def ndkDir = android.plugin.ndkFolder //'D:\\android-ndk-r10d'
-    //ndkDir = project.plugins.findPlugin('com.android.application').getNdkFolder()
-    //println( project.getPlugins().getPlugin('android').getProperties() )
-    def ndkDir = 'D:\\android-ndk-r10d'
+    //def ndkDir = project.plugins.findPlugin('com.android.application').getNdkFolder()
+    //println( project.getPlugins().getPlugin('com.android.application').getProperties() )
+
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+
+        def ndkDir = 'D:\\android-ndk-r10e'
+
         println "Using NDK from $ndkDir"
         commandLine "$ndkDir\\ndk-build.cmd",
                 '-C', file('src/main/jni').absolutePath,
                 '-j', Runtime.runtime.availableProcessors()
+                //'V', '1'
         // 'NDK_APPLICATION_MK', 'src/main/jni/Application.mk'
         // 'all',
         // '-d',
-        // 'NDK_DEBUG=1'
+                //'NDK_DEBUG=1'
     } else {
         commandLine "$ndkDir\\ndk-build",
                 '-C', file('src/main/jni').absolutePath,
@@ -129,9 +139,13 @@ task buildNative(type: Exec, description: 'Compile JNI source via NDK') {
 }
 
 task cleanNative(type: Exec, description: 'Clean JNI object files') {
-    def ndkDir = 'D:\\android-ndk-r10d'
-    //def ndkDir = plugins.getPlugin('android').sdkHandler.getNdkFolder()
+
+    //def ndkDir = project.plugins.findPlugin('com.android.application').getNdkFolder()
+
     if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+
+        def ndkDir = 'D:\\android-ndk-r10e'
+
         println "Cleaning project with NDK from $ndkDir"
         commandLine "$ndkDir/ndk-build.cmd",
                 '-C', file('src/main/jni').absolutePath, // Change src/main/jni the relative path to your jni source

@@ -18,5 +18,6 @@
     <file url="file://$PROJECT_DIR$/libraries/opencv/build.gradle" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/libraries/opencv/src" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/libraries/opencv/src/main/AndroidManifest.xml" charset="UTF-8" />
+    <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>

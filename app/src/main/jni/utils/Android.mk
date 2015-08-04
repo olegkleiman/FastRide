@@ -9,7 +9,7 @@ include $(CLEAR_VARS)
 include D:/OpenCV-android-sdk/sdk/native/jni/OpenCV.mk
 
 LOCAL_MODULE    := fastcvUtils
-LOCAL_SRC_FILES := cvUtils.cpp
+LOCAL_SRC_FILES := FastCVWrapper.cpp
 LOCAL_LDLIBS +=  -llog -ldl
 
 include $(BUILD_SHARED_LIBRARY)

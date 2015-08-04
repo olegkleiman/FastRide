@@ -24,28 +24,47 @@ public class wamsUtils {
     static public void sync(MobileServiceClient wamsClient, String... tables) {
 
         try {
-            SQLiteLocalStore localStore = new SQLiteLocalStore(wamsClient.getContext(),
-                                                "gfences", null, 1);
 
             MobileServiceSyncContext syncContext = wamsClient.getSyncContext();
+
             if (!syncContext.isInitialized()) {
 
-//                for(String table : tables) {
-//
-//                }
+               for(String table : tables) {
 
-                Map<String, ColumnDataType> tableDefinition = new HashMap<>();
-                tableDefinition.put("id", ColumnDataType.String);
-                tableDefinition.put("lat", ColumnDataType.Number);
-                tableDefinition.put("lon", ColumnDataType.Number);
-                tableDefinition.put("when_updated", ColumnDataType.Date);
-                tableDefinition.put("label", ColumnDataType.String);
-                tableDefinition.put("isactive", ColumnDataType.Boolean);
-                tableDefinition.put("__deleted", ColumnDataType.Boolean);
-                tableDefinition.put("__version", ColumnDataType.String);
+                   Map<String, ColumnDataType> tableDefinition = new HashMap<>();
+                   SQLiteLocalStore localStore  = new SQLiteLocalStore(wamsClient.getContext(),
+                                                                        table, null, 1);
 
-                localStore.defineTable("gfences", tableDefinition);
-                syncContext.initialize(localStore, null).get();
+                   switch( table ) {
+                       case "rides": {
+                           tableDefinition.put("id", ColumnDataType.String);
+                           tableDefinition.put("ridecode", ColumnDataType.String);
+                           tableDefinition.put("driverid", ColumnDataType.String);
+                           tableDefinition.put("created", ColumnDataType.Date);
+                           tableDefinition.put("carnumber", ColumnDataType.String);
+                           tableDefinition.put("approved", ColumnDataType.Boolean);
+                           tableDefinition.put("__deleted", ColumnDataType.Boolean);
+                           tableDefinition.put("__version", ColumnDataType.String);
+                       }
+                       break;
+
+                       case "gfences": {
+                           tableDefinition.put("id", ColumnDataType.String);
+                           tableDefinition.put("lat", ColumnDataType.Number);
+                           tableDefinition.put("lon", ColumnDataType.Number);
+                           tableDefinition.put("when_updated", ColumnDataType.Date);
+                           tableDefinition.put("label", ColumnDataType.String);
+                           tableDefinition.put("isactive", ColumnDataType.Boolean);
+                           tableDefinition.put("__deleted", ColumnDataType.Boolean);
+                           tableDefinition.put("__version", ColumnDataType.String);
+                       }
+                       break;
+                   }
+
+                   localStore.defineTable(table, tableDefinition);
+                   syncContext.initialize(localStore, null).get();
+                }
+
             }
 
         } catch(MobileServiceLocalStoreException | InterruptedException | ExecutionException ex) {

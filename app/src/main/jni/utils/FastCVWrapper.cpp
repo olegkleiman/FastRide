@@ -4,6 +4,7 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
 #include <opencv2/features2d/features2d.hpp>
+#include <opencv2/objdetect/objdetect.hpp>
 #include <vector>
 
 #include "FastCVWrapper.h"
@@ -40,21 +41,66 @@ JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FrameTick
 //    delete counter;
 }
 
+JNIEXPORT int JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_DetectFace
+    (JNIEnv *je, jclass jc, jlong addrRgba, jstring face_cascade_name)
+{
+    CascadeClassifier face_cascade;
+    vector<Rect> faces;
+
+    //cvtColor(addrRgba, img_gray, CV_BGR2GRAY );
+//    face_cascade.detectMultiScale(addrRgba, faces, 1.1, 2,
+//                                    0|CV_HAAR_SCALE_IMAGE, Size(30, 30) );
+    int face_size = faces.size();
+    if ( face_size > 0)
+    {
+        int Y = faces[face_size -1].y - faces[face_size -1].height / 2;
+    }
+
+    return 1;
+}
+
+JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_Blur
+    (JNIEnv *je, jclass jc, jlong addrGray)
+{
+    DPRINTF("Inside Blur");
+
+    const int MEDIAN_BLUR_FILTER_SIZE = 7;
+    Mat& mGr  = *(Mat*)addrGray;
+    medianBlur(mGr, mGr, MEDIAN_BLUR_FILTER_SIZE);
+}
+
+
 JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FindFeatures
     (JNIEnv *je, jclass jc, jlong addrGray, jlong addrRgba)
 {
-    DPRINTF("Inside FindFeatures");
+    //DPRINTF("Inside FindFeatures");
 
     Mat& mGr  = *(Mat*)addrGray;
     Mat& mRgb = *(Mat*)addrRgba;
-    vector<KeyPoint> v;
+    vector<KeyPoint> keypoints;
 
-    FastFeatureDetector detector(50);
-    detector.detect(mGr, v);
-
-    for( unsigned int i = 0; i < v.size(); i++ )
+    Ptr<FeatureDetector> detector = FeatureDetector::create( "FAST" );
+    if( detector.empty())
     {
+        DPRINTF("Can not create detector or descriptor extractor or descriptor matcher of given types");
+        return;
     }
 
-    DPRINTF("Finished FindFeatures");
+    int start_x = 0;
+    int end_x = mRgb.size().width;
+
+    //FastFeatureDetector detector(50);
+    detector->detect(mGr, keypoints);
+
+    for (vector<KeyPoint>::iterator i = keypoints.begin(); i != keypoints.end(); i++)
+    //for( unsigned int i = 0; i < keypoints.size(); i++ )
+    {
+        if (i->pt.x > start_x && i->pt.x < end_x)
+        {
+            const KeyPoint& kp = *i;//keypoints[i];
+            circle(mRgb, Point(kp.pt.x, kp.pt.y), 10, Scalar(255,0,0,255));
+        }
+    }
+
+    //DPRINTF("Finished FindFeatures");
 }

@@ -21,12 +21,11 @@ using namespace cv;
 #define WPRINTF(...)  __android_log_print(ANDROID_LOG_WARN,CVWRAPPER_LOG_TAG,__VA_ARGS__)
 
 
-//extern "C" {
-
-//JNIEXPORT void JNICALL Java_com_maximum_fastride_CameraCVActivity_FindFeatures(JNIEnv*, jclass, jlong addrGray, jlong addrRgba);
-
-JNIEXPORT void JNICALL Java_com_maximum_fastride_CameraCVActivity_FindFeatures(JNIEnv*, jclass, jlong addrGray, jlong addrRgba)
+JNIEXPORT void JNICALL Java_com_maximum_fastride_CameraCVActivity_FindFeatures
+    (JNIEnv *env, jclass, jlong addrGray, jlong addrRgba)
 {
+    (*env)->NewStringUTF(env, "Hello");
+
     DPRINTF("Inside FindFeatures");
 
     Mat& mGr  = *(Mat*)addrGray;
@@ -43,4 +42,4 @@ JNIEXPORT void JNICALL Java_com_maximum_fastride_CameraCVActivity_FindFeatures(J
 
     DPRINTF("Finished FindFeatures");
 }
-//}
+

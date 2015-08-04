@@ -23,10 +23,10 @@ public class Ride implements Serializable  {
     public Date getCreated() { return created; }
     public void setCreated(Date value) { created = value; }
 
-    @com.google.gson.annotations.SerializedName("namedriver")
-    private String nameDriver;
-    public String getNameDriver() { return nameDriver; }
-    public void setNameDriver(String value) { nameDriver = value; }
+    @com.google.gson.annotations.SerializedName("driverid")
+    private String driverid;
+    public String getNameDriver() { return driverid; }
+    public void setNameDriver(String value) { driverid = value; }
 
     @com.google.gson.annotations.SerializedName("carnumber")
     private String carNumber;

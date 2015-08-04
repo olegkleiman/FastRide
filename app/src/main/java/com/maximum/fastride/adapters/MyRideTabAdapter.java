@@ -6,6 +6,9 @@ import android.support.v4.app.FragmentPagerAdapter;
 
 import com.maximum.fastride.MyRides.GeneralMyRidesFragment;
 import com.maximum.fastride.MyRides.RejectedMyRidesFragment;
+import com.maximum.fastride.model.Ride;
+
+import java.util.List;
 
 
 /**
@@ -14,10 +17,16 @@ import com.maximum.fastride.MyRides.RejectedMyRidesFragment;
 public class MyRideTabAdapter extends FragmentPagerAdapter {
 
     private String titles[];
+    List<Ride> mRides;
 
-    public MyRideTabAdapter(FragmentManager fm, String[] titles) {
+    public MyRideTabAdapter(FragmentManager fm, String[] titles, List<Ride> rides) {
         super(fm);
         this.titles = titles;
+        this.mRides = rides;
+    }
+
+    public void updateRides(List<Ride> rides) {
+        mRides = rides;
     }
 
     @Override
@@ -25,7 +34,7 @@ public class MyRideTabAdapter extends FragmentPagerAdapter {
 
         switch( position) {
             case 0:
-                return GeneralMyRidesFragment.newInstance(position);
+                return GeneralMyRidesFragment.newInstance(position, mRides);
 
             case 1:
                 return RejectedMyRidesFragment.newInstance(position);

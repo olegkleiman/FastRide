@@ -204,4 +204,5 @@ limitations under the License.</string>
     <string name="menu_next_mixed_filter">Mix</string>
     <string name="menu_next_convultion_filter">Conv</string>
     <string name="menu_next_detection_filter">Detection</string>
+    <string name="camera_directive_1">Embrace the entire cabin</string>
 </resources>

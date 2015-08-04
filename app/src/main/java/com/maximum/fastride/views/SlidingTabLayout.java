@@ -185,6 +185,9 @@ public class SlidingTabLayout extends HorizontalScrollView {
 
     private void populateTabStrip() {
         final PagerAdapter adapter = mViewPager.getAdapter();
+        if( adapter == null )
+            return;
+
         final OnClickListener tabClickListener = new TabClickListener();
 
         for (int i = 0; i < adapter.getCount(); i++) {

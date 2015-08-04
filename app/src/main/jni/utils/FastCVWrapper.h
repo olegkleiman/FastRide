@@ -29,7 +29,14 @@ JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FrameTick
  * Signature: (JJ)V
  */
 JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FindFeatures
-(JNIEnv *, jclass, jlong addrGray, jlong addrRgba);
+    (JNIEnv *, jclass, jlong addrGray, jlong addrRgba);
+
+
+JNIEXPORT int JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_DetectFace
+    (JNIEnv *je, jclass jc, jlong addrRgba, jstring face_cascade_name);
+
+JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_Blur
+    (JNIEnv *je, jclass jc, jlong addrGray);
 
 #ifdef __cplusplus
 }

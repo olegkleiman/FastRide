@@ -30,10 +30,20 @@ import org.opencv.android.OpenCVLoader;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfKeyPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
+import org.opencv.features2d.FeatureDetector;
+import org.opencv.features2d.Features2d;
+import org.opencv.features2d.KeyPoint;
+import org.opencv.imgproc.Imgproc;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.util.ArrayList;
 
 public class CameraCVActivity extends Activity implements CvCameraViewListener2 {
@@ -66,6 +76,10 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
     private Mat                    mRgba;
     private Mat                    mIntermediateMat;
     private Mat                    mGray;
+
+    Scalar mCameraFontColor = new Scalar(255, 0, 0, 255);
+    String mCameraDirective;
+    File mDetectorConfigFile;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -166,6 +180,17 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
 
             mOpenCvCameraView.setCameraIndex(CameraBridgeViewBase.CAMERA_ID_FRONT);
         }
+
+        mCameraDirective = getString(R.string.camera_directive_1);
+
+//        File outputDir = getCacheDir();
+//        try {
+//            mDetectorConfigFile = File.createTempFile("orbDetectorParams", ".YAML", outputDir);
+//            writeToFile(mDetectorConfigFile, "%YAML:1.0\nscaleFactor: 1.2\nnLevels: 8\nfirstLevel: 0 \nedgeThreshold: 31\npatchSize: 31\nWTA_K: 2\nscoreType: 1\nnFeatures: 500\n");
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
     }
 
     @Override
@@ -271,7 +296,8 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
         mIntermediateMat.release();
     }
 
-
+    long mFramesReceived = 0;
+    long mExecutionTime = 0;
 
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
@@ -287,28 +313,51 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
 //        mMixerFilters[mMixerFilterIndex].apply(rgba, rgba);
 //        mConvolutionFilters[mConvolutionFilterIndex].apply(rgba, rgba);
 //
-//        if( mIsCameraFrontFacing ) {
-//            // Mirror (horizontally flip) the preview
-//            Core.flip(rgba, rgba, 1);
-//        }
+
 
         // input frame has RGBA format
         mRgba = inputFrame.rgba();
         mGray = inputFrame.gray();
 
-        //FastCVWrapper cvWrapper = new FastCVWrapper();
-        FindFeatures(mGray.getNativeObjAddr(), mRgba.getNativeObjAddr());
+        long start = System.currentTimeMillis();
 
-//        Mat mat = new Mat();
-//        Scalar fontColor = new Scalar(0,0,0);
-//        Point fontPoint = new Point();
-//        Core.putText(mat, "Test",
-//                fontPoint, Core.FONT_HERSHEY_PLAIN, 1.5, fontColor,
-//                2, Core.LINE_AA, false);
+        // Assume the camera if front facing,
+        // mirror (horizontally flip) the preview
+        //Core.flip(mRgba, mRgba, 1);
+
+//        MatOfKeyPoint keyPoints = new MatOfKeyPoint();
+//
+//        FeatureDetector mDetector = FeatureDetector.create(FeatureDetector.FAST);
+////        //mDetector.read(mDetectorConfigFile.getPath());
+//        mDetector.detect(mRgba, keyPoints);
+////
+////        //Imgproc.cvtColor(inputFrame, mRgba, Imgproc.COLOR_RGBA2RGB);
+//        Features2d.drawKeypoints(mGray, keyPoints, mRgba);
+//        //Features2d.drawKeypoints(image1, keyPoints, imageOut2, new Scalar(2,254,255),Features2d.DRAW_RICH_KEYPOINTS);
+//        //Imgproc.cvtColor(rgb, o_image, Imgproc.COLOR_RGB2RGBA);
+
+
+        FastCVWrapper cvWrapper = new FastCVWrapper();
+        //cvWrapper.FindFeatures(mGray.getNativeObjAddr(), mRgba.getNativeObjAddr());
+        //cvWrapper.Blur(mRgba.getNativeObjAddr());
+        Imgproc.GaussianBlur(mRgba, mRgba, new Size(3,3), 7.0);
+
+        mExecutionTime += (System.currentTimeMillis() - start);
+        String msg = String.format("Executed for %d ms.", mExecutionTime/++mFramesReceived);
+        Log.d(LOG_TAG, msg);
+
+        Core.putText(mRgba, mCameraDirective, new Point(100,100),
+                     3, 1, mCameraFontColor, 2);
 
         return mRgba;
     }
 
-    public native void FindFeatures(long matAddrGr, long matAddrRgba);
+    private void writeToFile(File file, String data) throws IOException {
+        FileOutputStream stream = new FileOutputStream(file);
+        OutputStreamWriter outputStreamWriter = new OutputStreamWriter(stream);
+        outputStreamWriter.write(data);
+        outputStreamWriter.close();
+        stream.close();
+    }
 
 }
