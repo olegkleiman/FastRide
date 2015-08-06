@@ -33,7 +33,6 @@ import android.widget.Toast;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.plus.Plus;
 
 import com.afollestad.materialdialogs.AlertDialogWrapper;
 import com.facebook.AppEventsLogger;
@@ -47,7 +46,6 @@ import com.facebook.model.GraphUser;
 import com.facebook.widget.LoginButton;
 import com.google.android.gms.common.SignInButton;
 import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.plus.model.people.Person;
 import com.maximum.fastride.model.GFence;
 import com.maximum.fastride.model.User;
 import com.maximum.fastride.utils.Globals;
@@ -238,6 +236,7 @@ public class RegisterActivity extends FragmentActivity
                         ProgressDialog progress;
 
                         @Override
+
                         protected void onPreExecute(){
 
                             LinearLayout loginLayout = (LinearLayout)findViewById(R.id.fb_login_form);
@@ -342,36 +341,36 @@ public class RegisterActivity extends FragmentActivity
         }
 	}
 
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
+    @Override
+    protected void onStart() {
+        super.onStart();
 //        mGoogleApiClient.connect();
-//    }
-//
-//    @Override
-//    protected void onStop() {
-//        super.onStop();
-//
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
 //        if (mGoogleApiClient.isConnected()) {
 //            mGoogleApiClient.disconnect();
 //        }
-//    }
-
-    private GoogleApiClient buildGoogleApiClient() {
-        // When we build the GoogleApiClient we specify where connected and
-        // connection failed callbacks should be returned, which Google APIs our
-        // app uses and which OAuth 2.0 scopes our app requests.
-        GoogleApiClient.Builder builder = new GoogleApiClient.Builder(this)
-                .addConnectionCallbacks(this)
-                .addOnConnectionFailedListener(this)
-                .addApi(Plus.API, Plus.PlusOptions.builder().build())
-                .addScope(Plus.SCOPE_PLUS_LOGIN);
-
-//        checkServerAuthConfiguration();
-//        builder = builder.requestServerAuthCode(WEB_CLIENT_ID, this);
-
-        return builder.build();
     }
+
+//    private GoogleApiClient buildGoogleApiClient() {
+//        // When we build the GoogleApiClient we specify where connected and
+//        // connection failed callbacks should be returned, which Google APIs our
+//        // app uses and which OAuth 2.0 scopes our app requests.
+//        GoogleApiClient.Builder builder = new GoogleApiClient.Builder(this)
+//                .addConnectionCallbacks(this)
+//                .addOnConnectionFailedListener(this)
+//                .addApi(Plus.API, Plus.PlusOptions.builder().build())
+//                .addScope(Plus.SCOPE_PLUS_LOGIN);
+//
+////        checkServerAuthConfiguration();
+////        builder = builder.requestServerAuthCode(WEB_CLIENT_ID, this);
+//
+//        return builder.build();
+//    }
 
     /* onConnected is called when our Activity successfully connects to Google
      * Play services.  onConnected indicates that an account was selected on the
@@ -382,7 +381,7 @@ public class RegisterActivity extends FragmentActivity
     @Override
     public void onConnected(Bundle connectionHint) {
         // Retrieve some profile information to personalize our app for the user.
-        Person currentUser = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
+        //Person currentUser = Plus.PeopleApi.getCurrentPerson(mGoogleApiClient);
 
         mSignInProgress = STATE_DEFAULT;
     }
@@ -395,7 +394,7 @@ public class RegisterActivity extends FragmentActivity
         mGoogleApiClient.connect();
     }
 
-    /* onConnectionFailed is called when our Activity could not connect to Google
+/* onConnectionFailed is called when our Activity could not connect to Google
  * Play services.  onConnectionFailed indicates that the user needs to select
  * an account, grant permissions or resolve an error in order to sign in.
  */
