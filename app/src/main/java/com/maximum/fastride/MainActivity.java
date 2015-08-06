@@ -2,8 +2,9 @@ package com.maximum.fastride;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
-import android.app.Application;
 import android.app.PendingIntent;
+import android.app.job.JobInfo;
+import android.app.job.JobScheduler;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -19,6 +20,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.design.widget.Snackbar;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -34,17 +36,14 @@ import com.maximum.fastride.gcm.GCMHandler;
 import com.maximum.fastride.jobs.GeofencesDownloadService;
 import com.maximum.fastride.model.FRMode;
 import com.maximum.fastride.model.User;
-import com.maximum.fastride.model.Version;
 import com.maximum.fastride.services.AutoUpdateService;
 import com.maximum.fastride.utils.Globals;
 import com.maximum.fastride.utils.IRecyclerClickListener;
 import com.maximum.fastride.utils.RoundedDrawable;
 import com.maximum.fastride.utils.WAMSVersionTable;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
-import com.microsoft.windowsazure.mobileservices.MobileServiceList;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceAuthenticationProvider;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceUser;
-import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
 import com.microsoft.windowsazure.notifications.NotificationsManager;
 
 import java.io.UnsupportedEncodingException;
@@ -56,12 +55,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.Locale;
 import java.util.StringTokenizer;
 import java.util.concurrent.ExecutionException;
-
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
 
 public class MainActivity extends BaseActivity
                         implements WAMSVersionTable.IVersionMismatchListener,
