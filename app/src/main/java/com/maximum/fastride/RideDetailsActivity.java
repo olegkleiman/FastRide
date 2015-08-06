@@ -49,12 +49,12 @@ public class RideDetailsActivity extends BaseActivity
         //setupUI("Ride details", "");
         Ride ride = (Ride) getIntent().getSerializableExtra("ride");
 
-        DriverImage = (ImageView) findViewById(R.id.imageDriver);
-        SelfiImage = (ImageView) findViewById(R.id.selfi);
-        carNumber = (TextView) findViewById(R.id.txtCarNumber);
-        nameDriver = (TextView) findViewById(R.id.txtNameDriver);
-        created = (TextView) findViewById(R.id.txtCreated);
-        rawLayout = (RelativeLayout) findViewById(R.id.myRideDetail);
+//        DriverImage = (ImageView) findViewById(R.id.imageDriver);
+//        SelfiImage = (ImageView) findViewById(R.id.selfi);
+//        carNumber = (TextView) findViewById(R.id.txtCarNumber);
+//        nameDriver = (TextView) findViewById(R.id.txtNameDriver);
+//        created = (TextView) findViewById(R.id.txtCreated);
+//        rawLayout = (RelativeLayout) findViewById(R.id.myRideDetail);
 
         DriverImage.setImageResource(R.drawable.driver50);
 
@@ -74,18 +74,18 @@ public class RideDetailsActivity extends BaseActivity
             SelfiImage.setVisibility(View.GONE);
 
 
-            RecyclerView recycler = (RecyclerView) findViewById(R.id.recyclerPassengers);
-            recycler.setHasFixedSize(true);
-            recycler.setLayoutManager(new LinearLayoutManager(this));
-            recycler.setItemAnimator(new DefaultItemAnimator());
-
-            getPassenger();
-
-            PassengerListAdapter adapter = new PassengerListAdapter(this, lstPassenger);
-            recycler.setAdapter(adapter);
+//            RecyclerView recycler = (RecyclerView) findViewById(R.id.recyclerPassengers);
+//            recycler.setHasFixedSize(true);
+//            recycler.setLayoutManager(new LinearLayoutManager(this));
+//            recycler.setItemAnimator(new DefaultItemAnimator());
+//
+//            getPassenger();
+//
+//            PassengerListAdapter adapter = new PassengerListAdapter(this, lstPassenger);
+//            recycler.setAdapter(adapter);
         }
         else {
-            findViewById(R.id.recyclerPassengers).setVisibility(View.GONE);
+//            findViewById(R.id.recyclerPassengers).setVisibility(View.GONE);
             //((TextView)findViewById(R.id.textViewListPass)).setText(R.string.ride_photo);
             //TODO:  need implementation
         }
