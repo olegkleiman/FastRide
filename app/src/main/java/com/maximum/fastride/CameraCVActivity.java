@@ -3,7 +3,6 @@ package com.maximum.fastride;
 import android.app.Activity;
 import android.hardware.Camera;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -27,24 +26,16 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
-import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
-import org.opencv.core.MatOfKeyPoint;
-import org.opencv.core.Point;
 import org.opencv.core.Scalar;
-import org.opencv.core.Size;
-import org.opencv.features2d.FeatureDetector;
-import org.opencv.features2d.Features2d;
-import org.opencv.features2d.KeyPoint;
-import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
-import java.util.ArrayList;
+
+//import org.opencv.features2d.KeyPoint;
 
 public class CameraCVActivity extends Activity implements CvCameraViewListener2 {
 
@@ -120,7 +111,7 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
                         akbarHuntingFilter = new ImageDetectionFilter(CameraCVActivity.this,
                                                                 R.drawable.akbar_hunting_with_cheetahs);
 
-                    } catch (IOException ex) {
+                    } catch (Exception ex) {
                         Log.e(LOG_TAG, ex.getMessage());
                         break;
                     }
@@ -338,16 +329,16 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
 
 
         FastCVWrapper cvWrapper = new FastCVWrapper();
-        //cvWrapper.FindFeatures(mGray.getNativeObjAddr(), mRgba.getNativeObjAddr());
+        cvWrapper.FindFeatures(mGray.getNativeObjAddr(), mRgba.getNativeObjAddr());
         //cvWrapper.Blur(mRgba.getNativeObjAddr());
-        Imgproc.GaussianBlur(mRgba, mRgba, new Size(3,3), 7.0);
+        //Imgproc.GaussianBlur(mRgba, mRgba, new Size(3,3), 7.0);
 
         mExecutionTime += (System.currentTimeMillis() - start);
         String msg = String.format("Executed for %d ms.", mExecutionTime/++mFramesReceived);
         Log.d(LOG_TAG, msg);
 
-        Core.putText(mRgba, mCameraDirective, new Point(100,100),
-                     3, 1, mCameraFontColor, 2);
+//        Core.putText(mRgba, mCameraDirective, new Point(100,100),
+//                     3, 1, mCameraFontColor, 2);
 
         return mRgba;
     }
