@@ -62,7 +62,7 @@ public class WiFiPeersAdapter2 extends RecyclerView.Adapter<WiFiPeersAdapter2.Vi
     };
 
     @Override
-    public WiFiPeersAdapter2.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         View v;
         View.OnClickListener listener = null;
@@ -85,7 +85,7 @@ public class WiFiPeersAdapter2 extends RecyclerView.Adapter<WiFiPeersAdapter2.Vi
     }
 
     @Override
-    public void onBindViewHolder(WiFiPeersAdapter2.ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, int position) {
 
         if (holder.holderId == TYPE_ITEM) {
 
