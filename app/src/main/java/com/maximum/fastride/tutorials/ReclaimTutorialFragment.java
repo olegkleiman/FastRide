@@ -13,7 +13,7 @@ import com.maximum.fastride.R;
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link ReclaimTutorialFragment.OnFragmentInteractionListener} interface
+ * {@link OnFragmentInteractionListener} interface
  * to handle interaction events.
  * Use the {@link ReclaimTutorialFragment#newInstance} factory method to
  * create an instance of this fragment.
