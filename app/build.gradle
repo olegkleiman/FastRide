@@ -1,170 +1,160 @@
 import org.apache.tools.ant.taskdefs.condition.Os
 
-apply plugin: 'com.android.application'
+apply plugin: 'com.android.model.application'
 
-android {
-    compileSdkVersion 'Google Inc.:Google APIs:22'
-    buildToolsVersion "22.0.1"
+model {
 
-    defaultConfig {
-        applicationId "com.maximum.fastride"
-        minSdkVersion 16
-        targetSdkVersion 22
-        versionCode 2
-        versionName '1.1'
-        multiDexEnabled = true
-
-        testApplicationId "com.maximum.fastride.tests"
-        testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
-
-        ndk {
-            moduleName "fastcvUtils"
-            abiFilters "armeabi"
-            ldLibs "EGL", "GLESv3", "dl", "log"
-        }
-
+    compileOptions.with {
+        sourceCompatibility = JavaVersion.VERSION_1_7
+        targetCompatibility = JavaVersion.VERSION_1_7
     }
 
-    def libsDir = projectDir.path + "/libs"
+    android {
+        compileSdkVersion = 'Google Inc.:Google APIs:22'
+        buildToolsVersion = "22.0.1"
+        packagingOptions.excludes = ['LICENSE.txt']
 
-    sourceSets{
-        main {
-            jniLibs.srcDir 'src/main/libs' //set .so files location to libs
-            jni.srcDirs = [] // This prevents the auto generation of Android.mk
-            //jni.srcDirs 'src/jni'
+        defaultConfig.with {
+            applicationId = "com.maximum.fastride"
+            minSdkVersion.apiLevel = 16
+            targetSdkVersion.apiLevel = 22
+            versionCode = 3
+            versionName = '1.3'
+            multiDexEnabled = true
+
+            testApplicationId = "com.maximum.fastride.tests"
+            testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
         }
     }
 
-    buildTypes {
+    android.ndk {
+        moduleName = "fastcvUtils"
+
+        abiFilters += ["armeabi", "armeabi-v7a"]
+        //abiFilters += "armeabi-v7a"
+
+//        toolchain = "clang"
+//        toolchainVersion = "3.5"
+
+        // Link with static OpenCV libraries: the order is important!
+        // The following order taken from OpenCV.mk
+        def opencv_modules = ["shape", "stitching", "objdetect", "superres", "videostab", "calib3d", "features2d", "highgui", "videoio", "imgcodecs", "video", "photo", "ml", "imgproc", "flann", "core", "hal", "tbb"]
+
+        ldLibs += ["log","stdc++","dl", "z"]
+
+        abiFilters.each { targetAbi ->
+            println targetAbi
+
+            opencv_modules.each{ module ->
+                if( module.equals("tbb")) {
+                    ldLibs += file(projectDir).absolutePath + "/src/main/jniLibs/" + targetAbi +"/lib" + module + ".a"
+                } else {
+                    ldLibs += file(projectDir).absolutePath + "/src/main/jniLibs/" + targetAbi + "/libopencv_" + module + ".a"
+                }
+            }
+        }
+
+        cppFlags   += "-Werror"
+        cppFlags   += "--debug"
+        cppFlags   += "-frtti"
+        cppFlags   += "-fexceptions"
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            def opencvhome = System.getenv("OPENCV_HOME")
+            cppFlags += "-I" + opencvhome + "\\native\\jni\\include"
+        } else {
+            cppFlags += "-I/Users/Oleg/Downloads/OpenCV-android-sdk/sdk/native/jni/include"
+        }
+        cppFlags    += "-std=c++11" // for lambda-expressions
+
+        stl = "gnustl_static"
+
+    }
+
+    android.buildTypes {
         release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
-        }
-        debug {
-            jniDebuggable true
-            debuggable true
-        }
-    }
-    productFlavors {
-//        jbFlavor {
-//            minSdkVersion 16
-//            versionName '1.0-jellyBean'
-//            applicationId 'com.maximum.fastride.jbFlavor'
-//        }
-        lpFlavor {
-            minSdkVersion 16
-            versionName '1.1'
-            applicationId 'com.maximum.fastride.lpFlavor'
-            versionCode 2
+            isMinifyEnabled = false
+            proguardFiles += file('proguard-rules.pro')
+            isJniDebuggable = true
+            isDebuggable = true
         }
 
-        arm {
-            ndk {
-                moduleName "fastcvUtils"
-                abiFilters "armeabi-v7a"
-                versionCode 1
-                ldLibs libsDir + "armeabi/libopencv_core.a"
+        debug {
+            isJniDebuggable = true
+            isDebuggable = true
+        }
+    }
+
+    android.productFlavors {
+
+        create("arm") {
+            ndk.with {
+
+                abiFilters += "armeabi"
+                println "*** building for arm"
             }
 
         }
+
+        create("armv7") {
+            ndk.with {
+
+                abiFilters += "armeabi-v7a"
+                println "*** building for armv7"
+            }
+
+        }
+
+//        create("x86") {
+//            ndk.with {
+//                abiFilters += "x86"
+//                println "*** building for x86"
+//            }
+//        }
     }
 
-    dexOptions {
-        javaMaxHeapSize "4g"
-    }
+//    components.android {
+//        binaries.afterEach { binary ->
+//            println "Binary: " + binary.name
+//            binary.mergedNdkConfig.cppFlags.add("-std=c++11")
+//        }
+//    }
+
+//    dexOptions {
+//        javaMaxHeapSize = "4g"
+//    }
 }
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-    // Unit testing dependencies
-    androidTestCompile 'junit:junit:4.12'
+
+    compile 'com.android.support:support-v4:22.2.1'
+    compile 'com.android.support:design:22.2.1'
+
+    compile 'com.android.support:appcompat-v7:22.2.1'
+    compile 'com.android.support:cardview-v7:22.2.1'
+    compile 'com.android.support:recyclerview-v7:22.2.1'
+
+//    // Unit testing dependencies
+    //androidTestCompile 'junit:junit:4.12'
     compile files('libs/mobileservices-2.0.1-beta.jar')
-    //compile 'com.microsoft.azure:azure-mobile-services-android-sdk:2.0.2+'
-    compile files('libs/notifications-1.0.1.jar')
+////    //compile 'com.microsoft.azure:azure-mobile-services-android-sdk:2.0.2+compile files('libs/notifications-1.0.1.jar')
     compile 'com.google.code.gson:gson:2+'
-    compile 'com.android.support:appcompat-v7:22.2.0'
-    compile 'com.android.support:cardview-v7:22.2.0'
-    compile 'com.android.support:recyclerview-v7:22.2.0'
     compile 'com.microsoft.azure.android:azure-storage-android:0.3.0@aar'
     compile 'com.google.guava:guava:17.+'
     compile 'com.facebook.android:facebook-android-sdk:3.21.1'
     //compile 'com.facebook.android:facebook-android-sdk:4.0.0'
     // See here: https://developers.google.com/android/guides/setup
     // for detailed discussion about setting up GMS
+
     compile 'com.google.android.gms:play-services-location:7.5.0'
     compile 'com.google.android.gms:play-services-gcm:7.5.0'
-    compile 'com.google.android.gms:play-services-plus:7.5.0'
-    //compile 'com.google.android.gms:play-services:7.5.0'
-    compile 'com.android.support:design:22.2.0'
-    compile 'com.android.support:multidex:1.0.0'
+    // GPlus is incompatible with facebook 3.21.1
+    // -- causes 'NoClassDefFoundError: android.support.v7.appcompat.R$layout' exception
+    //compile 'com.google.android.gms:play-services-plus:7.5.0'
+
+    compile 'com.android.support:multidex:1.0.1'
     compile 'com.afollestad:material-dialogs:0.7.5.2'
     compile 'org.apache.commons:commons-math3:3.2'
     compile project(':libraries:opencv')
 }
 
-//def getVersionCodeFromManifest() {
-//    def manifestFile = file(android.sourceSets.main.manifest.srcFile)
-//    def pattern = Pattern.compile("versionCode=\"(\\d+)\"")
-//    def matcher = pattern.matcher(manifestFile.getText())
-//    matcher.find()
-//    return Integer.parseInt(matcher.group(1))
-//}
-
-task buildNative(type: Exec, description: 'Compile JNI source via NDK') {
-    //def ndkDir = android.plugin.ndkFolder //'D:\\android-ndk-r10d'
-    //def ndkDir = project.plugins.findPlugin('com.android.application').getNdkFolder()
-    //println( project.getPlugins().getPlugin('com.android.application').getProperties() )
-
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-
-        def ndkDir = 'D:\\android-ndk-r10e'
-
-        println "Using NDK from $ndkDir"
-        commandLine "$ndkDir\\ndk-build.cmd",
-                '-C', file('src/main/jni').absolutePath,
-                '-j', Runtime.runtime.availableProcessors()
-                //'V', '1'
-        // 'NDK_APPLICATION_MK', 'src/main/jni/Application.mk'
-        // 'all',
-        // '-d',
-                //'NDK_DEBUG=1'
-    } else {
-        commandLine "$ndkDir\\ndk-build",
-                '-C', file('src/main/jni').absolutePath,
-                '-j', Runtime.runtime.availableProcessors(),
-                //'all',
-                '-d',
-                'NDK_DEBUG=1'
-    }
-}
-
-task cleanNative(type: Exec, description: 'Clean JNI object files') {
-
-    //def ndkDir = project.plugins.findPlugin('com.android.application').getNdkFolder()
-
-    if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-
-        def ndkDir = 'D:\\android-ndk-r10e'
-
-        println "Cleaning project with NDK from $ndkDir"
-        commandLine "$ndkDir/ndk-build.cmd",
-                '-C', file('src/main/jni').absolutePath, // Change src/main/jni the relative path to your jni source
-                'clean'
-    } else {
-        commandLine "$ndkDir/ndk-build",
-                '-C', file('src/main/jni').absolutePath, // Change src/main/jni the relative path to your jni source
-                'clean'
-    }
-}
-
-//task copyNativeLibs(dependsOn:buildNative, type: Copy) {
-//    println 'Copying *.so files from /src/main/libs to /build/lib'
-//    from(new File('src/main/libs')) { include '**/*.so' }
-//    into new File(buildDir, 'lib')
-//}
-
-clean.dependsOn 'cleanNative'
-
-tasks.withType(JavaCompile) {
-    compileTask -> compileTask.dependsOn buildNative
-}
