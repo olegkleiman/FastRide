@@ -47,7 +47,7 @@ public class FaceOverlayView extends View {
 		mOrientation = orientation;
 	}
 
-	public void setFaces(android.hardware.Camera.Face[] faces){
+	public void setFaces(Face[] faces){
 		mFaces = faces;
 	}
 	

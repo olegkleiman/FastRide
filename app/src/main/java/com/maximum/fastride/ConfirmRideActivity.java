@@ -22,7 +22,7 @@ import rekognition.RekoSDK;
 
 public class ConfirmRideActivity extends Activity {
 
-    private static final String LOG_TAG = "fast_ride.ConfirmRideActivity";
+    private static final String LOG_TAG = "FR.ConfirmRideActivity";
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
     private ProgressDialog mDialog = null;
