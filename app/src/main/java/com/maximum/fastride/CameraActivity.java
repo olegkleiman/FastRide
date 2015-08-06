@@ -49,7 +49,8 @@ public class CameraActivity extends Activity
 		@Override
 		public void onFaceDetection(Face[] faces, Camera camera) {
 			Log.d(LOG_TAG, "Number of faces detected: " + faces.length);
-			mFaceView.setFaces(faces);
+            if( mFaceView != null )
+			    mFaceView.setFaces(faces);
 
             for(int i = 0 ; i < faces.length ; i++){
                 int posX = midScreenWidth - faces[0].rect.centerX();
@@ -108,7 +109,7 @@ public class CameraActivity extends Activity
 
         try {
             int nCamerasCount = Camera.getNumberOfCameras();
-            mCamera = Camera.open();
+            mCamera = Camera.open(Camera.CameraInfo.CAMERA_FACING_FRONT);
         } catch(Exception ex) {
             Log.e(LOG_TAG, ex.getMessage());
             Toast.makeText(this, ex.getMessage(), Toast.LENGTH_LONG).show();
