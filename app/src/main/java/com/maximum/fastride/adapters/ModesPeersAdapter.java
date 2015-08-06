@@ -46,7 +46,7 @@ public class ModesPeersAdapter extends RecyclerView.Adapter<ModesPeersAdapter.Vi
     }
 
     @Override
-    public ModesPeersAdapter.ViewHolder onCreateViewHolder(ViewGroup parent,
+    public ViewHolder onCreateViewHolder(ViewGroup parent,
                                                            int viewType) {
         View v;
         View.OnClickListener listener = null;
@@ -67,7 +67,7 @@ public class ModesPeersAdapter extends RecyclerView.Adapter<ModesPeersAdapter.Vi
     }
 
     @Override
-    public void onBindViewHolder(ModesPeersAdapter.ViewHolder holder,
+    public void onBindViewHolder(ViewHolder holder,
                                  int position) {
         if (holder.holderId == TYPE_ITEM) {
             FRMode mode = items.get(position - 1);

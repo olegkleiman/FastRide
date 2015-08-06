@@ -38,7 +38,7 @@ public class MyRidesAdapter extends RecyclerView.Adapter<MyRidesAdapter.ViewHold
 
 
     @Override
-    public MyRidesAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
 
         View v = LayoutInflater
                 .from(parent.getContext())
@@ -49,7 +49,7 @@ public class MyRidesAdapter extends RecyclerView.Adapter<MyRidesAdapter.ViewHold
     }
 
     @Override
-    public void onBindViewHolder(MyRidesAdapter.ViewHolder holder, int position) {
+    public void onBindViewHolder(ViewHolder holder, int position) {
 
         Ride ride = items.get(position);
 
@@ -110,11 +110,11 @@ public class MyRidesAdapter extends RecyclerView.Adapter<MyRidesAdapter.ViewHold
             super(itemView);
 
             mClickListener = clickListener;
-            DriverImage = (ImageView) itemView.findViewById(R.id.imageDriver);
-            ApprovedSing = (ImageView) itemView.findViewById(R.id.ApprovedSing);
-            SteeringWheel = (ImageView) itemView.findViewById(R.id.SteeringWheel);
-            driverName = (TextView) itemView.findViewById(R.id.txtDriverName);
-            created = (TextView) itemView.findViewById(R.id.txtCreated);
+//            DriverImage = (ImageView) itemView.findViewById(R.id.imageDriver);
+//            ApprovedSing = (ImageView) itemView.findViewById(R.id.ApprovedSing);
+//            SteeringWheel = (ImageView) itemView.findViewById(R.id.SteeringWheel);
+//            driverName = (TextView) itemView.findViewById(R.id.txtDriverName);
+//            created = (TextView) itemView.findViewById(R.id.txtCreated);
             rowLayout = (LayoutRipple) itemView.findViewById(R.id.myRideRaw);
 
             rowLayout.setOnClickListener(this);
