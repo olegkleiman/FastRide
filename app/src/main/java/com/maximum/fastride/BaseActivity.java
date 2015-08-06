@@ -13,8 +13,8 @@ import android.preference.PreferenceManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -40,7 +40,8 @@ import java.util.StringTokenizer;
 /**
  * Created by Oleg Kleiman on 22-May-14.
  */
-public class BaseActivity extends ActionBarActivity
+//public class BaseActivity extends ActionBarActivity
+public class BaseActivity extends AppCompatActivity
         implements GoogleApiClient.OnConnectionFailedListener{
 
     private GoogleApiClient mGoogleApiClient;
@@ -214,7 +215,7 @@ public class BaseActivity extends ActionBarActivity
         if( mGoogleApiClient != null )
             mGoogleApiClient.disconnect();
 
-        super.onStop();
+        super.onDestroy();
     }
 
     public void wamsInit(Boolean withAutoUpdate) {
