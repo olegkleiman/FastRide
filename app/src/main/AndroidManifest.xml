@@ -52,6 +52,7 @@
 
     <application
         android:allowBackup="true"
+        android:name="android.support.multidex.MultiDexApplication"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:supportsRtl="true"
@@ -65,7 +66,54 @@
             android:name="com.facebook.sdk.ApplicationId"
             android:value="@string/facebook_app_id" />
 
-        <!-- android:screenOrientation="landscape" -->
+        <activity
+            android:name="com.maximum.fastride.MainActivity"
+            android:label="@string/app_name"
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+                <category android:name="android.intent.category.LEANBACK_LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".RegisterActivity"
+            android:label="@string/title_activity_register"
+            android:theme="@style/AppTheme" >
+        </activity>
+
+        <activity
+            android:name=".DriverRoleActivity"
+            android:label="@string/title_activity_driver_role"
+            android:configChanges="orientation|screenSize"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme" >
+        </activity>
+
+        <activity
+            android:name=".PassengerRoleActivity"
+            android:label="@string/title_activity_passenger_role"
+            android:configChanges="orientation|screenSize"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme" >
+        </activity>
+
+        <activity
+            android:name=".SettingsActivity"
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme" >
+        </activity>
+
+        <activity
+            android:name=".AboutActivity"
+            android:label="@string/title_activity_about"
+            android:theme="@style/AppTheme" >
+        </activity>
+
         <activity
             android:name=".CameraActivity"
             android:label="@string/title_activity_camera"
@@ -79,6 +127,7 @@
             android:configChanges="keyboardHidden|orientation"
             android:theme="@android:style/Theme.Black.NoTitleBar.Fullscreen">
         </activity>
+
 
         <activity
             android:name="com.facebook.LoginActivity"
@@ -95,16 +144,23 @@
             android:parentActivityName=".MainActivity" >
         </activity>
         <activity
+            android:name=".MyRidesActivity"
+            android:label="@string/title_activity_my_rides"
+            android:theme="@style/AppTheme">
+        </activity>
+        <activity
             android:name=".RideDetailsActivity"
             android:label="@string/title_activity_ride_detail"
             android:parentActivityName=".MyRidesActivity" >
         </activity>
+
 
         <receiver
             android:name="com.microsoft.windowsazure.notifications.NotificationsBroadcastReceiver"
             android:permission="com.google.android.c2dm.permission.SEND" >
             <intent-filter>
                 <action android:name="com.google.android.c2dm.intent.RECEIVE" />
+
 
                 <category android:name="com.maximum.fastride" />
             </intent-filter>
@@ -115,15 +171,25 @@
             android:exported="true" >
         </receiver>
 
+
         <service
             android:name=".TransferService"
             android:exported="false" >
         </service>
         <service android:name=".GeofenceTransitionsIntentService" />
+
         <service
             android:name=".services.AutoUpdateService"
             android:enabled="true" >
         </service>
+
+        <service
+            android:name=".jobs.GeofencesDownloadService"
+            android:permission="android.permission.BIND_JOB_SERVICE"
+            android:enabled="true"
+            android:exported="true">
+        </service>
+
 
     </application>
 

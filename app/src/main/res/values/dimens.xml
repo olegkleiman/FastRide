@@ -29,7 +29,8 @@
     <dimen name="snackbar_leftpadding">16dp</dimen>
     <dimen name="snackbar_rightpadding">16dp</dimen>
 
-
+    <dimen name="elevation_low">1dp</dimen>
+    <dimen name="elevation_high">4dp</dimen>
 
 </resources>
 

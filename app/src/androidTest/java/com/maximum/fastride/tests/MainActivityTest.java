@@ -32,11 +32,11 @@ public class MainActivityTest extends ActivityInstrumentationTestCase2<MainActiv
         activity = getActivity();
     }
 
-    @SmallTest
-    public void testLayout() {
-        ImageView imageAvatar = (ImageView)activity.findViewById(R.id.userAvatarView);
-        assertNotNull(imageAvatar);
-    }
+//ok    @SmallTest
+//ok    public void testLayout() {
+//ok        ImageView imageAvatar = (ImageView)activity.findViewById(R.id.userAvatarView);
+//ok        assertNotNull(imageAvatar);
+//ok    }
 
     @MediumTest
     public void testGetLatestVersion(){
