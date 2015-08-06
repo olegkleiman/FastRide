@@ -3,17 +3,15 @@ package com.maximum.fastride.cv.filters;
 import android.content.Context;
 
 import org.opencv.android.Utils;
-import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfDMatch;
 import org.opencv.core.MatOfKeyPoint;
-import org.opencv.core.Point;
 import org.opencv.core.Scalar;
 import org.opencv.features2d.DescriptorExtractor;
 import org.opencv.features2d.DescriptorMatcher;
 import org.opencv.features2d.FeatureDetector;
-import org.opencv.highgui.Highgui;
+//import org.opencv.highgui.Highgui;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.IOException;
@@ -48,8 +46,8 @@ public class ImageDetectionFilter implements Filter {
     public ImageDetectionFilter(final Context context,
                                 final int referenceImageResourceID)
         throws IOException {
-        mReferenceImage = Utils.loadResource(context, referenceImageResourceID,
-                                            Highgui.CV_LOAD_IMAGE_COLOR);
+        mReferenceImage = Utils.loadResource(context, referenceImageResourceID, 0);
+//                                            Highgui.CV_LOAD_IMAGE_COLOR);
 
 
         final Mat referenceImageGray = new Mat();
@@ -114,21 +112,21 @@ public class ImageDetectionFilter implements Filter {
             return;
         }
 
-        Core.line(dst,
-                new Point(mSceneCorners.get(0,0)),
-                new Point(mSceneCorners.get(1, 0)),
-                mLineColor, 4);
-        Core.line(dst,
-                  new Point(mSceneCorners.get(1, 0)),
-                  new Point(mSceneCorners.get(2, 0)),
-                  mLineColor, 4);
-        Core.line(dst,
-                new Point(mSceneCorners.get(2, 0)),
-                new Point(mSceneCorners.get(3, 0)),
-                mLineColor, 4);
-        Core.line(dst,
-                new Point(mSceneCorners.get(0, 0)),
-                new Point(mSceneCorners.get(0, 0)),
-                mLineColor, 4);
+//        Core.line(dst,
+//                new Point(mSceneCorners.get(0,0)),
+//                new Point(mSceneCorners.get(1, 0)),
+//                mLineColor, 4);
+//        Core.line(dst,
+//                  new Point(mSceneCorners.get(1, 0)),
+//                  new Point(mSceneCorners.get(2, 0)),
+//                  mLineColor, 4);
+//        Core.line(dst,
+//                new Point(mSceneCorners.get(2, 0)),
+//                new Point(mSceneCorners.get(3, 0)),
+//                mLineColor, 4);
+//        Core.line(dst,
+//                new Point(mSceneCorners.get(0, 0)),
+//                new Point(mSceneCorners.get(0, 0)),
+//                mLineColor, 4);
     }
 }
