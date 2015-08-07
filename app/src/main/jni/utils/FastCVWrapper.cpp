@@ -47,9 +47,11 @@ JNIEXPORT int JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_DetectFace
     CascadeClassifier face_cascade;
     vector<Rect> faces;
 
-    //cvtColor(addrRgba, img_gray, CV_BGR2GRAY );
-//    face_cascade.detectMultiScale(addrRgba, faces, 1.1, 2,
-//                                    0|CV_HAAR_SCALE_IMAGE, Size(30, 30) );
+    Mat imgGray;
+
+    cvtColor(addrRgba, imgGray, CV_BGR2GRAY );
+    face_cascade.detectMultiScale(addrRgba, faces, 1.1, 2,
+                                    0|CV_HAAR_SCALE_IMAGE, Size(30, 30) );
     int face_size = faces.size();
     if ( face_size > 0)
     {
@@ -79,7 +81,9 @@ JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FindFeatur
     Mat& mRgb = *(Mat*)addrRgba;
     vector<KeyPoint> keypoints;
 
-    Ptr<FastFeatureDetector> fastFeatureDetector = FastFeatureDetector::create(10, true, FastFeatureDetector::TYPE_9_16);
+    flip(mGr, mGr, 1);
+
+    Ptr<FastFeatureDetector> fastFeatureDetector = FastFeatureDetector::create(10, true, FastFeatureDetector::TYPE_7_12);
     if( fastFeatureDetector.empty())
     {
         DPRINTF("Can not create detector or descriptor extractor or descriptor matcher of given types");
@@ -101,6 +105,8 @@ JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FindFeatur
 //            circle(mRgb, Point(kp.pt.x, kp.pt.y), 10, Scalar(255,0,0,255));
 //        }
 //    }
+
+    //delete fastFeatureDetector;
 
     //DPRINTF("Finished FindFeatures");
 }

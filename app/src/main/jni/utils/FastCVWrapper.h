@@ -33,7 +33,7 @@ JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FindFeatur
 
 
 JNIEXPORT int JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_DetectFace
-    (JNIEnv *je, jclass jc, jlong addrRgba, jstring face_cascade_name);
+    (JNIEnv *je, jclass jc,  jlong addrRgba, jstring face_cascade_name);
 
 JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_Blur
     (JNIEnv *je, jclass jc, jlong addrGray);
