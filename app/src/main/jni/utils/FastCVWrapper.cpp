@@ -79,7 +79,7 @@ JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FindFeatur
     Mat& mRgb = *(Mat*)addrRgba;
     vector<KeyPoint> keypoints;
 
-    Ptr<FastFeatureDetector> fastFeatureDetector = FastFeatureDetector::create(1, true, FastFeatureDetector::TYPE_9_16);
+    Ptr<FastFeatureDetector> fastFeatureDetector = FastFeatureDetector::create(10, true, FastFeatureDetector::TYPE_9_16);
     if( fastFeatureDetector.empty())
     {
         DPRINTF("Can not create detector or descriptor extractor or descriptor matcher of given types");
