@@ -254,9 +254,14 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
         super.onResume();
 
         if( !OpenCVLoader.initDebug() ) {
+        // Roughly, it's an analog of System.loadLibrary('opencv_java3') - meaning .so library
+        // In our case it is supposed to always return false, because we aare statically linked with opencv_java3.so
+        // (in jniLbs/<platform> folder.
+        //
+        // Such way of linking allowed for running without OpenCV Manager (https://play.google.com/store/apps/details?id=org.opencv.engine&hl=en)
             Log.d(LOG_TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
 
-            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_2_4_11,
+            OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0,
                     this,
                     mLoaderCallback);
         } else {
