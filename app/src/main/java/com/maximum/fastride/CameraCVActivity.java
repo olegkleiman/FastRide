@@ -26,10 +26,14 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.MatOfKeyPoint;
 import org.opencv.core.Point;
 import org.opencv.core.Scalar;
+import org.opencv.features2d.FeatureDetector;
+import org.opencv.features2d.Features2d;
 import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
@@ -176,14 +180,16 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
 
         mCameraDirective = getString(R.string.camera_directive_1);
 
-//        File outputDir = getCacheDir();
-//        try {
-//            mDetectorConfigFile = File.createTempFile("orbDetectorParams", ".YAML", outputDir);
-//            writeToFile(mDetectorConfigFile, "%YAML:1.0\nscaleFactor: 1.2\nnLevels: 8\nfirstLevel: 0 \nedgeThreshold: 31\npatchSize: 31\nWTA_K: 2\nscoreType: 1\nnFeatures: 500\n");
-//
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
+        File outputDir = getCacheDir();
+        try {
+            mDetectorConfigFile = File.createTempFile("orbDetectorParams", ".YAML", outputDir);
+            String fastConfig = "%YAML:1.0\nthreshold: 10\nnonmaxSuppression: 1\ntype : 1\n";
+            String orbConfig  = "%YAML:1.0\nscaleFactor: 1.2\nnLevels: 8\nfirstLevel: 0 \nedgeThreshold: 31\npatchSize: 31\nWTA_K: 2\nscoreType: 1\nnFeatures: 500\n";
+            writeToFile(mDetectorConfigFile, fastConfig);
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -300,6 +306,7 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
+
     //        final Mat rgba = inputFrame.rgba();
 
 ////        if( mImageDetectionFilters != null ) {
@@ -317,35 +324,45 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
         mRgba = inputFrame.rgba();
         mGray = inputFrame.gray();
 
-        long start = System.currentTimeMillis();
+        try {
 
-        // Assume the camera if front facing,
-        // mirror (horizontally flip) the preview
-        //Core.flip(mRgba, mRgba, 1);
+            long start = System.currentTimeMillis();
 
-//        MatOfKeyPoint keyPoints = new MatOfKeyPoint();
-//
-//        FeatureDetector mDetector = FeatureDetector.create(FeatureDetector.FAST);
-////        //mDetector.read(mDetectorConfigFile.getPath());
-//        mDetector.detect(mRgba, keyPoints);
-////
-////        //Imgproc.cvtColor(inputFrame, mRgba, Imgproc.COLOR_RGBA2RGB);
-//        Features2d.drawKeypoints(mGray, keyPoints, mRgba);
-//        //Features2d.drawKeypoints(image1, keyPoints, imageOut2, new Scalar(2,254,255),Features2d.DRAW_RICH_KEYPOINTS);
-//        //Imgproc.cvtColor(rgb, o_image, Imgproc.COLOR_RGB2RGBA);
+//            // Assume the camera if front facing,
+//            // mirror (horizontally flip) the preview
+            Core.flip(mGray, mGray, 1);
 
+            MatOfKeyPoint keyPoints = new MatOfKeyPoint();
+            FeatureDetector detector = FeatureDetector.create(FeatureDetector.FAST);
+            if( detector.empty() )
+                return mRgba;
 
-        FastCVWrapper cvWrapper = new FastCVWrapper();
-        cvWrapper.FindFeatures(mGray.getNativeObjAddr(), mRgba.getNativeObjAddr());
-        //cvWrapper.Blur(mRgba.getNativeObjAddr());
-        //Imgproc.GaussianBlur(mRgba, mRgba, new Size(3,3), 7.0);
+            detector.read(mDetectorConfigFile.getPath());
+            detector.detect(mRgba, keyPoints);
 
-        mExecutionTime += (System.currentTimeMillis() - start);
-        String msg = String.format("Executed for %d ms.", mExecutionTime/++mFramesReceived);
-        Log.d(LOG_TAG, msg);
+            //Imgproc.cvtColor(mRgba, mRgba, Imgproc.COLOR_RGBA2RGB, 4);
+            Features2d.drawKeypoints(mGray, keyPoints, mRgba);
+//        Features2d.drawKeypoints(mGray, keyPoints, mRgba,
+//                new Scalar(2, 254, 255),
+//                Features2d.DRAW_OVER_OUTIMG);
+////        //Imgproc.cvtColor(rgb, o_image, Imgproc.COLOR_RGB2RGBA);
 
-        Imgproc.putText(mRgba, mCameraDirective, new Point(100,100),
-                     3, 1, mCameraFontColor, 2);
+//        FastCVWrapper cvWrapper = new FastCVWrapper();
+//        cvWrapper.FindFeatures(mGray.getNativeObjAddr(), mRgba.getNativeObjAddr());
+            //cvWrapper.Blur(mRgba.getNativeObjAddr());
+            //Imgproc.GaussianBlur(mRgba, mRgba, new Size(3,3), 7.0);
+
+            mExecutionTime += (System.currentTimeMillis() - start);
+            String msg = String.format("Executed for %d ms.", mExecutionTime / ++mFramesReceived);
+            Log.d(LOG_TAG, msg);
+
+            Imgproc.putText(mRgba, mCameraDirective, new Point(100, 100),
+                    3, 1, mCameraFontColor, 2);
+
+        } catch(Exception ex) {
+
+            Log.d(LOG_TAG, ex.getMessage());
+        }
 
         return mRgba;
     }
