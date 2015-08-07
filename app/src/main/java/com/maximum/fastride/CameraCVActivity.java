@@ -28,7 +28,9 @@ import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.core.Scalar;
+import org.opencv.imgproc.Imgproc;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -342,8 +344,8 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
         String msg = String.format("Executed for %d ms.", mExecutionTime/++mFramesReceived);
         Log.d(LOG_TAG, msg);
 
-//        Core.putText(mRgba, mCameraDirective, new Point(100,100),
-//                     3, 1, mCameraFontColor, 2);
+        Imgproc.putText(mRgba, mCameraDirective, new Point(100,100),
+                     3, 1, mCameraFontColor, 2);
 
         return mRgba;
     }
