@@ -1,8 +1,15 @@
 package com.maximum.fastride.tests;
 
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.suitebuilder.annotation.MediumTest;
+import android.test.suitebuilder.annotation.SmallTest;
+import android.view.SurfaceView;
+import android.widget.ImageView;
 
 import com.maximum.fastride.CameraCVActivity;
+import com.maximum.fastride.R;
+
+import org.opencv.android.CameraBridgeViewBase;
 
 /**
  * Created by Oleg Kleiman on 29-Jul-15.
@@ -27,6 +34,15 @@ public class OpenCVActivityTest extends ActivityInstrumentationTestCase2<CameraC
         super.setUp();
 
         activity = getActivity();
+    }
+
+    @SmallTest
+    public void testLayout() {
+        CameraBridgeViewBase camera = (CameraBridgeViewBase)activity.findViewById(R.id.java_surface_view);
+        assertNotNull(camera);
+
+//        camera.setVisibility(SurfaceView.VISIBLE);
+//        camera.setCvCameraViewListener(activity);
     }
 
     @Override
