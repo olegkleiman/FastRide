@@ -32,7 +32,6 @@ model {
         moduleName = "fastcvUtils"
 
         abiFilters += ["armeabi", "armeabi-v7a"]
-        //abiFilters += "armeabi-v7a"
 
 //        toolchain = "clang"
 //        toolchainVersion = "3.5"
