@@ -23,7 +23,8 @@ model {
             multiDexEnabled = true
 
             testApplicationId = "com.maximum.fastride.tests"
-            testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
+            //testInstrumentationRunner = "android.support.test.runner.AndroidJUnitRunner"
+            testInstrumentationRunner = "android.test.InstrumentationTestRunner"
         }
     }
 
@@ -40,7 +41,7 @@ model {
         // The following order taken from OpenCV.mk
         def opencv_modules = ["shape", "stitching", "objdetect", "superres", "videostab", "calib3d", "features2d", "highgui", "videoio", "imgcodecs", "video", "photo", "ml", "imgproc", "flann", "core", "hal", "tbb"]
 
-        ldLibs += ["log","stdc++","dl", "z"]
+        ldLibs += ["log","stdc++","dl", "z", "jnigraphics"]
 
         abiFilters.each { targetAbi ->
             println targetAbi
@@ -58,6 +59,8 @@ model {
         cppFlags   += "--debug"
         cppFlags   += "-frtti"
         cppFlags   += "-fexceptions"
+        cppFlags   += "-D_DEBUG"
+
         if (Os.isFamily(Os.FAMILY_WINDOWS)) {
             def opencvhome = System.getenv("OPENCV_HOME")
             cppFlags += "-I" + opencvhome + "\\native\\jni\\include"
@@ -65,6 +68,8 @@ model {
             cppFlags += "-I/Users/Oleg/Downloads/OpenCV-android-sdk/sdk/native/jni/include"
         }
         cppFlags    += "-std=c++11" // for lambda-expressions
+
+        //CFlags      += "-D_DEBUG"
 
         stl = "gnustl_static"
 
