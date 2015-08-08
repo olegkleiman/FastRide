@@ -43,18 +43,18 @@ JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FrameTick
 }
 
 JNIEXPORT int JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_DetectFace
-    (JNIEnv *je, jclass jc, jlong addrRgba, jstring face_cascade_name)
+    (JNIEnv *env, jclass jc, jlong addrRgba, jstring face_cascade_name)
 {
     CascadeClassifier face_cascade;
     vector<Rect> faces;
 
-    const char *cascade_name = je->GetStringUTFChars(face_cascade_name, NULL);
+    const char *cascade_name = env->GetStringUTFChars(face_cascade_name, NULL);
 
     if( !face_cascade.load(cascade_name) ) {
         DPRINTF("Can not load cascade filter");
     }
 
-    je->ReleaseStringUTFChars(face_cascade_name, cascade_name);
+    env->ReleaseStringUTFChars(face_cascade_name, cascade_name);
 
     Mat imgGray;
 
@@ -72,14 +72,16 @@ JNIEXPORT int JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_DetectFace
 
 
 JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_Blur
-        (JNIEnv *env, jclass jc, jlong addrChannel, int smoothType, jobject bitmap)
+        (JNIEnv *env, jclass jc, jlong addrGray, jlong addrRbga, int smoothType, jobject bitmap)
 {
 
 //    jclass clazz = je->FindClass("org/opencv/core/mat");
 //    jmethodID methidID = je->GetMethodID(clazz, "getNativeObjAddr", "()J");
 
-    Mat& mChannel  = *(Mat*)addrChannel;
-    int matType = mChannel.type();
+    Mat& mGrayChannel  = *(Mat *)addrGray;
+    Mat& mRgbChannel   = *(Mat *)addrRbga;
+
+    int matType = mGrayChannel.type();
     CV_DbgAssert( matType == CV_8UC1 || matType == CV_8UC3 || matType == CV_8UC4 );
 
     AndroidBitmapInfo infoSrc;
@@ -91,25 +93,27 @@ JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_Blur
 //   CV_DbgAssert( AndroidBitmap_lockPixels(env, bitmap, &pixels) >= 0 );
 //   CV_DbgAssert( pixels );
 
-    int dims = mChannel.dims;
-    CV_DbgAssert( dims == 2 && infoSrc.height == (uint32_t)mChannel.rows && infoSrc.width == (uint32_t)mChannel.cols );
+    int dims = mGrayChannel.dims;
+    CV_DbgAssert( dims == 2
+                  && infoSrc.height == (uint32_t)mGrayChannel.rows
+                  && infoSrc.width == (uint32_t)mGrayChannel.cols );
 
-    flip(mChannel, mChannel, 1);
+    flip(mGrayChannel, mGrayChannel, 1);
 
     switch( smoothType ) {
         case 1:
-            blur(mChannel, mChannel, Size(29, 29));
+            blur(mGrayChannel, mGrayChannel, Size(29, 29));
             break;
 
         case 2: {
             const int MEDIAN_BLUR_FILTER_SIZE = 7;
-            medianBlur(mChannel, mChannel, MEDIAN_BLUR_FILTER_SIZE);
+            medianBlur(mGrayChannel, mGrayChannel, MEDIAN_BLUR_FILTER_SIZE);
         }
         break;
 
         case 3: {
             const double SIGMA_X = 7.0;
-            GaussianBlur(mChannel, mChannel, Size(9,9), SIGMA_X);
+            GaussianBlur(mGrayChannel, mGrayChannel, Size(9,9), SIGMA_X);
         }
         break;
 
@@ -125,7 +129,8 @@ JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_Blur
 
             //cvtColor(mChannel, tmp, COLOR_GRAY2RGBA);
             // The source should be 8-bit, 1 channel
-            bilateralFilter(mChannel, tmp, 15, 80, 80);
+            bilateralFilter(mGrayChannel, tmp, 15, 80, 80);
+            cvtColor(tmp, mRgbChannel, CV_GRAY2RGB);
         }
         break;
 
