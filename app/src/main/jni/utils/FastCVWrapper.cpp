@@ -1,6 +1,4 @@
 #include <jni.h>
-#include <android/log.h>
-#include <android/bitmap.h>
 
 #include <opencv2/core/core.hpp>
 #include <opencv2/imgproc/imgproc.hpp>
@@ -11,11 +9,18 @@
 #include "FastCVWrapper.h"
 #include "FPSCounter.h"
 
+#ifdef __ANDROID__
+
+#include <android/log.h>
+#include <android/bitmap.h>
+
+#endif
+
 using namespace std;
 using namespace cv;
 
 #define CVWRAPPER_LOG_TAG    "fastcvWrapper"
-#ifdef DEBUG
+#ifdef _DEBUG
 
 #define DPRINTF(...)  __android_log_print(ANDROID_LOG_DEBUG,CVWRAPPER_LOG_TAG,__VA_ARGS__)
 #else
@@ -75,17 +80,20 @@ JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_Blur
         (JNIEnv *env, jclass jc, jlong addrGray, jlong addrRbga, int smoothType, jobject bitmap)
 {
 
+    try {
 //    jclass clazz = je->FindClass("org/opencv/core/mat");
 //    jmethodID methidID = je->GetMethodID(clazz, "getNativeObjAddr", "()J");
 
-    Mat& mGrayChannel  = *(Mat *)addrGray;
-    Mat& mRgbChannel   = *(Mat *)addrRbga;
+        Mat &mGrayChannel = *(Mat *) addrGray;
+        Mat &mRgbChannel = *(Mat *) addrRbga;
 
-    int matType = mGrayChannel.type();
-    CV_DbgAssert( matType == CV_8UC1 || matType == CV_8UC3 || matType == CV_8UC4 );
+        int matType = mGrayChannel.type();
+        CV_DbgAssert(matType == CV_8UC1 || matType == CV_8UC3 || matType == CV_8UC4);
 
-    AndroidBitmapInfo infoSrc;
-    CV_DbgAssert( AndroidBitmap_getInfo(env, bitmap, &infoSrc) >= 0 );
+#ifdef __ANDROID__
+        AndroidBitmapInfo infoSrc;
+        CV_DbgAssert(AndroidBitmap_getInfo(env, bitmap, &infoSrc) >= 0);
+#endif
 
 //    uint32_t height = infoSrc.height;
 //    uint32_t width  = infoSrc.width;
@@ -93,56 +101,97 @@ JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_Blur
 //   CV_DbgAssert( AndroidBitmap_lockPixels(env, bitmap, &pixels) >= 0 );
 //   CV_DbgAssert( pixels );
 
-    int dims = mGrayChannel.dims;
-    CV_DbgAssert( dims == 2
-                  && infoSrc.height == (uint32_t)mGrayChannel.rows
-                  && infoSrc.width == (uint32_t)mGrayChannel.cols );
+        int dims = mGrayChannel.dims;
+        CV_DbgAssert(dims == 2
+                     && infoSrc.height == (uint32_t) mGrayChannel.rows
+                     && infoSrc.width == (uint32_t) mGrayChannel.cols);
 
-    flip(mGrayChannel, mGrayChannel, 1);
+        flip(mGrayChannel, mGrayChannel, 1);
 
-    switch( smoothType ) {
-        case 1:
-            blur(mGrayChannel, mGrayChannel, Size(29, 29));
-            break;
+        switch (smoothType) {
+            case 1:
+                blur(mGrayChannel, mGrayChannel, Size(29, 29));
+                break;
 
-        case 2: {
-            const int MEDIAN_BLUR_FILTER_SIZE = 7;
-            medianBlur(mGrayChannel, mGrayChannel, MEDIAN_BLUR_FILTER_SIZE);
+            case 2: {
+                const int MEDIAN_BLUR_FILTER_SIZE = 7;
+                medianBlur(mGrayChannel, mGrayChannel, MEDIAN_BLUR_FILTER_SIZE);
+            }
+                break;
+
+            case 3: {
+                const double SIGMA_X = 7.0;
+                GaussianBlur(mGrayChannel, mGrayChannel, Size(9, 9), SIGMA_X);
+            }
+                break;
+
+            case 4: {
+                const double SIGMA_COLOR = 9.0;
+                const double SIGMA_SPACE = 9.0;
+
+                // This filter does not work inplace!
+                Mat tmp(mGrayChannel.rows, mGrayChannel.cols, CV_8UC1);
+
+#ifdef __ANDROID__
+                CV_DbgAssert(infoSrc.format == ANDROID_BITMAP_FORMAT_RGBA_8888);
+#endif
+
+                CV_DbgAssert(matType == CV_8UC1);
+
+                //cvtColor(mChannel, tmp, COLOR_GRAY2RGBA);
+                // The source should be 8-bit, 1 channel
+                bilateralFilter(mGrayChannel, tmp, 15, 80, 80);
+                cvtColor(tmp, mRgbChannel, CV_GRAY2RGB);
+            }
+                break;
+
+            default:
+                break;
         }
-        break;
 
-        case 3: {
-            const double SIGMA_X = 7.0;
-            GaussianBlur(mGrayChannel, mGrayChannel, Size(9,9), SIGMA_X);
-        }
-        break;
+        //AndroidBitmap_unlockPixels(env, bitmap);
 
-        case 4: {
-            const double SIGMA_COLOR = 9.0;
-            const double SIGMA_SPACE = 9.0;
+    } catch(Exception e) {
 
-            // This filter does not work inplace!
-            Mat tmp(infoSrc.height, infoSrc.width, CV_8UC1);
+        DPRINTF("nMatToBitmap catched cv::Exception: %s", e.what());
 
-            CV_DbgAssert( infoSrc.format == ANDROID_BITMAP_FORMAT_RGBA_8888 );
-            CV_DbgAssert( matType == CV_8UC1);
-
-            //cvtColor(mChannel, tmp, COLOR_GRAY2RGBA);
-            // The source should be 8-bit, 1 channel
-            bilateralFilter(mGrayChannel, tmp, 15, 80, 80);
-            cvtColor(tmp, mRgbChannel, CV_GRAY2RGB);
-        }
-        break;
-
-        default:
-            break;
+        jclass je = env->FindClass("org/opencv/core/CvException");
+        if(!je) je = env->FindClass("java/lang/Exception");
+        env->ThrowNew(je, e.what());
     }
-
-    AndroidBitmap_unlockPixels(env, bitmap);
 
 }
 
-JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FindFeatures
+JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FindFeaturesORB
+        (JNIEnv *je, jclass jc, jlong addrGray, jlong addrRgba)
+{
+    Mat& mGr  = *(Mat*)addrGray;
+    Mat& mRgb = *(Mat*)addrRgba;
+    vector<KeyPoint> keypoints;
+
+    Ptr<ORB> orbDetector = ORB::create(500);
+    orbDetector->detect(mGr, keypoints);
+//    DescriptorExtractor  extractor;
+//    Mat descriptor;
+//    orbDetector->compute(mGr, keypoints, descriptor);
+
+    drawKeypoints(mGr, keypoints, mRgb);
+}
+
+JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FindFeaturesKAZE
+        (JNIEnv *je, jclass jc, jlong addrGray, jlong addrRgba)
+{
+    Mat& mGr  = *(Mat*)addrGray;
+    Mat& mRgb = *(Mat*)addrRgba;
+    vector<KeyPoint> keypoints;
+
+    flip(mGr, mGr, 1);
+
+
+    //KAZE kazeDetector =
+}
+
+JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FindFeaturesFAST
     (JNIEnv *je, jclass jc, jlong addrGray, jlong addrRgba)
 {
     //DPRINTF("Inside FindFeatures");
@@ -153,39 +202,14 @@ JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FindFeatur
 
     flip(mGr, mGr, 1);
 
-    Ptr<ORB> orbDetector = ORB::create(500);
-    orbDetector->detect(mGr, keypoints);
-    DescriptorExtractor  extractor;
-    Mat descriptor;
-    orbDetector->compute(mGr, keypoints, descriptor);
-//    circle(*pMatRgb, Point(100,100), 10, Scalar(5,128,255,255));
-//    for( size_t i = 0; i < v.size(); i++ ) {
-//        circle(*pMatRgb, Point(v[i].pt.x, v[i].pt.y), 10, Scalar(255,128,0,255));
-//    }
-
     Ptr<FastFeatureDetector> fastFeatureDetector = FastFeatureDetector::create(10, true, FastFeatureDetector::TYPE_7_12);
     if( fastFeatureDetector.empty())
     {
-        DPRINTF("Can not create detector or descriptor extractor or descriptor matcher of given types");
+        DPRINTF("Can not create detector of type FAST");
         return;
     }
     fastFeatureDetector->detect(mGr, keypoints);
 
     drawKeypoints(mGr, keypoints, mRgb);
 
-//    int start_x = 0;
-//    int end_x = mRgb.size().width;
-//
-//    for (vector<KeyPoint>::iterator i = keypoints.begin(); i != keypoints.end(); i++)
-////    //for( unsigned int i = 0; i < keypoints.size(); i++ )
-//    {
-//        if (i->pt.x > start_x && i->pt.x < end_x)
-//        {
-//            const KeyPoint& kp = *i;//keypoints[i];
-//            circle(mRgb, Point(kp.pt.x, kp.pt.y), 10, Scalar(255,0,0,255));
-//        }
-//    }
-
-
-    //DPRINTF("Finished FindFeatures");
 }

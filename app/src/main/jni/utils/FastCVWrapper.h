@@ -25,11 +25,17 @@ JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FrameTick
 
 /*
  * Class:     com_maximum_fastride_fastcv_FastCVWrapper
- * Method:    FrameTick
+ * Method:    FindFeaturesFAST, FindFeaturesORB, FindFeaturesKAZE
  * Signature: (JJ)V
  */
-JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FindFeatures
-    (JNIEnv *, jclass, jlong addrGray, long addrRbga, jlong addrRgba);
+JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FindFeaturesFAST
+    (JNIEnv *, jclass, jlong addrGray, jlong addrRbga);
+
+JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FindFeaturesORB
+        (JNIEnv *, jclass, jlong addrGray, jlong addrRbga);
+
+JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FindFeaturesKAZE
+        (JNIEnv *, jclass, jlong addrGray, jlong addrRbga);
 
 
 JNIEXPORT int JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_DetectFace
