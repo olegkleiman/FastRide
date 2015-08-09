@@ -1,9 +1,11 @@
 #include <jni.h>
 
-#include <opencv2/core/core.hpp>
-#include <opencv2/imgproc/imgproc.hpp>
-#include <opencv2/features2d/features2d.hpp>
-#include <opencv2/objdetect/objdetect.hpp>
+#include <time.h>
+
+#include <opencv2/core.hpp>
+#include <opencv2/imgproc.hpp>
+#include <opencv2/features2d.hpp>
+#include <opencv2/objdetect.hpp>
 #include <vector>
 
 #include "FastCVWrapper.h"
@@ -29,6 +31,10 @@ using namespace cv;
 #define IPRINTF(...)  __android_log_print(ANDROID_LOG_INFO,CVWRAPPER_LOG_TAG,__VA_ARGS__)
 #define EPRINTF(...)  __android_log_print(ANDROID_LOG_ERROR,CVWRAPPER_LOG_TAG,__VA_ARGS__)
 #define WPRINTF(...)  __android_log_print(ANDROID_LOG_WARN,CVWRAPPER_LOG_TAG,__VA_ARGS__)
+
+
+vector<KeyPoint> applyAKAZE(Mat& src);
+vector<KeyPoint> applyORB(Mat& src);
 
 JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved)
 {
@@ -167,15 +173,26 @@ JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FindFeatur
 {
     Mat& mGr  = *(Mat*)addrGray;
     Mat& mRgb = *(Mat*)addrRgba;
-    vector<KeyPoint> keypoints;
 
-    Ptr<ORB> orbDetector = ORB::create(500);
-    orbDetector->detect(mGr, keypoints);
+    flip(mGr, mGr, 1);
+
+    vector<KeyPoint> keypoints = applyORB(mGr);
+    drawKeypoints(mGr, keypoints, mRgb);
+
 //    DescriptorExtractor  extractor;
 //    Mat descriptor;
 //    orbDetector->compute(mGr, keypoints, descriptor);
 
-    drawKeypoints(mGr, keypoints, mRgb);
+
+}
+
+vector<KeyPoint> applyORB(Mat& src) {
+    vector<KeyPoint> keypoints;
+
+    Ptr<ORB> orbDetector = ORB::create(500);
+    orbDetector->detect(src, keypoints);
+
+    return keypoints;
 }
 
 JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FindFeaturesKAZE
@@ -183,12 +200,27 @@ JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FindFeatur
 {
     Mat& mGr  = *(Mat*)addrGray;
     Mat& mRgb = *(Mat*)addrRgba;
-    vector<KeyPoint> keypoints;
+
+    clock_t start = clock();
 
     flip(mGr, mGr, 1);
 
+    vector<KeyPoint> keypoints = applyAKAZE(mGr);
+    drawKeypoints(mGr, keypoints, mRgb);
 
-    //KAZE kazeDetector =
+    clock_t end = clock();
+    double elapsed = ((double)(end - start )) / CLOCKS_PER_SEC;
+    DPRINTF("AKAZE performed in %d", elapsed);
+
+}
+
+vector<KeyPoint> applyAKAZE(Mat& src){
+    vector<KeyPoint> keypoints;
+
+    Ptr<AKAZE> akazeDetector = AKAZE::create(true, true);
+    akazeDetector->detect(src, keypoints);
+
+    return keypoints;
 }
 
 JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FindFeaturesFAST

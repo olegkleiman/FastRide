@@ -44,6 +44,9 @@ JNIEXPORT int JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_DetectFace
 JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_Blur
         (JNIEnv *env, jclass jc, jlong addrGray, jlong addrRbga, int smoothType, jobject bitmap);
 
+
+
+
 #ifdef __cplusplus
 }
 #endif
