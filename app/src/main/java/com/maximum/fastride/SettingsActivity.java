@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.Editable;
 import android.text.InputType;
@@ -39,7 +40,13 @@ import com.microsoft.windowsazure.mobileservices.table.MobileServiceTable;
 import com.microsoft.windowsazure.mobileservices.table.query.Query;
 import com.microsoft.windowsazure.mobileservices.table.sync.MobileServiceSyncTable;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -78,9 +85,50 @@ public class SettingsActivity extends BaseActivity {
         if (id == R.id.action_refresh_settings) {
             onRefreshGeofences();
             return true;
+        } else if( id == R.id.action_refresh_classifiers) {
+            onRefreshClassifiers();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    void onRefreshClassifiers() {
+        new AsyncTask<Void, Void, Void>() {
+
+            @Override
+            protected Void doInBackground(Void... voids) {
+
+                String dwnload_file_path = "http://maximum.azurewebsites.net/data/lbpcascades/lbpcascade_frontalface.xml";
+
+                URL url = null;
+                try {
+                    url = new URL(dwnload_file_path);
+                    HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                    urlConnection.setRequestMethod("GET");
+                    urlConnection.connect();
+
+                    //set the path where we want to save the file
+                    File SDCardRoot = Environment.getExternalStorageDirectory();
+                    File file = new File(SDCardRoot, "lbpcascade_frontalface.xml");
+                    FileOutputStream fileOutput = new FileOutputStream(file);
+
+                    InputStream inputStream = urlConnection.getInputStream();
+
+                    byte[] buffer = new byte[1024];
+                    int bufferLength = 0;
+
+                    while ( (bufferLength = inputStream.read(buffer)) > 0 ) {
+                        fileOutput.write(buffer, 0, bufferLength);
+                    }
+                    fileOutput.close();
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                return null;
+            }
+        }.execute();
     }
 
     void onRefreshGeofences() {
