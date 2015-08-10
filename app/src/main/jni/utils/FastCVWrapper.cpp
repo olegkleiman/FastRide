@@ -53,7 +53,7 @@ JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FrameTick
 //    delete counter;
 }
 
-JNIEXPORT int JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_DetectFace
+JNIEXPORT int JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_DetectFaces
     (JNIEnv *env, jclass jc, jlong addrRgba, jstring face_cascade_name)
 {
     CascadeClassifier face_cascade;
