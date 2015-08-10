@@ -1,6 +1,8 @@
 package com.maximum.fastride;
 
 import android.app.Activity;
+import android.content.Context;
+import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
@@ -19,6 +21,7 @@ import com.maximum.fastride.cv.filters.RecolorRCFilter;
 import com.maximum.fastride.cv.filters.RecolorRGVFilter;
 import com.maximum.fastride.cv.filters.StrokeEdgesFilter;
 import com.maximum.fastride.cv.filters.VelviaCurveFilter;
+import com.maximum.fastride.fastcv.DetectionBasedTracker;
 import com.maximum.fastride.fastcv.FastCVWrapper;
 
 import org.opencv.android.BaseLoaderCallback;
@@ -26,19 +29,25 @@ import org.opencv.android.CameraBridgeViewBase;
 import org.opencv.android.CameraBridgeViewBase.CvCameraViewListener2;
 import org.opencv.android.LoaderCallbackInterface;
 import org.opencv.android.OpenCVLoader;
+import org.opencv.android.Utils;
 import org.opencv.core.Core;
 import org.opencv.core.CvType;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfKeyPoint;
+import org.opencv.core.MatOfRect;
 import org.opencv.core.Point;
+import org.opencv.core.Rect;
 import org.opencv.core.Scalar;
+import org.opencv.core.Size;
 import org.opencv.features2d.FeatureDetector;
 import org.opencv.features2d.Features2d;
 import org.opencv.imgproc.Imgproc;
+import org.opencv.objdetect.CascadeClassifier;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.OutputStreamWriter;
 
 //import org.opencv.features2d.KeyPoint;
@@ -59,17 +68,6 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
     private boolean mIsCameraFrontFacing;
     private int mNumCameras;
 
-    private Filter[] mCurveFilters;
-    private int mCurveFilterIndex;
-    private Filter[] mMixerFilters;
-    private int mMixerFilterIndex;
-    private Filter[] mConvolutionFilters;
-    private int mConvolutionFilterIndex;
-    private Filter[] mImageDetectionFilters;
-    private int mImageDetectionFilterIndex;
-
-    private String[] mCurveFilterNames = { "None", "Portra", "Provia", "Velvia" };
-
     private Mat                    mRgba;
     private Mat                    mIntermediateMat;
     private Mat                    mGray;
@@ -77,6 +75,21 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
     Scalar mCameraFontColor = new Scalar(255, 0, 0, 255);
     String mCameraDirective;
     File mDetectorConfigFile;
+
+    File mCascadeFile;
+    CascadeClassifier mJavaDetector;
+    private DetectionBasedTracker mNativeDetector;
+
+    // FD
+    //
+    private static final Scalar    FACE_RECT_COLOR     = new Scalar(0, 255, 0, 255);
+    public static final int        JAVA_DETECTOR       = 0;
+    public static final int        NATIVE_DETECTOR     = 1;
+
+    private int         mDetectorType = JAVA_DETECTOR;
+    private String[]    mDetectorName;
+    private float       mRelativeFaceSize = 0.2f;
+    private int         mAbsoluteFaceSize = 0;
 
     private BaseLoaderCallback mLoaderCallback = new BaseLoaderCallback(this) {
         @Override
@@ -88,46 +101,46 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
 
                     System.loadLibrary("fastcvUtils");
 
-                    if( mOpenCvCameraView != null)
-                        mOpenCvCameraView.enableView();
+                    try {
 
-                    mCurveFilters = new Filter[] {
-                        new NoneFilter(),
-                        new PortraCurveFilter(),
-                        new ProviaCurveFilter(),
-                        new VelviaCurveFilter()
-                    };
+                        // Since we're going to load cascade classifier
+                        // from within native C++ code, the cascade file
+                        // must be copied to the directory accesible from native code.
+                        // Thus, we're reading the desired file from the resources
+                        // and save it to app data directory.
+                        InputStream is = getResources().openRawResource(R.raw.lbpcascade_frontalface);
+                        File cascadeDir = getDir("cascade", Context.MODE_PRIVATE);
+                        mCascadeFile = new File(cascadeDir, "lbpcascade_frontalface.xml");
 
-                    mMixerFilters = new Filter[] {
-                        new NoneFilter(),
-                        new RecolorRCFilter(),
-                        new RecolorRGVFilter(),
-                        new RecolorCMVFilter()
-                    };
+                        FileOutputStream os = new FileOutputStream(mCascadeFile);
+                        byte[] buffer = new byte[4096];
+                        int bytesRead;
+                        while( (bytesRead = is.read(buffer)) != -1) {
+                            os.write(buffer, 0, bytesRead);
+                        }
 
-                    mConvolutionFilters = new Filter[] {
-                        new NoneFilter(),
-                        new StrokeEdgesFilter()
-                    };
+                        os.close();
+                        is.close();
 
-                    final Filter starryNightFilter, akbarHuntingFilter;
-                    try{
-                        starryNightFilter = new ImageDetectionFilter(CameraCVActivity.this,
-                                                               R.drawable.starry_night);
-                        akbarHuntingFilter = new ImageDetectionFilter(CameraCVActivity.this,
-                                                                R.drawable.akbar_hunting_with_cheetahs);
+                        mJavaDetector =
+                                new CascadeClassifier(mCascadeFile.getAbsolutePath());
+                        if (mJavaDetector.empty()) {
+                            Log.e(LOG_TAG, "Failed to load cascade filter");
+                            mJavaDetector = null;
+                        } else
+                            Log.i(LOG_TAG, "Loaded cascade classifier from " + mCascadeFile.getAbsolutePath());
 
-                    } catch (Exception ex) {
-                        Log.e(LOG_TAG, ex.getMessage());
-                        break;
+                        mNativeDetector = new DetectionBasedTracker(mCascadeFile.getAbsolutePath(), 0);
+
+                        cascadeDir.delete();
+
+                    } catch(IOException ex) {
+                        Log.e(LOG_TAG, "Failed to load cascade. Excception: "  + ex.getMessage());
+
                     }
 
-                    mImageDetectionFilters = new Filter[] {
-                        new NoneFilter(),
-                        starryNightFilter,
-                        akbarHuntingFilter
-                    };
-
+                    if( mOpenCvCameraView != null)
+                        mOpenCvCameraView.enableView();
 
                 } break;
                 default:
@@ -140,6 +153,10 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
 
     public CameraCVActivity() {
 
+        mDetectorName = new String[2];
+        mDetectorName[JAVA_DETECTOR] = "Java";
+        mDetectorName[NATIVE_DETECTOR] = "Native (tracking)";
+
         Log.i(LOG_TAG, "Instantiated new " + this.getClass());
     }
 
@@ -150,16 +167,8 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
 
         if( savedInstanceState != null ) {
             mCameraIndex = savedInstanceState.getInt(STATE_CAMERA_INDEX, 0);
-            mImageDetectionFilterIndex = savedInstanceState.getInt(STATE_DETECTION_FILTER_INDEX, 0);
-            mCurveFilterIndex = savedInstanceState.getInt(STATE_CURVE_FILTER_INDEX, 0);
-            mMixerFilterIndex = savedInstanceState.getInt(STATE_MIXER_FILTER_INDEX, 0);
-            mConvolutionFilterIndex = savedInstanceState.getInt(STATE_CONVOLUTION_FILTER_INDEX, 0);
         } else {
             mCameraIndex = 0;
-            mImageDetectionFilterIndex = 0;
-            mCurveFilterIndex = 0;
-            mMixerFilterIndex = 0;
-            mConvolutionFilterIndex = 0;
         }
 
         Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
@@ -195,10 +204,6 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putInt(STATE_CAMERA_INDEX, mCameraIndex);
-        savedInstanceState.putInt(STATE_DETECTION_FILTER_INDEX, mImageDetectionFilterIndex);
-        savedInstanceState.putInt(STATE_CURVE_FILTER_INDEX, mCurveFilterIndex);
-        savedInstanceState.putInt(STATE_MIXER_FILTER_INDEX, mMixerFilterIndex);
-        savedInstanceState.putInt(STATE_CONVOLUTION_FILTER_INDEX, mConvolutionFilterIndex);
 
         super.onSaveInstanceState(savedInstanceState);
     }
@@ -213,40 +218,11 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
     @Override
     public boolean onOptionsItemSelected(final MenuItem item) {
 
-        switch( item.getItemId() ) {
+        if( item.getItemId() == R.id.menu_cv_params ) {
 
-            case R.id.menu_next_detection_filter:
-                mImageDetectionFilterIndex++;
-                if( mImageDetectionFilterIndex == mImageDetectionFilters.length ) {
-                    mImageDetectionFilterIndex = 0;
-                }
-                return true;
-
-            case R.id.menu_next_curve_filter:
-                this.setTitle(mCurveFilterNames[mCurveFilterIndex]);
-                mCurveFilterIndex++;
-                if( mCurveFilterIndex == mCurveFilters.length ) {
-                    mCurveFilterIndex = 0;
-                }
-                return true;
-
-            case R.id.menu_next_mix_filter:
-                mMixerFilterIndex++;
-                if( mMixerFilterIndex == mMixerFilters.length ) {
-                    mMixerFilterIndex = 0;
-                }
-                return  true;
-
-            case R.id.menu_next_conv_filter:
-                mConvolutionFilterIndex++;
-                if( mMixerFilterIndex == mMixerFilters.length) {
-                    mConvolutionFilterIndex = 0;
-                }
-                return true;
-
-            default:
-                return super.onOptionsItemSelected(item);
         }
+
+        return super.onOptionsItemSelected(item);
 
     }
 
@@ -306,23 +282,13 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
     @Override
     public Mat onCameraFrame(CameraBridgeViewBase.CvCameraViewFrame inputFrame) {
 
-
-    //        final Mat rgba = inputFrame.rgba();
-
-////        if( mImageDetectionFilters != null ) {
-////            mImageDetectionFilters[mImageDetectionFilterIndex].apply(rgba, rgba);
-////        }
-//
-//        // Apply the active filters
-//        mCurveFilters[mCurveFilterIndex].apply(rgba, rgba);
-//        mMixerFilters[mMixerFilterIndex].apply(rgba, rgba);
-//        mConvolutionFilters[mConvolutionFilterIndex].apply(rgba, rgba);
-//
-
-
         // input frame has RGBA format
         mRgba = inputFrame.rgba();
         mGray = inputFrame.gray();
+
+//        mGray.height();
+//        Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
+//        Utils.matToBitmap(mRgba, bmp);
 
         try {
 
@@ -330,27 +296,39 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
 
 //            // Assume the camera if front facing,
 //            // mirror (horizontally flip) the preview
-            Core.flip(mGray, mGray, 1);
+            Core.flip(mRgba, mRgba, 1);
 
-            MatOfKeyPoint keyPoints = new MatOfKeyPoint();
-            FeatureDetector detector = FeatureDetector.create(FeatureDetector.FAST);
-            if( detector.empty() )
-                return mRgba;
-
-            detector.read(mDetectorConfigFile.getPath());
-            detector.detect(mRgba, keyPoints);
-
-            //Imgproc.cvtColor(mRgba, mRgba, Imgproc.COLOR_RGBA2RGB, 4);
-            Features2d.drawKeypoints(mGray, keyPoints, mRgba);
-//        Features2d.drawKeypoints(mGray, keyPoints, mRgba,
-//                new Scalar(2, 254, 255),
-//                Features2d.DRAW_OVER_OUTIMG);
-////        //Imgproc.cvtColor(rgb, o_image, Imgproc.COLOR_RGB2RGBA);
-
-//        FastCVWrapper cvWrapper = new FastCVWrapper();
-//        cvWrapper.FindFeatures(mGray.getNativeObjAddr(), mRgba.getNativeObjAddr());
+            //FastCVWrapper cvWrapper = new FastCVWrapper();
+            //cvWrapper.DetectFaces(mGray.getNativeObjAddr(), "haarcascade_frontalface_alt.xml");
             //cvWrapper.Blur(mRgba.getNativeObjAddr());
-            //Imgproc.GaussianBlur(mRgba, mRgba, new Size(3,3), 7.0);
+
+            if (mAbsoluteFaceSize == 0) {
+                int height = mGray.rows();
+                if (Math.round(height * mRelativeFaceSize) > 0) {
+                    mAbsoluteFaceSize = Math.round(height * mRelativeFaceSize);
+                }
+                mNativeDetector.setMinFaceSize(mAbsoluteFaceSize);
+            }
+
+            MatOfRect faces = new MatOfRect();
+
+            if (mDetectorType == JAVA_DETECTOR) {
+                if (mJavaDetector != null)
+                    mJavaDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+                            new Size(mAbsoluteFaceSize, mAbsoluteFaceSize), new Size());
+            }
+            else if (mDetectorType == NATIVE_DETECTOR) {
+                if (mNativeDetector != null)
+                    mNativeDetector.detect(mGray, faces);
+            }
+            else {
+                Log.e(LOG_TAG, "Detection method is not selected!");
+            }
+
+            Rect[] facesArray = faces.toArray();
+            for (int i = 0; i < facesArray.length; i++)
+                Imgproc.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(), FACE_RECT_COLOR, 3);
+
 
             mExecutionTime += (System.currentTimeMillis() - start);
             String msg = String.format("Executed for %d ms.", mExecutionTime / ++mFramesReceived);
