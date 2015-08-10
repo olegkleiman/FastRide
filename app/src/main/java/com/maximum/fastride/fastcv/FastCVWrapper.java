@@ -14,7 +14,9 @@ public class FastCVWrapper {
     }
 
     public native void FrameTick();
-    public native void FindFeatures(long matAddrGr, long matAddrRgba);
+    public native void FindFeaturesFAST(long matAddrGr, long matAddrRgba);
+    public native void FindFeaturesORB(long matAddrGr, long matAddrRgba);
+    public native void FindFeaturesKAZE(long matAddrGr, long matAddrRgba);
     public native void DetectFace(long matAddrRgba, String face_cascade_name);
     public native void Blur(long matAddrGr);
 }
