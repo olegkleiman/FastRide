@@ -7,4 +7,6 @@
         android:title="@string/menu_next_detection_filter"
         android:orderInCategory="400"
         app:showAsAction="ifRoom|withText" />
+
+
 </menu>
