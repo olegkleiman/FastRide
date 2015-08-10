@@ -219,7 +219,9 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
     public boolean onOptionsItemSelected(final MenuItem item) {
 
         if( item.getItemId() == R.id.menu_cv_params ) {
-
+            int tmpDetectorType = (mDetectorType + 1) % mDetectorName.length;
+            item.setTitle(mDetectorName[tmpDetectorType]);
+            setDetectorType(tmpDetectorType);
         }
 
         return super.onOptionsItemSelected(item);
@@ -351,6 +353,25 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
         outputStreamWriter.write(data);
         outputStreamWriter.close();
         stream.close();
+    }
+
+    private void setMinFaceSize(float faceSize) {
+        mRelativeFaceSize = faceSize;
+        mAbsoluteFaceSize = 0;
+    }
+
+    private void setDetectorType(int type) {
+        if (mDetectorType != type) {
+            mDetectorType = type;
+
+            if (type == NATIVE_DETECTOR) {
+                Log.i(LOG_TAG, "Detection Based Tracker enabled");
+                mNativeDetector.start();
+            } else {
+                Log.i(LOG_TAG, "Cascade detector enabled");
+                mNativeDetector.stop();
+            }
+        }
     }
 
 }
