@@ -1,6 +1,7 @@
 //
-// Created by Oleg on 10-Aug-15.
+// Created by Oleg Kleiman on 10-Aug-15.
 //
+#include <jni.h>
 
 #ifndef FASTRIDE_DBT_H
 #define FASTRIDE_DBT_H
