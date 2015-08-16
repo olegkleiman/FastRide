@@ -134,10 +134,11 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="close">Close</string>
-    <string name="download_geofences">Initializing geo-fences</string>
-    <string name="download_geofences_desc">Downloading&#8230;</string>
+    <string name="download_data">Initializing data</string>
+    <string name="download_data_desc">Downloading&#8230;</string>
     <string name="play_services_error">Google Play services is not available. Registration is impossible.</string>
     <string name="action_refresh_settings">Update GeoFences</string>
+    <string name="action_refresh_classifiers">Update Classifiers</string>
     <string name="action_check_updates">Check for Update&#8230;</string>
     <string name="latest_version">You already have a latest version of FastRide.</string>
     <string name="about">About</string>
@@ -205,4 +206,5 @@ limitations under the License.</string>
     <string name="menu_next_convultion_filter">Conv</string>
     <string name="menu_next_detection_filter">Detection</string>
     <string name="camera_directive_1">Embrace the entire cabin</string>
+    <string name="camera_directive_2">Found %d faces</string>
 </resources>
