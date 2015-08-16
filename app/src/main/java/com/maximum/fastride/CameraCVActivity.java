@@ -6,9 +6,12 @@ import android.graphics.Bitmap;
 import android.hardware.Camera;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.WindowManager;
 
 import com.maximum.fastride.cv.filters.Filter;
@@ -23,6 +26,7 @@ import com.maximum.fastride.cv.filters.StrokeEdgesFilter;
 import com.maximum.fastride.cv.filters.VelviaCurveFilter;
 import com.maximum.fastride.fastcv.DetectionBasedTracker;
 import com.maximum.fastride.fastcv.FastCVWrapper;
+import com.maximum.fastride.utils.Globals;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -52,7 +56,8 @@ import java.io.OutputStreamWriter;
 
 //import org.opencv.features2d.KeyPoint;
 
-public class CameraCVActivity extends Activity implements CvCameraViewListener2 {
+public class CameraCVActivity extends Activity implements CvCameraViewListener2,
+                                                          View.OnTouchListener {
 
     private static final String LOG_TAG = "FR.CVCamera";
 
@@ -72,13 +77,20 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
     private Mat                    mIntermediateMat;
     private Mat                    mGray;
 
-    Scalar mCameraFontColor = new Scalar(255, 0, 0, 255);
+    Scalar mCameraFontColor = new Scalar(255, 255, 255);
     String mCameraDirective;
+    String mCameraDirective2;
+
+    int mScreenWidth;
+    int mScreenHeight;
+
     File mDetectorConfigFile;
 
     File mCascadeFile;
     CascadeClassifier mJavaDetector;
     private DetectionBasedTracker mNativeDetector;
+
+    FastCVWrapper mCVWrapper;
 
     // FD
     //
@@ -122,25 +134,28 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
                         os.close();
                         is.close();
 
-                        mJavaDetector =
-                                new CascadeClassifier(mCascadeFile.getAbsolutePath());
-                        if (mJavaDetector.empty()) {
-                            Log.e(LOG_TAG, "Failed to load cascade filter");
-                            mJavaDetector = null;
-                        } else
-                            Log.i(LOG_TAG, "Loaded cascade classifier from " + mCascadeFile.getAbsolutePath());
+//                        mJavaDetector =
+//                                new CascadeClassifier(mCascadeFile.getAbsolutePath());
+//                        if (mJavaDetector.empty()) {
+//                            Log.e(LOG_TAG, "Failed to load cascade filter");
+//                            mJavaDetector = null;
+//                        } else
+//                            Log.i(LOG_TAG, "Loaded cascade classifier from " + mCascadeFile.getAbsolutePath());
 
                         mNativeDetector = new DetectionBasedTracker(mCascadeFile.getAbsolutePath(), 0);
 
                         cascadeDir.delete();
 
+                        mCVWrapper = new FastCVWrapper(Globals.getCascadePath(getApplicationContext()));
+
                     } catch(IOException ex) {
-                        Log.e(LOG_TAG, "Failed to load cascade. Excception: "  + ex.getMessage());
+                        Log.e(LOG_TAG, "Failed to load cascade. Exception: "  + ex.getMessage());
 
                     }
 
-                    if( mOpenCvCameraView != null)
+                    if( mOpenCvCameraView != null) {
                         mOpenCvCameraView.enableView();
+                    }
 
                 } break;
                 default:
@@ -183,11 +198,19 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
         if( mOpenCvCameraView != null ) {
             mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
             mOpenCvCameraView.setCvCameraViewListener(this);
+            mOpenCvCameraView.setOnTouchListener(this);
 
             mOpenCvCameraView.setCameraIndex(CameraBridgeViewBase.CAMERA_ID_FRONT);
         }
 
         mCameraDirective = getString(R.string.camera_directive_1);
+        mCameraDirective2 = getString(R.string.camera_directive_2);
+
+        Display display = getWindowManager().getDefaultDisplay();
+        android.graphics.Point size = new android.graphics.Point();
+        display.getSize(size);
+        mScreenWidth = size.x;
+        mScreenHeight = size.y;
 
         File outputDir = getCacheDir();
         try {
@@ -265,6 +288,11 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
     }
 
     @Override
+    public boolean onTouch(View arg0, MotionEvent arg1){
+        return true;
+    }
+
+    @Override
     public void onCameraViewStarted(int width, int height) {
         mRgba = new Mat(height, width, CvType.CV_8UC4);
         mIntermediateMat = new Mat(height, width, CvType.CV_8UC4);
@@ -298,53 +326,58 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
 
 //            // Assume the camera if front facing,
 //            // mirror (horizontally flip) the preview
-            Core.flip(mRgba, mRgba, 1);
+            //Core.flip(mGray, mGray, 1);
 
-            //FastCVWrapper cvWrapper = new FastCVWrapper();
-            //cvWrapper.DetectFaces(mGray.getNativeObjAddr(), "haarcascade_frontalface_alt.xml");
-            //cvWrapper.Blur(mRgba.getNativeObjAddr());
+            int nFaces = 0;
+            try {
 
-            if (mAbsoluteFaceSize == 0) {
-                int height = mGray.rows();
-                if (Math.round(height * mRelativeFaceSize) > 0) {
-                    mAbsoluteFaceSize = Math.round(height * mRelativeFaceSize);
-                }
-                mNativeDetector.setMinFaceSize(mAbsoluteFaceSize);
+                nFaces = mCVWrapper.DetectFaces(mGray.getNativeObjAddr(), mCVWrapper.pathToCascade);
+                //cvWrapper.Blur(mRgba.getNativeObjAddr());
+
+//            if (mAbsoluteFaceSize == 0) {
+//                int height = mGray.rows();
+//                if (Math.round(height * mRelativeFaceSize) > 0) {
+//                    mAbsoluteFaceSize = Math.round(height * mRelativeFaceSize);
+//                }
+//                mNativeDetector.setMinFaceSize(mAbsoluteFaceSize);
+//            }
+
+//                MatOfRect faces = new MatOfRect();
+//            if (mDetectorType == JAVA_DETECTOR) {
+//                if (mJavaDetector != null)
+//                    mJavaDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
+//                            new Size(mAbsoluteFaceSize, mAbsoluteFaceSize), new Size());
+//            } else if (mDetectorType == NATIVE_DETECTOR) {
+//                if (mNativeDetector != null)
+//                    mNativeDetector.detect(mGray, faces);
+//            }
+//            else {
+//                Log.e(LOG_TAG, "Detection method is not selected!");
+//            }
+//
+
+            } catch (Exception ex) {
+                Log.e(LOG_TAG, ex.getMessage());
             }
-
-            MatOfRect faces = new MatOfRect();
-
-            if (mDetectorType == JAVA_DETECTOR) {
-                if (mJavaDetector != null)
-                    mJavaDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
-                            new Size(mAbsoluteFaceSize, mAbsoluteFaceSize), new Size());
-            }
-            else if (mDetectorType == NATIVE_DETECTOR) {
-                if (mNativeDetector != null)
-                    mNativeDetector.detect(mGray, faces);
-            }
-            else {
-                Log.e(LOG_TAG, "Detection method is not selected!");
-            }
-
-            Rect[] facesArray = faces.toArray();
-            for (int i = 0; i < facesArray.length; i++)
-                Imgproc.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(), FACE_RECT_COLOR, 3);
-
 
             mExecutionTime += (System.currentTimeMillis() - start);
             String msg = String.format("Executed for %d ms.", mExecutionTime / ++mFramesReceived);
             Log.d(LOG_TAG, msg);
 
-            Imgproc.putText(mRgba, mCameraDirective, new Point(100, 100),
+            Imgproc.putText(mGray, mCameraDirective, new Point(100, 80),
                     3, 1, mCameraFontColor, 2);
+            if( nFaces > 0 ) {
+                String _s = String.format(mCameraDirective2, nFaces);
+                Imgproc.putText(mGray, _s, new Point(100, mScreenHeight - 80),
+                        3, 1, mCameraFontColor, 2);
+            }
 
         } catch(Exception ex) {
 
             Log.d(LOG_TAG, ex.getMessage());
         }
 
-        return mRgba;
+        return mGray;
     }
 
     private void writeToFile(File file, String data) throws IOException {

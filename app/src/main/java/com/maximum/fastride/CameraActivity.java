@@ -85,8 +85,6 @@ public class CameraActivity extends Activity
         midScreenHeight = display.getHeight() / 2;
         midScreenWidth = display.getWidth() / 2;
 
-        FastCVWrapper cvWrapper = new FastCVWrapper();
-        cvWrapper.FrameTick();
 	}
 
 	@Override

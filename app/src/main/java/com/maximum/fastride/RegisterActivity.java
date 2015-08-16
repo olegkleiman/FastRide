@@ -6,11 +6,13 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentSender;
 import android.content.SharedPreferences;
 import android.graphics.Color;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -58,7 +60,13 @@ import com.microsoft.windowsazure.mobileservices.table.TableOperationCallback;
 import com.microsoft.windowsazure.mobileservices.table.query.Query;
 import com.microsoft.windowsazure.mobileservices.table.sync.MobileServiceSyncTable;
 
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.concurrent.ExecutionException;
 
 public class RegisterActivity extends FragmentActivity
@@ -692,15 +700,21 @@ public class RegisterActivity extends FragmentActivity
                 ProgressDialog progress;
                 @Override
                 protected void onPreExecute() {
+
+                    super.onPreExecute();
+
                     progress = ProgressDialog.show(RegisterActivity.this,
-                            getString(R.string.download_geofences),
-                            getString(R.string.download_geofences_desc));
+                            getString(R.string.download_data),
+                            getString(R.string.download_data_desc));
                 }
 
                 @Override
                 protected void onPostExecute(Void result){
 
-                    progress.dismiss();
+                    if( progress != null ) {
+                        progress.dismiss();
+                        progress = null;
+                    }
 
                     if( mEx == null ) {
 
@@ -708,8 +722,8 @@ public class RegisterActivity extends FragmentActivity
                         returnIntent.putExtra(Globals.TOKENPREF, mAccessToken);
                         setResult(RESULT_OK, returnIntent);
                         finish();
-                    }
-                    else {
+
+                    } else {
                         Snackbar snackbar =
                                 Snackbar.make(view, mEx.getMessage(), Snackbar.LENGTH_LONG);
                          snackbar.setActionTextColor(getResources().getColor(R.color.white));
@@ -738,7 +752,31 @@ public class RegisterActivity extends FragmentActivity
                         gFencesSyncTable.purge(pullQuery);
                         gFencesSyncTable.pull(pullQuery).get();
 
-                    } catch(MalformedURLException | InterruptedException | ExecutionException ex ) {
+                        // Download cascade(s)
+                        URL url = new URL(Globals.CASCADE_URL);
+                        HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
+                        urlConnection.setRequestMethod("GET");
+                        urlConnection.connect();
+
+                        String cascadeName = Uri.parse(Globals.CASCADE_URL).getLastPathSegment();
+
+                        //set the path where we want to save the file
+                        File file = new File(getFilesDir(), cascadeName);
+                        FileOutputStream fileOutput = new FileOutputStream(file);
+
+                        InputStream inputStream = urlConnection.getInputStream();
+
+                        byte[] buffer = new byte[1024];
+                        int bufferLength = 0;
+
+                        while ( (bufferLength = inputStream.read(buffer)) > 0 ) {
+                            fileOutput.write(buffer, 0, bufferLength);
+                        }
+                        fileOutput.close();
+
+                        Globals.setCascadePath(file.getAbsolutePath());
+
+                    } catch(InterruptedException | ExecutionException | IOException ex ) {
                         mEx = ex;
                         Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
                     }
@@ -746,11 +784,8 @@ public class RegisterActivity extends FragmentActivity
                     return null;
                 }
             }.execute();
-
-
-
-
-        }
+       }
     }
+
 	
 }
