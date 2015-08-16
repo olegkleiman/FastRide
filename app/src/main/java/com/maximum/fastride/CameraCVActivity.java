@@ -155,6 +155,7 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
 
                     if( mOpenCvCameraView != null) {
                         mOpenCvCameraView.enableView();
+                        mOpenCvCameraView.setOnTouchListener(CameraCVActivity.this);
                     }
 
                 } break;
@@ -198,7 +199,7 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
         if( mOpenCvCameraView != null ) {
             mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
             mOpenCvCameraView.setCvCameraViewListener(this);
-            mOpenCvCameraView.setOnTouchListener(this);
+
 
             mOpenCvCameraView.setCameraIndex(CameraBridgeViewBase.CAMERA_ID_FRONT);
         }
@@ -288,7 +289,7 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
     }
 
     @Override
-    public boolean onTouch(View arg0, MotionEvent arg1){
+    public boolean onTouch(View view, MotionEvent event){
         return true;
     }
 
