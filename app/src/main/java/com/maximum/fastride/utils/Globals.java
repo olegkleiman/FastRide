@@ -12,6 +12,7 @@ import com.google.android.gms.location.Geofence;
 import com.google.android.gms.maps.model.LatLng;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 
+import java.io.File;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -86,6 +87,26 @@ public class Globals {
     public static final int MY_HANDLE = 0x400 + 2;
     public static final int TRACE_MESSAGE = 0x400 + 3;
 
+    public static  String CASCADE_URL = "http://maximum.azurewebsites.net/data/lbpcascades/lbpcascade_frontalface.xml";
+    private static String CASCADE_PATH;
+    public static void initCascadePath(Context ctx) {
+        String DEFAULT_CASCADE_NAME = "lbpcascade_frontalface.xml";
+        File file = new File(ctx.getFilesDir(), DEFAULT_CASCADE_NAME);
+        synchronized (lock ) {
+            CASCADE_PATH = file.getAbsolutePath();
+        }
+    }
+    public static String getCascadePath (Context ctx) {
+        if( CASCADE_PATH == null || CASCADE_PATH.isEmpty() )
+            initCascadePath(ctx);
+
+        return CASCADE_PATH;
+    }
+    public static void setCascadePath(String path) {
+        synchronized (lock) {
+            CASCADE_PATH = path;
+        }
+    }
 
     /**
      * Timeouts (in millis) for startAdvertising and startDiscovery.  At the end of these time
@@ -111,7 +132,7 @@ public class Globals {
     public static final int GEOFENCE_LOITERING_DELAY = 60000; // 1 min
     public static final int GEOFENCE_RESPONSIVENESS = 5000; // 5 sec
 
-    private static Object lock = new Object();
+    private static final Object lock = new Object();
     private static boolean inGeofenceArea;
     public static boolean isInGeofenceArea() {
         synchronized (lock) {
