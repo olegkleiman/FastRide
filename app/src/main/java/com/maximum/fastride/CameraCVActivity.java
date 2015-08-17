@@ -1,9 +1,11 @@
 package com.maximum.fastride;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.hardware.Camera;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Display;
@@ -27,6 +29,9 @@ import com.maximum.fastride.cv.filters.VelviaCurveFilter;
 import com.maximum.fastride.fastcv.DetectionBasedTracker;
 import com.maximum.fastride.fastcv.FastCVWrapper;
 import com.maximum.fastride.utils.Globals;
+import com.microsoft.projectoxford.face.FaceServiceClient;
+import com.microsoft.projectoxford.face.contract.Face;
+import com.microsoft.projectoxford.face.rest.RESTException;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -48,6 +53,8 @@ import org.opencv.features2d.Features2d;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -91,6 +98,27 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
     private DetectionBasedTracker mNativeDetector;
 
     FastCVWrapper mCVWrapper;
+
+    Bitmap mBitmap;
+
+    private static final Object lock = new Object();
+
+    boolean mRequestFrame = false;
+    private void setRequestFrame() {
+        synchronized (lock) {
+            mRequestFrame = true;
+        }
+    }
+    private boolean getRequestFrame() {
+        synchronized (lock) {
+            return mRequestFrame;
+        }
+    }
+    private void resetRequestFrame() {
+        synchronized (lock) {
+            mRequestFrame = false;
+        }
+    }
 
     // FD
     //
@@ -290,6 +318,66 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
 
     @Override
     public boolean onTouch(View view, MotionEvent event){
+
+        // Progress dialog popped up when communicating with server.
+        final ProgressDialog mProgressDialog;
+
+        setRequestFrame();
+
+        while( mRequestFrame ) // will be changed inside onCameraFrame
+            ;
+
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, output);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(output.toByteArray());
+
+        new AsyncTask<InputStream, String, com.microsoft.projectoxford.face.contract.Face[]>(){
+
+            @Override
+            protected void onPreExecute() {
+//                mProgressDialog.show();
+            }
+
+            @Override
+            protected void onPostExecute(Face[] result) {
+                String msg = String.format("detected %n faces", result.length);
+                Log.i(LOG_TAG, msg);
+            }
+
+            @Override
+            protected void onProgressUpdate(String... progress) {
+//                mProgressDialog.setMessage(progress[0]);
+//                setInfo(progress[0]);
+            }
+
+            @Override
+            protected Face[] doInBackground(InputStream... params) {
+
+                // Get an instance of face service client to detect faces in image.
+                FaceServiceClient faceServiceClient = new FaceServiceClient(getString(R.string.oxford_subscription_key));
+
+                publishProgress("Detecting...");
+
+                // Start detection.
+                try {
+                    return faceServiceClient.detect(
+                            params[0],  /* Input stream of image to detect */
+                            true,       /* Whether to analyzes facial landmarks */
+                            true,       /* Whether to analyzes age */
+                            true,       /* Whether to analyzes gender */
+                            true);      /* Whether to analyzes head pose */
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, e.getMessage());
+
+                    publishProgress(e.getMessage());
+                }
+
+
+                return null;
+            }
+
+        }.execute(inputStream);
+
         return true;
     }
 
@@ -316,6 +404,11 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
         // input frame has RGBA format
         mRgba = inputFrame.rgba();
         mGray = inputFrame.gray();
+
+        if( getRequestFrame() ) {
+            Utils.matToBitmap(mRgba, mBitmap);
+            resetRequestFrame();
+        }
 
 //        mGray.height();
 //        Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
