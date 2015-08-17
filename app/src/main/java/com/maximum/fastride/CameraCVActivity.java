@@ -99,8 +99,6 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
 
     FastCVWrapper mCVWrapper;
 
-    Bitmap mBitmap;
-
     private static final Object lock = new Object();
 
     boolean mRequestFrame = false;
@@ -316,38 +314,43 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
             mOpenCvCameraView.disableView();
     }
 
-    @Override
-    public boolean onTouch(View view, MotionEvent event){
+    private void sampleFrame(Bitmap sampleBitmap) {
 
-        // Progress dialog popped up when communicating with server.
-        final ProgressDialog mProgressDialog;
-
-        setRequestFrame();
-
-        while( mRequestFrame ) // will be changed inside onCameraFrame
-            ;
+        if( sampleBitmap == null )
+            return;
 
         ByteArrayOutputStream output = new ByteArrayOutputStream();
-        mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, output);
+        sampleBitmap.compress(Bitmap.CompressFormat.JPEG, 100, output);
         ByteArrayInputStream inputStream = new ByteArrayInputStream(output.toByteArray());
 
         new AsyncTask<InputStream, String, com.microsoft.projectoxford.face.contract.Face[]>(){
 
+            // Progress dialog popped up when communicating with server.
+            ProgressDialog mProgressDialog;
+
             @Override
             protected void onPreExecute() {
-//                mProgressDialog.show();
+                mProgressDialog = ProgressDialog.show(CameraCVActivity.this,
+                                                    "Sending the picture to the detection center",
+                                                    "Please wait");
             }
 
             @Override
             protected void onPostExecute(Face[] result) {
-                String msg = String.format("detected %n faces", result.length);
+                String msg = String.format("detected %d faces", result.length);
                 Log.i(LOG_TAG, msg);
+
+                try {
+                    mProgressDialog.dismiss();
+                } catch(Exception ex) {
+                    Log.e(LOG_TAG, ex.getMessage());
+                }
             }
 
             @Override
             protected void onProgressUpdate(String... progress) {
-//                mProgressDialog.setMessage(progress[0]);
-//                setInfo(progress[0]);
+                mProgressDialog.setMessage(progress[0]);
+                //setInfo(progress[0]);
             }
 
             @Override
@@ -377,6 +380,12 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
             }
 
         }.execute(inputStream);
+    }
+
+    @Override
+    public boolean onTouch(View view, MotionEvent event){
+
+        setRequestFrame(); // sample bitmap will be obtained via sampleFrame()
 
         return true;
     }
@@ -406,8 +415,25 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
         mGray = inputFrame.gray();
 
         if( getRequestFrame() ) {
-            Utils.matToBitmap(mRgba, mBitmap);
-            resetRequestFrame();
+
+            // onCameraFrame is called not on UI thread
+            // On other hand, we run FaceAPI on UI thread only in order
+            // to show progress dialog
+
+            try {
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Bitmap _bitmap = Bitmap.createBitmap(mRgba.cols(), mRgba.rows(), Bitmap.Config.ARGB_8888);
+                        Utils.matToBitmap(mRgba, _bitmap);
+                        resetRequestFrame();
+                        sampleFrame(_bitmap);
+                    }
+                });
+
+            } catch(Exception ex) {
+                Log.e(LOG_TAG, ex.getMessage());
+            }
         }
 
 //        mGray.height();
