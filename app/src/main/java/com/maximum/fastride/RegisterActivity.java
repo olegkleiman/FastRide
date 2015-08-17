@@ -693,27 +693,27 @@ public class RegisterActivity extends FragmentActivity
 
             final View view = findViewById(R.id.register_cars_form);
 
-            new AsyncTask<Void, Void, Void>() {
+            new AsyncTask<Void, String, Void>() {
 
                 Exception mEx;
 
-                ProgressDialog progress;
+                ProgressDialog progressDialog;
                 @Override
                 protected void onPreExecute() {
 
                     super.onPreExecute();
 
-                    progress = ProgressDialog.show(RegisterActivity.this,
+                    progressDialog = ProgressDialog.show(RegisterActivity.this,
                             getString(R.string.download_data),
-                            getString(R.string.download_data_desc));
+                            getString(R.string.download_geofences_desc));
                 }
 
                 @Override
                 protected void onPostExecute(Void result){
 
-                    if( progress != null ) {
-                        progress.dismiss();
-                        progress = null;
+                    if( progressDialog != null ) {
+                        progressDialog.dismiss();
+                        progressDialog = null;
                     }
 
                     if( mEx == null ) {
@@ -730,6 +730,11 @@ public class RegisterActivity extends FragmentActivity
                         //snackbar.setDuration(8000);
                         snackbar.show();
                     }
+                }
+
+                @Override
+                protected void onProgressUpdate(String... progress) {
+                    progressDialog.setMessage(progress[0]);
                 }
 
                 @Override
@@ -751,6 +756,8 @@ public class RegisterActivity extends FragmentActivity
                         Query pullQuery = wamsClient.getTable(GFence.class).where();
                         gFencesSyncTable.purge(pullQuery);
                         gFencesSyncTable.pull(pullQuery).get();
+
+                        publishProgress( getString(R.string.download_classifiers_desc) );
 
                         // Download cascade(s)
                         URL url = new URL(Globals.CASCADE_URL);
