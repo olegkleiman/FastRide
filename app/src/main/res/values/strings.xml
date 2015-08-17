@@ -138,7 +138,8 @@
     <string name="no">No</string>
     <string name="close">Close</string>
     <string name="download_data">Initializing data</string>
-    <string name="download_data_desc">Downloading&#8230;</string>
+    <string name="download_geofences_desc">Downloading geo-fences</string>
+    <string name="download_classifiers_desc">Downloading classifiers</string>
     <string name="play_services_error">Google Play services is not available. Registration is impossible.</string>
     <string name="action_refresh_settings">Update GeoFences</string>
     <string name="action_refresh_classifiers">Update Classifiers</string>
