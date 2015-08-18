@@ -33,6 +33,16 @@ using namespace cv;
 #define EPRINTF(...)  __android_log_print(ANDROID_LOG_ERROR,CVWRAPPER_LOG_TAG,__VA_ARGS__)
 #define WPRINTF(...)  __android_log_print(ANDROID_LOG_WARN,CVWRAPPER_LOG_TAG,__VA_ARGS__)
 
+struct CascadeAggregator {
+
+    Ptr<CascadeClassifier> Classifier;
+
+    CascadeAggregator(CascadeClassifier *classifier, const char *cascade_name)
+    : Classifier(classifier) {
+        Classifier->load(cascade_name);
+    }
+
+};
 
 vector<KeyPoint> applyAKAZE(Mat& src);
 vector<KeyPoint> applyORB(Mat& src);
@@ -47,11 +57,60 @@ JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_FrameTick
   (JNIEnv *je, jclass jc)
 {
     DPRINTF("Inside JNI");
+}
 
-//    FPSCounter *counter = new FPSCounter();
-//    counter->FrameTick();
-//
-//    delete counter;
+JNIEXPORT jlong JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_nativeCreateObject
+        (JNIEnv *env, jclass, jstring jFileName)
+{
+    const char *cascade_name = env->GetStringUTFChars(jFileName, NULL);
+    CascadeClassifier *face_cascade = new CascadeClassifier();
+
+    return (jlong) new CascadeAggregator(face_cascade, cascade_name);
+}
+
+JNIEXPORT int JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_nativeDetectFaces
+        (JNIEnv *env, jclass, jlong addrGray, jlong thiz, jint faceSize)
+{
+   try {
+        Mat &mGrayChannel = *(Mat *)addrGray;
+        vector<Rect> faces;
+
+        Ptr<CascadeClassifier> classifier = ((CascadeAggregator *) thiz)->Classifier;
+        if (classifier == NULL)
+            return 0;
+        else {
+
+            classifier->detectMultiScale(mGrayChannel, faces, 1.1, 2,
+                                         0 | CV_HAAR_SCALE_IMAGE, Size(faceSize, faceSize));
+            int face_size = faces.size();
+            if (face_size > 0) {
+                DPRINTF("Detected %d faces", face_size);
+//            *((Mat *) faces) = Mat(RectFaces, true);
+
+                for(int i = 0; i < face_size; i++) {
+                    Rect _rect = faces[i];
+
+                    rectangle(mGrayChannel, _rect,
+                              Scalar(255, 255, 255),
+                              1, 8, 0);
+
+                    Mat faceROI = mGrayChannel(faces[i]);
+                    vector<Rect> eyes;
+                }
+            }
+
+            return face_size;
+        }
+
+    } catch (Exception ex) {
+        jclass je = env->FindClass("org/opencv/core/CvException");
+        if(!je)
+            je = env->FindClass("java/lang/Exception");
+        env->ThrowNew(je, ex.what());
+    } catch( ... ) {
+       jclass je = env->FindClass("org/opencv/core/Exception");
+       env->ThrowNew(je, "Unknown exception in JNI:DetectFaces");
+   }
 }
 
 JNIEXPORT int JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_DetectFaces
