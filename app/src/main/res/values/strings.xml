@@ -209,6 +209,15 @@ limitations under the License.</string>
     <string name="menu_next_mixed_filter">Mix</string>
     <string name="menu_next_convultion_filter">Conv</string>
     <string name="menu_next_detection_filter">Detection</string>
+
+    <!-- OpenCV -->
     <string name="camera_directive_1">Embrace the entire cabin</string>
     <string name="camera_directive_2">Found %d faces</string>
+    <string name="detection_results">Detection results</string>
+    <string name="detection_save">Detected %d faces. Save this picture?</string>
+    <string name="detection_center_caption">Detect with central authority</string>
+    <string name="detection_center_desc">Send this picture to the detection center?</string>
+    <string name="detection_send">Sending the picture to the detection center</string>
+    <string name="detection_wait">Please wait</string>
+    <string name="detection_freeze">Click to make a picture</string>
 </resources>

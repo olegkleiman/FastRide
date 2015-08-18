@@ -3,8 +3,11 @@ package com.maximum.fastride;
 import android.app.Activity;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -15,7 +18,9 @@ import android.view.MotionEvent;
 import android.view.SurfaceView;
 import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.maximum.fastride.cv.filters.Filter;
 import com.maximum.fastride.cv.filters.ImageDetectionFilter;
 import com.maximum.fastride.cv.filters.NoneFilter;
@@ -27,6 +32,7 @@ import com.maximum.fastride.cv.filters.RecolorRGVFilter;
 import com.maximum.fastride.cv.filters.StrokeEdgesFilter;
 import com.maximum.fastride.cv.filters.VelviaCurveFilter;
 import com.maximum.fastride.fastcv.DetectionBasedTracker;
+import com.maximum.fastride.fastcv.FastCVCameraView;
 import com.maximum.fastride.fastcv.FastCVWrapper;
 import com.maximum.fastride.utils.Globals;
 import com.microsoft.projectoxford.face.FaceServiceClient;
@@ -64,7 +70,7 @@ import java.io.OutputStreamWriter;
 //import org.opencv.features2d.KeyPoint;
 
 public class CameraCVActivity extends Activity implements CvCameraViewListener2,
-                                                          View.OnTouchListener {
+                                                          Camera.PictureCallback {
 
     private static final String LOG_TAG = "FR.CVCamera";
 
@@ -74,7 +80,7 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
     private static final String STATE_CONVOLUTION_FILTER_INDEX = "convolutionIndex";
     private static final String STATE_DETECTION_FILTER_INDEX = "detectionIndex";
 
-    private CameraBridgeViewBase mOpenCvCameraView;
+    private FastCVCameraView mOpenCvCameraView;
     private int mCameraIndex;
 
     private boolean mIsCameraFrontFacing;
@@ -181,7 +187,6 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
 
                     if( mOpenCvCameraView != null) {
                         mOpenCvCameraView.enableView();
-                        mOpenCvCameraView.setOnTouchListener(CameraCVActivity.this);
                     }
 
                 } break;
@@ -220,12 +225,11 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
 
         setContentView(R.layout.activity_camera_cv);
 
-        mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.java_surface_view);
+        mOpenCvCameraView = (FastCVCameraView) findViewById(R.id.java_surface_view);
         //mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.native_surface_view);
         if( mOpenCvCameraView != null ) {
             mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
             mOpenCvCameraView.setCvCameraViewListener(this);
-
 
             mOpenCvCameraView.setCameraIndex(CameraBridgeViewBase.CAMERA_ID_FRONT);
         }
@@ -331,17 +335,37 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
             @Override
             protected void onPreExecute() {
                 mProgressDialog = ProgressDialog.show(CameraCVActivity.this,
-                                                    "Sending the picture to the detection center",
-                                                    "Please wait");
+                                                      getString(R.string.detection_send),
+                                                      getString(R.string.detection_wait));
             }
 
             @Override
             protected void onPostExecute(Face[] result) {
-                String msg = String.format("detected %d faces", result.length);
+                String strFormat = getString(R.string.detection_save);
+                String msg = String.format(strFormat, result.length);
                 Log.i(LOG_TAG, msg);
 
                 try {
                     mProgressDialog.dismiss();
+
+                    new MaterialDialog.Builder(CameraCVActivity.this)
+                            .title(getString(R.string.detection_results))
+                            .content(msg)
+                            .positiveText(R.string.yes)
+                            .negativeText(R.string.no)
+                            .callback(new MaterialDialog.ButtonCallback() {
+                                @Override
+                                public void onPositive(MaterialDialog dialog) {
+                                }
+
+                                @Override
+                                public void onNegative(MaterialDialog dialog) {
+                                    //finish();
+                                }
+                            })
+                            .show();
+
+
                 } catch(Exception ex) {
                     Log.e(LOG_TAG, ex.getMessage());
                 }
@@ -350,7 +374,6 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
             @Override
             protected void onProgressUpdate(String... progress) {
                 mProgressDialog.setMessage(progress[0]);
-                //setInfo(progress[0]);
             }
 
             @Override
@@ -366,8 +389,8 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
                     return faceServiceClient.detect(
                             params[0],  /* Input stream of image to detect */
                             true,       /* Whether to analyzes facial landmarks */
-                            true,       /* Whether to analyzes age */
-                            true,       /* Whether to analyzes gender */
+                            false,       /* Whether to analyzes age */
+                            false,       /* Whether to analyzes gender */
                             true);      /* Whether to analyzes head pose */
                 } catch (Exception e) {
                     Log.e(LOG_TAG, e.getMessage());
@@ -375,19 +398,56 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
                     publishProgress(e.getMessage());
                 }
 
-
                 return null;
             }
 
         }.execute(inputStream);
     }
 
+    public void makeFrame(View view){
+
+        mOpenCvCameraView.stopPreview();
+
+        TextView txtStatus = (TextView)findViewById(R.id.detection_monitor);
+        txtStatus.setText(getString(R.string.detection_center_desc));
+
+        findViewById(R.id.detection_buttons_bar).setVisibility(View.VISIBLE);
+
+    }
+
+    public void sendToDetect(View view){
+
+        // Dismiss buttons
+        findViewById(R.id.detection_buttons_bar).setVisibility(View.GONE);
+
+        // Restore status text
+        TextView txtStatus = (TextView)findViewById(R.id.detection_monitor);
+        txtStatus.setText(getString(R.string.detection_freeze));
+
+
+        mOpenCvCameraView.takePicture(CameraCVActivity.this);
+    }
+
+    public void restoreFromSendToDetect(View view){
+
+        // Restore camera frames processing
+        mOpenCvCameraView.startPreview();
+
+        // Dismiss buttons
+        findViewById(R.id.detection_buttons_bar).setVisibility(View.GONE);
+
+        // Restore status text
+        TextView txtStatus = (TextView)findViewById(R.id.detection_monitor);
+        txtStatus.setText(getString(R.string.detection_freeze));
+    }
+
     @Override
-    public boolean onTouch(View view, MotionEvent event){
+    public void onPictureTaken(byte[] data, Camera camera) {
 
-        setRequestFrame(); // sample bitmap will be obtained via sampleFrame()
+        BitmapFactory.Options options=new BitmapFactory.Options();
+        Bitmap _bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, options);
 
-        return true;
+        sampleFrame(_bitmap);
     }
 
     @Override
@@ -414,27 +474,30 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
         mRgba = inputFrame.rgba();
         mGray = inputFrame.gray();
 
-        if( getRequestFrame() ) {
-
-            // onCameraFrame is called not on UI thread
-            // On other hand, we run FaceAPI on UI thread only in order
-            // to show progress dialog
-
-            try {
-                runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        Bitmap _bitmap = Bitmap.createBitmap(mRgba.cols(), mRgba.rows(), Bitmap.Config.ARGB_8888);
-                        Utils.matToBitmap(mRgba, _bitmap);
-                        resetRequestFrame();
-                        sampleFrame(_bitmap);
-                    }
-                });
-
-            } catch(Exception ex) {
-                Log.e(LOG_TAG, ex.getMessage());
-            }
-        }
+//        if( getRequestFrame() ) {
+//
+//            // onCameraFrame is called not on UI thread
+//            // On other hand, we run FaceAPI on UI thread only in order
+//            // to show progress dialog
+//
+//            try {
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//
+//                        //mOpenCvCameraView.stopNestedScroll();
+//
+//                        Bitmap _bitmap = Bitmap.createBitmap(mRgba.cols(), mRgba.rows(), Bitmap.Config.ARGB_8888);
+//                        Utils.matToBitmap(mRgba, _bitmap);
+//                        resetRequestFrame();
+//                        sampleFrame(_bitmap);
+//                    }
+//                });
+//
+//            } catch(Exception ex) {
+//                Log.e(LOG_TAG, ex.getMessage());
+//            }
+//        }
 
 //        mGray.height();
 //        Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
@@ -488,7 +551,7 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
                     3, 1, mCameraFontColor, 2);
             if( nFaces > 0 ) {
                 String _s = String.format(mCameraDirective2, nFaces);
-                Imgproc.putText(mGray, _s, new Point(100, mScreenHeight - 80),
+                Imgproc.putText(mGray, _s, new Point(100, mScreenHeight - 180),
                         3, 1, mCameraFontColor, 2);
             }
 

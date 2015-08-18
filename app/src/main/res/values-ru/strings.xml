@@ -85,4 +85,7 @@
     <string name="edit_car_dialog_caption">Описание машины</string>
     <string name="edit_phone_dialog_caption">Номер телефона</string>
     <string name="title_section_cars">Мои машины</string>
+    <string name="detection_center_desc">Это изображение будет отправлено на проверку в центр обслуживания. Содержание изображение не будет разглашено.раскрыто.</string>
+    <string name="detection_center_caption">Проверка изображения</string>
+    <string name="detection_freeze">Нажмите чтобы сделать снимок</string>
 </resources>
