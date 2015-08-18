@@ -31,6 +31,7 @@ import com.maximum.fastride.adapters.DrawerAccountAdapter;
 import com.maximum.fastride.model.User;
 import com.maximum.fastride.utils.Globals;
 import com.maximum.fastride.utils.WAMSVersionTable;
+import com.maximum.fastride.utils.wamsUtils;
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceUser;
 
@@ -40,7 +41,6 @@ import java.util.StringTokenizer;
 /**
  * Created by Oleg Kleiman on 22-May-14.
  */
-//public class BaseActivity extends ActionBarActivity
 public class BaseActivity extends AppCompatActivity
         implements GoogleApiClient.OnConnectionFailedListener{
 
@@ -219,30 +219,41 @@ public class BaseActivity extends AppCompatActivity
     }
 
     public void wamsInit(Boolean withAutoUpdate) {
+
         try {
-            wamsClient = new MobileServiceClient(
-                    Globals.WAMS_URL,
-                    Globals.WAMS_API_KEY,
-                    this);
+            wamsClient = wamsUtils.init(this);
 
-            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-            String userID = sharedPrefs.getString(Globals.USERIDPREF, "");
-            MobileServiceUser wamsUser = new MobileServiceUser(userID);
-
-            String token = sharedPrefs.getString(Globals.WAMSTOKENPREF, "");
-            // According to this article (http://www.thejoyofcode.com/Setting_the_auth_token_in_the_Mobile_Services_client_and_caching_the_user_rsquo_s_identity_Day_10_.aspx)
-            // this should be JWT token, so use WAMS_TOKEN
-            wamsUser.setAuthenticationToken(token);
-
-            wamsClient.setCurrentUser(wamsUser);
-
-            if( withAutoUpdate ) {
+            if (withAutoUpdate) {
                 startAutoUpdate();
             }
-
         } catch(MalformedURLException ex ) {
             Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
         }
+
+//        try {
+//            wamsClient = new MobileServiceClient(
+//                    Globals.WAMS_URL,
+//                    Globals.WAMS_API_KEY,
+//                    this);
+//
+//            SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+//            String userID = sharedPrefs.getString(Globals.USERIDPREF, "");
+//            MobileServiceUser wamsUser = new MobileServiceUser(userID);
+//
+//            String token = sharedPrefs.getString(Globals.WAMSTOKENPREF, "");
+//            // According to this article (http://www.thejoyofcode.com/Setting_the_auth_token_in_the_Mobile_Services_client_and_caching_the_user_rsquo_s_identity_Day_10_.aspx)
+//            // this should be JWT token, so use WAMS_TOKEN
+//            wamsUser.setAuthenticationToken(token);
+//
+//            wamsClient.setCurrentUser(wamsUser);
+//
+//            if( withAutoUpdate ) {
+//                startAutoUpdate();
+//            }
+//
+//        } catch(MalformedURLException ex ) {
+//            Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
+//        }
 
     }
 

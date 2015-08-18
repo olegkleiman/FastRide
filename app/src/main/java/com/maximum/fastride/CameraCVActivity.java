@@ -36,9 +36,14 @@ import com.maximum.fastride.fastcv.DetectionBasedTracker;
 import com.maximum.fastride.fastcv.FastCVCameraView;
 import com.maximum.fastride.fastcv.FastCVWrapper;
 import com.maximum.fastride.utils.Globals;
+import com.maximum.fastride.utils.IPictureURLUpdater;
+import com.maximum.fastride.utils.wamsBlobUpload;
+import com.maximum.fastride.utils.wamsPictureURLUpdater;
+import com.maximum.fastride.utils.wamsUtils;
 import com.microsoft.projectoxford.face.FaceServiceClient;
 import com.microsoft.projectoxford.face.contract.Face;
 import com.microsoft.projectoxford.face.rest.RESTException;
+import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -67,15 +72,20 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.net.MalformedURLException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
 //import org.opencv.features2d.KeyPoint;
 
 public class CameraCVActivity extends Activity implements CvCameraViewListener2,
-                                                          Camera.PictureCallback {
+                                                          Camera.PictureCallback,
+                                                          IPictureURLUpdater {
 
     private static final String LOG_TAG = "FR.CVCameraActivity";
+
+    MobileServiceClient wamsClient;
+    private String mRideCode;
 
     private static final String STATE_CAMERA_INDEX = "cameraIndex";
     private static final String STATE_CURVE_FILTER_INDEX = "curveFilterIndex";
@@ -221,6 +231,16 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
             mCameraIndex = 0;
         }
 
+        Bundle extras = getIntent().getExtras();
+        if( extras != null )
+            mRideCode = extras.getString("rideCode");
+
+        try {
+            wamsClient = wamsUtils.init(this);
+        } catch(MalformedURLException ex ) {
+            Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
+        }
+
         Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
         Camera.getCameraInfo(mCameraIndex, cameraInfo);
         mIsCameraFrontFacing = (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT);
@@ -321,6 +341,20 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
             mOpenCvCameraView.disableView();
     }
 
+    // Implementation of IPictureURLUpdater.
+    // Call from blobUploader task when picture URL is ready
+    @Override
+    public void update(String url) {
+
+        new wamsPictureURLUpdater(this).execute(url, mRideCode);
+
+    }
+
+    @Override
+    public void finished(){
+        finish();
+    }
+
     private void processFrame(final Bitmap sampleBitmap) {
 
         if( sampleBitmap == null )
@@ -377,15 +411,16 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
                                         fos.close();
 
                                         MediaStore.Images.Media.insertImage(getContentResolver(),
-                                                                            photoFile.getAbsolutePath(),
-                                                                            photoFile.getName(),
-                                                                            photoFile.getName());
+                                                photoFile.getAbsolutePath(),
+                                                photoFile.getName(),
+                                                photoFile.getName());
+
+                                        new wamsBlobUpload(CameraCVActivity.this).execute(photoFile);
 
                                     } catch(IOException ex) {
                                         Log.e(LOG_TAG, ex.getMessage());
                                     }
 
-                                    finish();
                                 }
 
                                 @Override
@@ -623,5 +658,6 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
             }
         }
     }
+
 
 }
