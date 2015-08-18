@@ -583,8 +583,8 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
             int nFaces = 0;
             try {
 
-                nFaces = mCVWrapper.DetectFaces(mGray.getNativeObjAddr(), mCVWrapper.pathToCascade);
-                //cvWrapper.Blur(mRgba.getNativeObjAddr());
+                //nFaces = mCVWrapper.DetectFaces(mGray.getNativeObjAddr(), mCVWrapper.pathToCascade);
+                nFaces = mCVWrapper.detect(mGray, 24);
 
 //            if (mAbsoluteFaceSize == 0) {
 //                int height = mGray.rows();
@@ -620,7 +620,7 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
                     3, 1, mCameraFontColor, 2);
             if( nFaces > 0 ) {
                 String _s = String.format(mCameraDirective2, nFaces);
-                Imgproc.putText(mGray, _s, new Point(100, mScreenHeight - 180),
+                Imgproc.putText(mGray, _s, new Point(100, 500), //mScreenHeight - 180),
                         3, 1, mCameraFontColor, 2);
             }
 
