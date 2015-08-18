@@ -10,6 +10,7 @@ import android.hardware.Camera;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
@@ -66,13 +67,15 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 //import org.opencv.features2d.KeyPoint;
 
 public class CameraCVActivity extends Activity implements CvCameraViewListener2,
                                                           Camera.PictureCallback {
 
-    private static final String LOG_TAG = "FR.CVCamera";
+    private static final String LOG_TAG = "FR.CVCameraActivity";
 
     private static final String STATE_CAMERA_INDEX = "cameraIndex";
     private static final String STATE_CURVE_FILTER_INDEX = "curveFilterIndex";
@@ -318,7 +321,7 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
             mOpenCvCameraView.disableView();
     }
 
-    private void sampleFrame(Bitmap sampleBitmap) {
+    private void processFrame(final Bitmap sampleBitmap) {
 
         if( sampleBitmap == null )
             return;
@@ -331,6 +334,11 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
 
             // Progress dialog popped up when communicating with server.
             ProgressDialog mProgressDialog;
+
+            private String getTempFileName() {
+                String timeStamp = new SimpleDateFormat("yyyyMMdd+HHmmss").format(new Date());
+                return "FR_" + timeStamp;
+            }
 
             @Override
             protected void onPreExecute() {
@@ -356,11 +364,33 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
                             .callback(new MaterialDialog.ButtonCallback() {
                                 @Override
                                 public void onPositive(MaterialDialog dialog) {
+
+                                    try {
+                                        File outputDir = getApplicationContext().getCacheDir();
+                                        String photoFileName = getTempFileName();
+
+                                        File photoFile = File.createTempFile(photoFileName, ".jpg", outputDir);
+                                        FileOutputStream fos = new FileOutputStream(photoFile);
+                                        sampleBitmap.compress(Bitmap.CompressFormat.JPEG, 80, fos);
+
+                                        fos.flush();
+                                        fos.close();
+
+                                        MediaStore.Images.Media.insertImage(getContentResolver(),
+                                                                            photoFile.getAbsolutePath(),
+                                                                            photoFile.getName(),
+                                                                            photoFile.getName());
+
+                                    } catch(IOException ex) {
+                                        Log.e(LOG_TAG, ex.getMessage());
+                                    }
+
+                                    finish();
                                 }
 
                                 @Override
                                 public void onNegative(MaterialDialog dialog) {
-                                    //finish();
+                                    mOpenCvCameraView.startPreview();
                                 }
                             })
                             .show();
@@ -424,7 +454,7 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
         TextView txtStatus = (TextView)findViewById(R.id.detection_monitor);
         txtStatus.setText(getString(R.string.detection_freeze));
 
-
+        // Will be continued in onPictureTaken() callback
         mOpenCvCameraView.takePicture(CameraCVActivity.this);
     }
 
@@ -444,10 +474,14 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
     @Override
     public void onPictureTaken(byte[] data, Camera camera) {
 
-        BitmapFactory.Options options=new BitmapFactory.Options();
-        Bitmap _bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, options);
+        try {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            Bitmap _bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, options);
 
-        sampleFrame(_bitmap);
+            processFrame(_bitmap);
+        } catch(Exception ex) {
+            Log.e(LOG_TAG, ex.getMessage());
+        }
     }
 
     @Override
