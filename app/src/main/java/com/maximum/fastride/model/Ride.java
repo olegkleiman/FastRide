@@ -37,4 +37,9 @@ public class Ride implements Serializable  {
     private Boolean approved;
     public Boolean getApproved() { return approved; }
     public void setApproved(Boolean value) { approved = value; }
+
+    @com.google.gson.annotations.SerializedName("picture_url")
+    private String picture_url;
+    public String getPictureURL() { return picture_url; }
+    public void setPictureURL(String value) { picture_url = value; }
 }
