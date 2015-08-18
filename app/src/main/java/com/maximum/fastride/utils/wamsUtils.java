@@ -1,8 +1,12 @@
 package com.maximum.fastride.utils;
 
+import android.content.Context;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
+import com.microsoft.windowsazure.mobileservices.authentication.MobileServiceUser;
 import com.microsoft.windowsazure.mobileservices.table.sync.MobileServiceSyncContext;
 import com.microsoft.windowsazure.mobileservices.table.sync.localstore.ColumnDataType;
 import com.microsoft.windowsazure.mobileservices.table.sync.localstore.MobileServiceLocalStoreException;
@@ -19,7 +23,6 @@ import java.util.concurrent.ExecutionException;
 public class wamsUtils {
 
     private static final String LOG_TAG = "FR.WAMS";
-
 
     static public void sync(MobileServiceClient wamsClient, String... tables) {
 
@@ -42,6 +45,7 @@ public class wamsUtils {
                            tableDefinition.put("driverid", ColumnDataType.String);
                            tableDefinition.put("created", ColumnDataType.Date);
                            tableDefinition.put("carnumber", ColumnDataType.String);
+                           tableDefinition.put("picture_url", ColumnDataType.String);
                            tableDefinition.put("approved", ColumnDataType.Boolean);
                            tableDefinition.put("__deleted", ColumnDataType.Boolean);
                            tableDefinition.put("__version", ColumnDataType.String);
@@ -72,4 +76,25 @@ public class wamsUtils {
         }
     }
 
+    static public MobileServiceClient init(Context context) throws MalformedURLException {
+
+        MobileServiceClient wamsClient = new MobileServiceClient(
+                    Globals.WAMS_URL,
+                    Globals.WAMS_API_KEY,
+                    context);
+
+        SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(context);
+        String userID = sharedPrefs.getString(Globals.USERIDPREF, "");
+        MobileServiceUser wamsUser = new MobileServiceUser(userID);
+
+        String token = sharedPrefs.getString(Globals.WAMSTOKENPREF, "");
+        // According to this article (http://www.thejoyofcode.com/Setting_the_auth_token_in_the_Mobile_Services_client_and_caching_the_user_rsquo_s_identity_Day_10_.aspx)
+        // this should be JWT token, so use WAMS_TOKEN
+        wamsUser.setAuthenticationToken(token);
+
+        wamsClient.setCurrentUser(wamsUser);
+
+        return  wamsClient;
+
+    }
 }
