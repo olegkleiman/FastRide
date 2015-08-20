@@ -1,10 +1,17 @@
 package com.maximum.fastride.tests;
 
 import android.test.ActivityInstrumentationTestCase2;
+import android.test.TouchUtils;
+import android.test.ViewAsserts;
 import android.test.suitebuilder.annotation.MediumTest;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.view.SurfaceView;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import com.maximum.fastride.CameraCVActivity;
 import com.maximum.fastride.R;
@@ -33,7 +40,18 @@ public class OpenCVActivityTest extends ActivityInstrumentationTestCase2<CameraC
     protected void setUp() throws Exception {
         super.setUp();
 
+        setActivityInitialTouchMode(true);
+
         activity = getActivity();
+    }
+
+    @MediumTest
+    public void makePicture() {
+        TextView clickMe = (TextView)activity.findViewById(R.id.detection_monitor);
+        TouchUtils.clickView(this, clickMe);
+
+        LinearLayout layout = (LinearLayout)activity.findViewById(R.id.detection_buttons_bar);
+        assertTrue(View.VISIBLE == layout.getVisibility());
     }
 
     @SmallTest
@@ -41,8 +59,18 @@ public class OpenCVActivityTest extends ActivityInstrumentationTestCase2<CameraC
         CameraBridgeViewBase camera = (CameraBridgeViewBase)activity.findViewById(R.id.java_surface_view);
         assertNotNull(camera);
 
-//        camera.setVisibility(SurfaceView.VISIBLE);
-//        camera.setCvCameraViewListener(activity);
+        final View decorView = activity.getWindow().getDecorView();
+        ViewAsserts.assertOnScreen(decorView, camera);
+
+        final ViewGroup.LayoutParams layoutParams = camera.getLayoutParams();
+        assertNotNull(layoutParams);
+
+        assertEquals(layoutParams.width, WindowManager.LayoutParams.MATCH_PARENT);
+        assertEquals(layoutParams.height, WindowManager.LayoutParams.MATCH_PARENT);
+
+        LinearLayout layout = (LinearLayout)activity.findViewById(R.id.detection_buttons_bar);
+        ViewAsserts.assertOnScreen(decorView, layout);
+        assertTrue(View.GONE == layout.getVisibility());
     }
 
     @Override

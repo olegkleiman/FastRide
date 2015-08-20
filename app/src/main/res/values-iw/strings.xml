@@ -86,4 +86,7 @@
     <string name="edit_phone_dialog_caption">מספר טלפון</string>
     <string name="title_section_cars">רכבים</string>
     <string name="title_activity_ride_detail">פרטי נסיעה</string>
+    <string name="detection_center_caption">בדיקת התמונה</string>
+    <string name="detection_freeze">לחץ כדי להפוך לתמונה</string>
+    <string name="detection_center_desc">לשלוח תמונה זו למרכז בקרה?</string>
 </resources>

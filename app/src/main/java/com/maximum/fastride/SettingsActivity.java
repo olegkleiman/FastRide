@@ -4,6 +4,7 @@ import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Outline;
 import android.graphics.drawable.Drawable;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
@@ -98,18 +99,16 @@ public class SettingsActivity extends BaseActivity {
             @Override
             protected Void doInBackground(Void... voids) {
 
-                String dwnload_file_path = "http://maximum.azurewebsites.net/data/lbpcascades/lbpcascade_frontalface.xml";
-
-                URL url = null;
                 try {
-                    url = new URL(dwnload_file_path);
+                    URL url = new URL(Globals.CASCADE_URL);
                     HttpURLConnection urlConnection = (HttpURLConnection) url.openConnection();
                     urlConnection.setRequestMethod("GET");
                     urlConnection.connect();
 
+                    String cascadeName = Uri.parse(Globals.CASCADE_URL).getLastPathSegment();
+
                     //set the path where we want to save the file
-                    File SDCardRoot = Environment.getExternalStorageDirectory();
-                    File file = new File(SDCardRoot, "lbpcascade_frontalface.xml");
+                    File file = new File(getFilesDir(), cascadeName);
                     FileOutputStream fileOutput = new FileOutputStream(file);
 
                     InputStream inputStream = urlConnection.getInputStream();
@@ -121,6 +120,8 @@ public class SettingsActivity extends BaseActivity {
                         fileOutput.write(buffer, 0, bufferLength);
                     }
                     fileOutput.close();
+
+                    Globals.setCascadePath(file.getAbsolutePath());
 
                 } catch (IOException e) {
                     e.printStackTrace();

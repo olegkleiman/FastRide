@@ -6,6 +6,7 @@
 #include <unistd.h> // for getcwd()
 #include <limits>
 #include <string>
+#include <fstream>
 #include <vector>
 
 #include <opencv2/core/core.hpp>
@@ -69,18 +70,23 @@ JNIEXPORT jlong JNICALL Java_com_maximum_fastride_fastcv_DetectionBasedTracker_n
     getcwd(cwd, sizeof(cwd));
 
     jlong result = 0;
-    const char* jnamestr = env->GetStringUTFChars(jFileName, NULL);
-    String stdFileName(jnamestr);
+    const char *jnamestr = env->GetStringUTFChars(jFileName, NULL);
+    String stdFileName = jnamestr;
 
     try {
-        Ptr<CascadeDetectorAdapter> mainDetector = makePtr<CascadeDetectorAdapter>(
-                makePtr<CascadeClassifier>(stdFileName));
-        Ptr<CascadeDetectorAdapter> trackingDetector = makePtr<CascadeDetectorAdapter>(
-                makePtr<CascadeClassifier>(stdFileName));
 
-        result = (jlong) new DetectorAggregator(mainDetector, trackingDetector);
-        if (faceSize > 0) {
-            mainDetector->setMinObjectSize(Size(faceSize, faceSize));
+        ifstream f(jnamestr);
+        if (f.good()) {
+
+            Ptr<CascadeDetectorAdapter> mainDetector = makePtr<CascadeDetectorAdapter>(
+                    makePtr<CascadeClassifier>(stdFileName));
+            Ptr<CascadeDetectorAdapter> trackingDetector = makePtr<CascadeDetectorAdapter>(
+                    makePtr<CascadeClassifier>(stdFileName));
+
+            result = (jlong) new DetectorAggregator(mainDetector, trackingDetector);
+            if (faceSize > 0) {
+                mainDetector->setMinObjectSize(Size(faceSize, faceSize));
+            }
         }
     }catch(Exception& e){
         jclass je = env->FindClass("org/opencv/core/CvException");

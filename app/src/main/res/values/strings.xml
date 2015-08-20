@@ -5,6 +5,9 @@
     This is the service identifier for Nearby Connections.
     -->
     <string name="service_id" translatable="false">com.maximum.fastride.service</string>
+    <!-- Please refer to http://oxford-portal.azurewebsites.net/doc/general/subscription-key-mgmt to get your subscription key -->
+    <!-- If you have one subscription key, you can add it here to use the service -->
+    <string name="oxford_subscription_key">f862259efc314bdbbef51000f399f168</string>
 
     <string name="app_name" translatable="false">FastRide</string>
     <string name="app_label" translatable="false">Fast Ride</string>
@@ -134,10 +137,12 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="close">Close</string>
-    <string name="download_geofences">Initializing geo-fences</string>
-    <string name="download_geofences_desc">Downloading&#8230;</string>
+    <string name="download_data">Initializing data</string>
+    <string name="download_geofences_desc">Downloading geo-fences</string>
+    <string name="download_classifiers_desc">Downloading classifiers</string>
     <string name="play_services_error">Google Play services is not available. Registration is impossible.</string>
     <string name="action_refresh_settings">Update GeoFences</string>
+    <string name="action_refresh_classifiers">Update Classifiers</string>
     <string name="action_check_updates">Check for Update&#8230;</string>
     <string name="latest_version">You already have a latest version of FastRide.</string>
     <string name="about">About</string>
@@ -204,5 +209,17 @@ limitations under the License.</string>
     <string name="menu_next_mixed_filter">Mix</string>
     <string name="menu_next_convultion_filter">Conv</string>
     <string name="menu_next_detection_filter">Detection</string>
+
+    <!-- OpenCV -->
     <string name="camera_directive_1">Embrace the entire cabin</string>
+    <string name="camera_directive_2">Found %d faces</string>
+    <string name="detection_results">Detection results</string>
+    <string name="detection_save">Detected %d faces. Save this picture?</string>
+    <string name="detection_center_caption">Detect with central authority</string>
+    <string name="detection_center_desc">Send this picture to the detection center?</string>
+    <string name="detection_send">Sending the picture to the detection center</string>
+    <string name="detection_wait">Please wait</string>
+    <string name="detection_freeze">Click to make a picture</string>
+    <string name="detection_store">Saving the picture on the detection center</string>
+    <string name="detection_update">Updating your data</string>
 </resources>

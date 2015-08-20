@@ -147,6 +147,8 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
                 if( mEx == null ) {
                     TextView txtRideCode = (TextView) findViewById(R.id.txtRideCode);
                     txtRideCode.setText(mCurrentRide.getRideCode());
+
+                    invalidateOptionsMenu(); // actually enable OpenCV item
                 } else {
                     Toast.makeText(DriverRoleActivity.this,
                             mEx.getMessage(), Toast.LENGTH_LONG).show();
@@ -423,7 +425,11 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
     }
 
     public void onCameraCV(View view) {
+
+        String rideCode = ((TextView)findViewById(R.id.txtRideCode)).getText().toString();
+
         Intent intent = new Intent(this, CameraCVActivity.class);
+        intent.putExtra("rideCode", rideCode);
         startActivity(intent);
     }
 
@@ -472,9 +478,24 @@ public class DriverRoleActivity extends BaseActivityWithGeofences
     }
 
     @Override
+    public boolean onPrepareOptionsMenu(Menu menu){
+
+        MenuItem menuItem = menu.getItem(1);
+
+        TextView txtView = (TextView)findViewById(R.id.txtRideCode);
+        if( !txtView.getText().equals(getString(R.string.default_ride_code)) )
+            menuItem.setEnabled(true);
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
         getMenuInflater().inflate(R.menu.menu_driver_role, menu);
+
+
+
         return true;
     }
 

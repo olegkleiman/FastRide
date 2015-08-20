@@ -44,6 +44,13 @@ JNIEXPORT int JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_DetectFaces
 JNIEXPORT void JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_Blur
         (JNIEnv *env, jclass jc, jlong addrGray, jlong addrRbga, int smoothType, jobject bitmap);
 
+// new approach
+
+JNIEXPORT jlong JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_nativeCreateObject
+        (JNIEnv *env, jclass, jstring jFileName);
+
+JNIEXPORT int JNICALL Java_com_maximum_fastride_fastcv_FastCVWrapper_nativeDetectFaces
+        (JNIEnv *env, jclass, jlong addrGray, jlong thiz, jint faceSize);
 
 
 

@@ -130,35 +130,32 @@ model {
 
 dependencies {
     compile fileTree(include: ['*.jar'], dir: 'libs')
-
     compile 'com.android.support:support-v4:22.2.1'
     compile 'com.android.support:design:22.2.1'
-
     compile 'com.android.support:appcompat-v7:22.2.1'
     compile 'com.android.support:cardview-v7:22.2.1'
     compile 'com.android.support:recyclerview-v7:22.2.1'
-
-//    // Unit testing dependencies
+    //    // Unit testing dependencies
     //androidTestCompile 'junit:junit:4.12'
     compile files('libs/mobileservices-2.0.1-beta.jar')
-////    //compile 'com.microsoft.azure:azure-mobile-services-android-sdk:2.0.2+compile files('libs/notifications-1.0.1.jar')
-    compile 'com.google.code.gson:gson:2+'
-    compile 'com.microsoft.azure.android:azure-storage-android:0.3.0@aar'
-    compile 'com.google.guava:guava:17.+'
+    //compile 'com.microsoft.azure:azure-mobile-services-android-sdk:2.0.2+'
+    //compile files('libs/notifications-1.0.1.jar')
+    compile 'com.google.code.gson:gson:2.3.1'
+    compile 'com.microsoft.azure.android:azure-storage-android:0.6.0@aar'
+    compile 'com.google.guava:guava:18.0'
     compile 'com.facebook.android:facebook-android-sdk:3.21.1'
     //compile 'com.facebook.android:facebook-android-sdk:4.0.0'
     // See here: https://developers.google.com/android/guides/setup
     // for detailed discussion about setting up GMS
-
     compile 'com.google.android.gms:play-services-location:7.5.0'
     compile 'com.google.android.gms:play-services-gcm:7.5.0'
     // GPlus is incompatible with facebook 3.21.1
     // -- causes 'NoClassDefFoundError: android.support.v7.appcompat.R$layout' exception
     //compile 'com.google.android.gms:play-services-plus:7.5.0'
-
     compile 'com.android.support:multidex:1.0.1'
-    compile 'com.afollestad:material-dialogs:0.7.5.2'
+    compile 'com.afollestad:material-dialogs:0.7.8.1'
     compile 'org.apache.commons:commons-math3:3.2'
     compile project(':libraries:opencv')
+    compile project(':libraries:faceapilibrary')
 }
 
