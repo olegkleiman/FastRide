@@ -8,6 +8,8 @@ import com.maximum.fastride.MyRides.GeneralMyRidesFragment;
 import com.maximum.fastride.MyRides.RejectedMyRidesFragment;
 import com.maximum.fastride.model.Ride;
 
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 
@@ -19,14 +21,25 @@ public class MyRideTabAdapter extends FragmentPagerAdapter {
     private String titles[];
     List<Ride> mRides;
 
+
     public MyRideTabAdapter(FragmentManager fm, String[] titles, List<Ride> rides) {
         super(fm);
         this.titles = titles;
         this.mRides = rides;
+        GeneralMyRidesFragment.getInstance().setRides(rides);
+        RejectedMyRidesFragment.getInstance().setRides(rides);
     }
 
     public void updateRides(List<Ride> rides) {
         mRides = rides;
+        GeneralMyRidesFragment.getInstance().updateRides(rides);
+        RejectedMyRidesFragment.getInstance().updateRides(rides);
+
+
+
+
+
+
     }
 
     @Override
@@ -34,10 +47,10 @@ public class MyRideTabAdapter extends FragmentPagerAdapter {
 
         switch( position) {
             case 0:
-                return GeneralMyRidesFragment.newInstance(position, mRides);
+                return GeneralMyRidesFragment.getInstance();
 
             case 1:
-                return RejectedMyRidesFragment.newInstance(position);
+                return RejectedMyRidesFragment.getInstance();
         }
 
         return  null;
@@ -51,6 +64,15 @@ public class MyRideTabAdapter extends FragmentPagerAdapter {
     @Override
     public CharSequence getPageTitle(int position) {
         return titles[position];
+    }
+
+    private void sort(){
+
+        Collections.sort(mRides, new Comparator<Ride>() {
+            public int compare(Ride r1, Ride r2) {
+                return r1.getCreated().compareTo(r2.getCreated());
+            }
+        });
     }
 }
 

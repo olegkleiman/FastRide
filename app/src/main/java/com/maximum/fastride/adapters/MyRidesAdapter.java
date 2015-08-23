@@ -100,7 +100,6 @@ public class MyRidesAdapter extends RecyclerView.Adapter<MyRidesAdapter.ViewHold
         TextView driverName;
         TextView carNumber;
         TextView created;
-        //LinearLayout rowLayout;
         LayoutRipple rowLayout;
 
         IRecyclerClickListener mClickListener;
@@ -110,11 +109,11 @@ public class MyRidesAdapter extends RecyclerView.Adapter<MyRidesAdapter.ViewHold
             super(itemView);
 
             mClickListener = clickListener;
-//            DriverImage = (ImageView) itemView.findViewById(R.id.imageDriver);
-//            ApprovedSing = (ImageView) itemView.findViewById(R.id.ApprovedSing);
-//            SteeringWheel = (ImageView) itemView.findViewById(R.id.SteeringWheel);
-//            driverName = (TextView) itemView.findViewById(R.id.txtDriverName);
-//            created = (TextView) itemView.findViewById(R.id.txtCreated);
+            DriverImage = (ImageView) itemView.findViewById(R.id.imageDriver);
+            ApprovedSing = (ImageView) itemView.findViewById(R.id.ApprovedSing);
+            SteeringWheel = (ImageView) itemView.findViewById(R.id.SteeringWheel);
+            driverName = (TextView) itemView.findViewById(R.id.txtDriverName);
+            created = (TextView) itemView.findViewById(R.id.txtCreated);
             rowLayout = (LayoutRipple) itemView.findViewById(R.id.myRideRaw);
 
             rowLayout.setOnClickListener(this);
