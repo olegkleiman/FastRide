@@ -1,16 +1,27 @@
 package com.maximum.fastride;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.hardware.Camera;
+import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.util.Log;
+import android.view.Display;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.SurfaceView;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.TextView;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.maximum.fastride.cv.filters.Filter;
 import com.maximum.fastride.cv.filters.ImageDetectionFilter;
 import com.maximum.fastride.cv.filters.NoneFilter;
@@ -22,7 +33,17 @@ import com.maximum.fastride.cv.filters.RecolorRGVFilter;
 import com.maximum.fastride.cv.filters.StrokeEdgesFilter;
 import com.maximum.fastride.cv.filters.VelviaCurveFilter;
 import com.maximum.fastride.fastcv.DetectionBasedTracker;
+import com.maximum.fastride.fastcv.FastCVCameraView;
 import com.maximum.fastride.fastcv.FastCVWrapper;
+import com.maximum.fastride.utils.Globals;
+import com.maximum.fastride.utils.IPictureURLUpdater;
+import com.maximum.fastride.utils.wamsBlobUpload;
+import com.maximum.fastride.utils.wamsPictureURLUpdater;
+import com.maximum.fastride.utils.wamsUtils;
+import com.microsoft.projectoxford.face.FaceServiceClient;
+import com.microsoft.projectoxford.face.contract.Face;
+import com.microsoft.projectoxford.face.rest.RESTException;
+import com.microsoft.windowsazure.mobileservices.MobileServiceClient;
 
 import org.opencv.android.BaseLoaderCallback;
 import org.opencv.android.CameraBridgeViewBase;
@@ -44,17 +65,27 @@ import org.opencv.features2d.Features2d;
 import org.opencv.imgproc.Imgproc;
 import org.opencv.objdetect.CascadeClassifier;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStreamWriter;
+import java.net.MalformedURLException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 //import org.opencv.features2d.KeyPoint;
 
-public class CameraCVActivity extends Activity implements CvCameraViewListener2 {
+public class CameraCVActivity extends Activity implements CvCameraViewListener2,
+                                                          Camera.PictureCallback,
+                                                          IPictureURLUpdater {
 
-    private static final String LOG_TAG = "FR.CVCamera";
+    private static final String LOG_TAG = "FR.CVCameraActivity";
+
+    MobileServiceClient wamsClient;
+    private String mRideCode;
 
     private static final String STATE_CAMERA_INDEX = "cameraIndex";
     private static final String STATE_CURVE_FILTER_INDEX = "curveFilterIndex";
@@ -62,7 +93,7 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
     private static final String STATE_CONVOLUTION_FILTER_INDEX = "convolutionIndex";
     private static final String STATE_DETECTION_FILTER_INDEX = "detectionIndex";
 
-    private CameraBridgeViewBase mOpenCvCameraView;
+    private FastCVCameraView mOpenCvCameraView;
     private int mCameraIndex;
 
     private boolean mIsCameraFrontFacing;
@@ -72,13 +103,39 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
     private Mat                    mIntermediateMat;
     private Mat                    mGray;
 
-    Scalar mCameraFontColor = new Scalar(255, 0, 0, 255);
+    Scalar mCameraFontColor = new Scalar(255, 255, 255);
     String mCameraDirective;
+    String mCameraDirective2;
+
+    int mScreenWidth;
+    int mScreenHeight;
+
     File mDetectorConfigFile;
 
     File mCascadeFile;
     CascadeClassifier mJavaDetector;
     private DetectionBasedTracker mNativeDetector;
+
+    FastCVWrapper mCVWrapper;
+
+    private static final Object lock = new Object();
+
+    boolean mRequestFrame = false;
+    private void setRequestFrame() {
+        synchronized (lock) {
+            mRequestFrame = true;
+        }
+    }
+    private boolean getRequestFrame() {
+        synchronized (lock) {
+            return mRequestFrame;
+        }
+    }
+    private void resetRequestFrame() {
+        synchronized (lock) {
+            mRequestFrame = false;
+        }
+    }
 
     // FD
     //
@@ -122,25 +179,28 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
                         os.close();
                         is.close();
 
-                        mJavaDetector =
-                                new CascadeClassifier(mCascadeFile.getAbsolutePath());
-                        if (mJavaDetector.empty()) {
-                            Log.e(LOG_TAG, "Failed to load cascade filter");
-                            mJavaDetector = null;
-                        } else
-                            Log.i(LOG_TAG, "Loaded cascade classifier from " + mCascadeFile.getAbsolutePath());
+//                        mJavaDetector =
+//                                new CascadeClassifier(mCascadeFile.getAbsolutePath());
+//                        if (mJavaDetector.empty()) {
+//                            Log.e(LOG_TAG, "Failed to load cascade filter");
+//                            mJavaDetector = null;
+//                        } else
+//                            Log.i(LOG_TAG, "Loaded cascade classifier from " + mCascadeFile.getAbsolutePath());
 
                         mNativeDetector = new DetectionBasedTracker(mCascadeFile.getAbsolutePath(), 0);
 
                         cascadeDir.delete();
 
+                        mCVWrapper = new FastCVWrapper(Globals.getCascadePath(getApplicationContext()));
+
                     } catch(IOException ex) {
-                        Log.e(LOG_TAG, "Failed to load cascade. Excception: "  + ex.getMessage());
+                        Log.e(LOG_TAG, "Failed to load cascade. Exception: "  + ex.getMessage());
 
                     }
 
-                    if( mOpenCvCameraView != null)
+                    if( mOpenCvCameraView != null) {
                         mOpenCvCameraView.enableView();
+                    }
 
                 } break;
                 default:
@@ -171,6 +231,16 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
             mCameraIndex = 0;
         }
 
+        Bundle extras = getIntent().getExtras();
+        if( extras != null )
+            mRideCode = extras.getString("rideCode");
+
+        try {
+            wamsClient = wamsUtils.init(this);
+        } catch(MalformedURLException ex ) {
+            Log.e(LOG_TAG, ex.getMessage() + " Cause: " + ex.getCause());
+        }
+
         Camera.CameraInfo cameraInfo = new Camera.CameraInfo();
         Camera.getCameraInfo(mCameraIndex, cameraInfo);
         mIsCameraFrontFacing = (cameraInfo.facing == Camera.CameraInfo.CAMERA_FACING_FRONT);
@@ -178,7 +248,7 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
 
         setContentView(R.layout.activity_camera_cv);
 
-        mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.java_surface_view);
+        mOpenCvCameraView = (FastCVCameraView) findViewById(R.id.java_surface_view);
         //mOpenCvCameraView = (CameraBridgeViewBase) findViewById(R.id.native_surface_view);
         if( mOpenCvCameraView != null ) {
             mOpenCvCameraView.setVisibility(SurfaceView.VISIBLE);
@@ -188,6 +258,13 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
         }
 
         mCameraDirective = getString(R.string.camera_directive_1);
+        mCameraDirective2 = getString(R.string.camera_directive_2);
+
+        Display display = getWindowManager().getDefaultDisplay();
+        android.graphics.Point size = new android.graphics.Point();
+        display.getSize(size);
+        mScreenWidth = size.x;
+        mScreenHeight = size.y;
 
         File outputDir = getCacheDir();
         try {
@@ -264,6 +341,184 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
             mOpenCvCameraView.disableView();
     }
 
+    // Implementation of IPictureURLUpdater.
+    // Call from blobUploader task when picture URL is ready
+    @Override
+    public void update(String url) {
+
+        new wamsPictureURLUpdater(this).execute(url, mRideCode);
+
+    }
+
+    @Override
+    public void finished(){
+        finish();
+    }
+
+    private void processFrame(final Bitmap sampleBitmap) {
+
+        if( sampleBitmap == null )
+            return;
+
+        ByteArrayOutputStream output = new ByteArrayOutputStream();
+        sampleBitmap.compress(Bitmap.CompressFormat.JPEG, 100, output);
+        ByteArrayInputStream inputStream = new ByteArrayInputStream(output.toByteArray());
+
+        new AsyncTask<InputStream, String, com.microsoft.projectoxford.face.contract.Face[]>(){
+
+            // Progress dialog popped up when communicating with server.
+            ProgressDialog mProgressDialog;
+
+            private String getTempFileName() {
+                String timeStamp = new SimpleDateFormat("yyyyMMdd+HHmmss").format(new Date());
+                return "FR_" + timeStamp;
+            }
+
+            @Override
+            protected void onPreExecute() {
+                mProgressDialog = ProgressDialog.show(CameraCVActivity.this,
+                                                      getString(R.string.detection_send),
+                                                      getString(R.string.detection_wait));
+            }
+
+            @Override
+            protected void onPostExecute(Face[] result) {
+                String strFormat = getString(R.string.detection_save);
+                String msg = String.format(strFormat, result.length);
+                Log.i(LOG_TAG, msg);
+
+                try {
+                    mProgressDialog.dismiss();
+
+                    new MaterialDialog.Builder(CameraCVActivity.this)
+                            .title(getString(R.string.detection_results))
+                            .content(msg)
+                            .positiveText(R.string.yes)
+                            .negativeText(R.string.no)
+                            .callback(new MaterialDialog.ButtonCallback() {
+                                @Override
+                                public void onPositive(MaterialDialog dialog) {
+
+                                    try {
+                                        File outputDir = getApplicationContext().getCacheDir();
+                                        String photoFileName = getTempFileName();
+
+                                        File photoFile = File.createTempFile(photoFileName, ".jpg", outputDir);
+                                        FileOutputStream fos = new FileOutputStream(photoFile);
+                                        sampleBitmap.compress(Bitmap.CompressFormat.JPEG, 80, fos);
+
+                                        fos.flush();
+                                        fos.close();
+
+                                        MediaStore.Images.Media.insertImage(getContentResolver(),
+                                                photoFile.getAbsolutePath(),
+                                                photoFile.getName(),
+                                                photoFile.getName());
+
+                                        new wamsBlobUpload(CameraCVActivity.this).execute(photoFile);
+
+                                    } catch(IOException ex) {
+                                        Log.e(LOG_TAG, ex.getMessage());
+                                    }
+
+                                }
+
+                                @Override
+                                public void onNegative(MaterialDialog dialog) {
+                                    mOpenCvCameraView.startPreview();
+                                }
+                            })
+                            .show();
+
+
+                } catch(Exception ex) {
+                    Log.e(LOG_TAG, ex.getMessage());
+                }
+            }
+
+            @Override
+            protected void onProgressUpdate(String... progress) {
+                mProgressDialog.setMessage(progress[0]);
+            }
+
+            @Override
+            protected Face[] doInBackground(InputStream... params) {
+
+                // Get an instance of face service client to detect faces in image.
+                FaceServiceClient faceServiceClient = new FaceServiceClient(getString(R.string.oxford_subscription_key));
+
+                publishProgress("Detecting...");
+
+                // Start detection.
+                try {
+                    return faceServiceClient.detect(
+                            params[0],  /* Input stream of image to detect */
+                            true,       /* Whether to analyzes facial landmarks */
+                            false,       /* Whether to analyzes age */
+                            false,       /* Whether to analyzes gender */
+                            true);      /* Whether to analyzes head pose */
+                } catch (Exception e) {
+                    Log.e(LOG_TAG, e.getMessage());
+
+                    publishProgress(e.getMessage());
+                }
+
+                return null;
+            }
+
+        }.execute(inputStream);
+    }
+
+    public void makeFrame(View view){
+
+        mOpenCvCameraView.stopPreview();
+
+        TextView txtStatus = (TextView)findViewById(R.id.detection_monitor);
+        txtStatus.setText(getString(R.string.detection_center_desc));
+
+        findViewById(R.id.detection_buttons_bar).setVisibility(View.VISIBLE);
+
+    }
+
+    public void sendToDetect(View view){
+
+        // Dismiss buttons
+        findViewById(R.id.detection_buttons_bar).setVisibility(View.GONE);
+
+        // Restore status text
+        TextView txtStatus = (TextView)findViewById(R.id.detection_monitor);
+        txtStatus.setText(getString(R.string.detection_freeze));
+
+        // Will be continued in onPictureTaken() callback
+        mOpenCvCameraView.takePicture(CameraCVActivity.this);
+    }
+
+    public void restoreFromSendToDetect(View view){
+
+        // Restore camera frames processing
+        mOpenCvCameraView.startPreview();
+
+        // Dismiss buttons
+        findViewById(R.id.detection_buttons_bar).setVisibility(View.GONE);
+
+        // Restore status text
+        TextView txtStatus = (TextView)findViewById(R.id.detection_monitor);
+        txtStatus.setText(getString(R.string.detection_freeze));
+    }
+
+    @Override
+    public void onPictureTaken(byte[] data, Camera camera) {
+
+        try {
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            Bitmap _bitmap = BitmapFactory.decodeByteArray(data, 0, data.length, options);
+
+            processFrame(_bitmap);
+        } catch(Exception ex) {
+            Log.e(LOG_TAG, ex.getMessage());
+        }
+    }
+
     @Override
     public void onCameraViewStarted(int width, int height) {
         mRgba = new Mat(height, width, CvType.CV_8UC4);
@@ -288,6 +543,31 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
         mRgba = inputFrame.rgba();
         mGray = inputFrame.gray();
 
+//        if( getRequestFrame() ) {
+//
+//            // onCameraFrame is called not on UI thread
+//            // On other hand, we run FaceAPI on UI thread only in order
+//            // to show progress dialog
+//
+//            try {
+//                runOnUiThread(new Runnable() {
+//                    @Override
+//                    public void run() {
+//
+//                        //mOpenCvCameraView.stopNestedScroll();
+//
+//                        Bitmap _bitmap = Bitmap.createBitmap(mRgba.cols(), mRgba.rows(), Bitmap.Config.ARGB_8888);
+//                        Utils.matToBitmap(mRgba, _bitmap);
+//                        resetRequestFrame();
+//                        sampleFrame(_bitmap);
+//                    }
+//                });
+//
+//            } catch(Exception ex) {
+//                Log.e(LOG_TAG, ex.getMessage());
+//            }
+//        }
+
 //        mGray.height();
 //        Bitmap bmp = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888);
 //        Utils.matToBitmap(mRgba, bmp);
@@ -298,11 +578,13 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
 
 //            // Assume the camera if front facing,
 //            // mirror (horizontally flip) the preview
-            Core.flip(mRgba, mRgba, 1);
+            //Core.flip(mGray, mGray, 1);
 
-            FastCVWrapper cvWrapper = new FastCVWrapper();
-            cvWrapper.DetectFaces(mGray.getNativeObjAddr(), "haarcascade_frontalface_alt.xml");
-            //cvWrapper.Blur(mRgba.getNativeObjAddr());
+            int nFaces = 0;
+            try {
+
+                //nFaces = mCVWrapper.DetectFaces(mGray.getNativeObjAddr(), mCVWrapper.pathToCascade);
+                nFaces = mCVWrapper.detect(mGray, 24);
 
 //            if (mAbsoluteFaceSize == 0) {
 //                int height = mGray.rows();
@@ -311,15 +593,13 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
 //                }
 //                mNativeDetector.setMinFaceSize(mAbsoluteFaceSize);
 //            }
-//
-//            MatOfRect faces = new MatOfRect();
-//
+
+//                MatOfRect faces = new MatOfRect();
 //            if (mDetectorType == JAVA_DETECTOR) {
 //                if (mJavaDetector != null)
 //                    mJavaDetector.detectMultiScale(mGray, faces, 1.1, 2, 2, // TODO: objdetect.CV_HAAR_SCALE_IMAGE
 //                            new Size(mAbsoluteFaceSize, mAbsoluteFaceSize), new Size());
-//            }
-//            else if (mDetectorType == NATIVE_DETECTOR) {
+//            } else if (mDetectorType == NATIVE_DETECTOR) {
 //                if (mNativeDetector != null)
 //                    mNativeDetector.detect(mGray, faces);
 //            }
@@ -327,24 +607,29 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
 //                Log.e(LOG_TAG, "Detection method is not selected!");
 //            }
 //
-//            Rect[] facesArray = faces.toArray();
-//            for (int i = 0; i < facesArray.length; i++)
-//                Imgproc.rectangle(mRgba, facesArray[i].tl(), facesArray[i].br(), FACE_RECT_COLOR, 3);
-//
-//
-//            mExecutionTime += (System.currentTimeMillis() - start);
-//            String msg = String.format("Executed for %d ms.", mExecutionTime / ++mFramesReceived);
-//            Log.d(LOG_TAG, msg);
-//
-//            Imgproc.putText(mRgba, mCameraDirective, new Point(100, 100),
-//                    3, 1, mCameraFontColor, 2);
+
+            } catch (Exception ex) {
+                Log.e(LOG_TAG, ex.getMessage());
+            }
+
+            mExecutionTime += (System.currentTimeMillis() - start);
+            String msg = String.format("Executed for %d ms.", mExecutionTime / ++mFramesReceived);
+            Log.d(LOG_TAG, msg);
+
+            Imgproc.putText(mGray, mCameraDirective, new Point(100, 80),
+                    3, 1, mCameraFontColor, 2);
+            if( nFaces > 0 ) {
+                String _s = String.format(mCameraDirective2, nFaces);
+                Imgproc.putText(mGray, _s, new Point(100, 500), //mScreenHeight - 180),
+                        3, 1, mCameraFontColor, 2);
+            }
 
         } catch(Exception ex) {
 
             Log.d(LOG_TAG, ex.getMessage());
         }
 
-        return mRgba;
+        return mGray;
     }
 
     private void writeToFile(File file, String data) throws IOException {
@@ -373,5 +658,6 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2 
             }
         }
     }
+
 
 }
