@@ -100,7 +100,6 @@ public class MyRidesAdapter extends RecyclerView.Adapter<MyRidesAdapter.ViewHold
         TextView driverName;
         TextView carNumber;
         TextView created;
-        //LinearLayout rowLayout;
         LayoutRipple rowLayout;
 
         IRecyclerClickListener mClickListener;
