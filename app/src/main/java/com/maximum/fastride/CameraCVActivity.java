@@ -79,8 +79,8 @@ import java.util.Date;
 //import org.opencv.features2d.KeyPoint;
 
 public class CameraCVActivity extends Activity implements CvCameraViewListener2,
-        Camera.PictureCallback,
-        IPictureURLUpdater {
+                                                          Camera.PictureCallback,
+                                                          IPictureURLUpdater {
 
     private static final String LOG_TAG = "FR.CVCameraActivity";
 
@@ -317,11 +317,11 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
         super.onResume();
 
         if( !OpenCVLoader.initDebug() ) {
-            // Roughly, it's an analog of System.loadLibrary('opencv_java3') - meaning .so library
-            // In our case it is supposed to always return false, because we aare statically linked with opencv_java3.so
-            // (in jniLbs/<platform> folder.
-            //
-            // Such way of linking allowed for running without OpenCV Manager (https://play.google.com/store/apps/details?id=org.opencv.engine&hl=en)
+        // Roughly, it's an analog of System.loadLibrary('opencv_java3') - meaning .so library
+        // In our case it is supposed to always return false, because we aare statically linked with opencv_java3.so
+        // (in jniLbs/<platform> folder.
+        //
+        // Such way of linking allowed for running without OpenCV Manager (https://play.google.com/store/apps/details?id=org.opencv.engine&hl=en)
             Log.d(LOG_TAG, "Internal OpenCV library not found. Using OpenCV Manager for initialization");
 
             OpenCVLoader.initAsync(OpenCVLoader.OPENCV_VERSION_3_0_0,
@@ -377,8 +377,8 @@ public class CameraCVActivity extends Activity implements CvCameraViewListener2,
             @Override
             protected void onPreExecute() {
                 mProgressDialog = ProgressDialog.show(CameraCVActivity.this,
-                        getString(R.string.detection_send),
-                        getString(R.string.detection_wait));
+                                                      getString(R.string.detection_send),
+                                                      getString(R.string.detection_wait));
             }
 
             @Override
