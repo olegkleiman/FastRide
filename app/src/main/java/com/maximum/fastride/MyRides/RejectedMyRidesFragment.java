@@ -39,9 +39,6 @@ public class RejectedMyRidesFragment extends Fragment {
 
         if (FragmentInstance == null ) {
           FragmentInstance = new RejectedMyRidesFragment();
-//        Bundle b = new Bundle();
-//        b.putInt(ARG_POSITION, position);
-//        f.setArguments(b);
         }
         return FragmentInstance;
     }

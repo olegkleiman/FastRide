@@ -38,9 +38,6 @@ public class GeneralMyRidesFragment extends Fragment{
 
         if (FragmentInstance == null ) {
             FragmentInstance = new GeneralMyRidesFragment();
-//            Bundle b = new Bundle();
-//            b.putInt(ARG_POSITION, position);
-//            FragmentInstance.setArguments(b);
         }
         return FragmentInstance;
     }
@@ -75,6 +72,7 @@ public class GeneralMyRidesFragment extends Fragment{
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
     }
 
     @Override
