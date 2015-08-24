@@ -40,7 +40,7 @@ public class MyRidesActivity extends BaseActivity
 
     MyRideTabAdapter mTabAdapter;
     private String titles[];
-    List<Ride> mRides;
+    List<Ride> mRides = new ArrayList<>();
     ViewPager mViewPager;
     SlidingTabLayout slidingTabLayout;
 
@@ -56,9 +56,7 @@ public class MyRidesActivity extends BaseActivity
 
         new AsyncTask<Object, Void, Void>() {
 
-
-
-            // Runs on UI thread
+           // Runs on UI thread
             @Override
             protected void onPostExecute(Void res) {
                 mTabAdapter.updateRides(mRides);
@@ -78,11 +76,9 @@ public class MyRidesActivity extends BaseActivity
                             .where().field("driverid").eq(userID);
                     mRidesSyncTable.pull(pullQuery).get();
 
-
                     final MobileServiceList<Ride> ridesList = mRidesSyncTable.read(pullQuery).get();
 
                     mRides = ridesList;
-
 
 //                   mTabAdapter.notifyDataSetChanged();
 
@@ -113,102 +109,6 @@ public class MyRidesActivity extends BaseActivity
 
         mViewPager = (ViewPager) findViewById(R.id.viewpager);
         slidingTabLayout = (SlidingTabLayout) findViewById(R.id.sliding_tabs);
-
-        // Read the rides from local cache
-//        new AsyncTask<Object, Void, Void>() {
-//
-//            @Override
-//            protected void onPostExecute(Void result){
-//                mViewPager.setAdapter(new MyRideTabAdapter(getSupportFragmentManager(),
-//                        titles, mRides));
-//            }
-//
-//            @Override
-//            protected Void doInBackground(Object... objects) {
-//
-//                try {
-//                    SharedPreferences sharedPrefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-//                    String userID = sharedPrefs.getString(Globals.USERIDPREF, "");
-//
-//                    Query pullQuery = getMobileServiceClient().getTable(Ride.class)
-//                            .where().field("driverid").eq(userID);
-//                    final MobileServiceList<Ride> ridesList = mRidesSyncTable.read(pullQuery).get();
-//                    mRides = ridesList;
-//
-//                } catch(InterruptedException | ExecutionException ex) {
-//                    Log.e(LOG_TAG, ex.getMessage());
-//                }
-//
-//                return null;
-//            }
-//        }.execute();
-
-//        // TODO: get the rides list from WAMS
-          mRides = new ArrayList<Ride>();
-        Ride ride1 = new Ride();
-        ride1.setNameDriver("current Driver");
-        ride1.setCreated(new Date(91, 1, 10));
-        ride1.setCarNumber("66-111-88");
-        ride1.setApproved(true);
-        mRides.add(ride1);
-
-        Ride ride2 = new Ride();
-        ride2.setNameDriver("current Driver");
-        ride2.setCreated(new Date(82, 1, 10));
-        ride2.setCarNumber("66-222-88");
-        ride2.setApproved(false);
-        mRides.add(ride2);
-
-        Ride ride3 = new Ride();
-        ride3.setNameDriver("current Driver");
-        ride3.setCreated(new Date(73, 1, 10));
-        ride3.setCarNumber("66-333-88");
-        //ride3.setApproved(false);
-        mRides.add(ride3);
-
-        Ride ride4 = new Ride();
-        ride4.setNameDriver("shol");
-        ride4.setCreated(new Date(70, 1, 10));
-        ride4.setCarNumber("66-444-88");
-        ride4.setApproved(true);
-        mRides.add(ride4);
-
-        Ride ride5 = new Ride();
-        ride5.setNameDriver("current Driver");
-        ride5.setCreated(new Date(86, 1, 10));
-        ride5.setCarNumber("66-444-88");
-        ride5.setApproved(true);
-        mRides.add(ride5);
-
-        Ride ride6 = new Ride();
-        ride6.setNameDriver("current Driver");
-        ride6.setCreated(new Date(70, 9, 10));
-        ride6.setCarNumber("66-444-88");
-        ride6.setApproved(true);
-        mRides.add(ride6);
-
-        Ride ride7 = new Ride();
-        ride7.setNameDriver("fisa");
-        ride7.setCreated(new Date(95, 1, 16));
-        ride7.setCarNumber("66-444-88");
-        ride7.setApproved(true);
-        mRides.add(ride7);
-
-        Ride ride8 = new Ride();
-        ride8.setNameDriver("current Driver");
-        ride8.setCreated(new Date(12, 1, 10));
-        ride8.setCarNumber("66-444-88");
-        ride8.setApproved(false);
-        mRides.add(ride8);
-
-        Ride ride9 = new Ride();
-        ride9.setNameDriver("current Driver");
-        ride9.setCreated(new Date(15, 1, 10));
-        ride9.setCarNumber("66-444-88");
-        //ride9.setApproved(true);
-        mRides.add(ride9);
-
-
 
         mTabAdapter= new MyRideTabAdapter(getSupportFragmentManager(),
                                             titles, mRides);

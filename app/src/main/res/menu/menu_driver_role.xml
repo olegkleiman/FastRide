@@ -11,6 +11,7 @@
     <item android:id="@+id/action_camera_cv"
         android:title="@string/action_camera_cv"
         android:icon="@drawable/ic_action_camera"
+        android:enabled="false"
         android:orderInCategory="200"
         app:showAsAction="always" />
 

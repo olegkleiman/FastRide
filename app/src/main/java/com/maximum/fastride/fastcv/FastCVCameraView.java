@@ -17,7 +17,7 @@ public class FastCVCameraView extends JavaCameraView {
 
     private static final String LOG_TAG = "FR.CVCameraView";
 
-    public FastCVCameraView(Context context, AttributeSet attrs) {
+    public FastCVCameraView(Context context, AttributeSet attrs){
         super(context, attrs);
     }
 

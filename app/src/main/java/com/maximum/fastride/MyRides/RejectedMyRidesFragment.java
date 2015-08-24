@@ -28,15 +28,12 @@ import java.util.List;
  */
 public class RejectedMyRidesFragment extends Fragment {
 
-
-
-    List<Ride> mRides;
+    List<Ride> mRides = new ArrayList<>();
     private static final String ARG_POSITION = "position";
     private static RejectedMyRidesFragment FragmentInstance;
 
-    MyRidesAdapter adapter;
-
-
+    MyRidesAdapter mRidesAdapter;
+    RecyclerView   mRecycler;
 
     public static RejectedMyRidesFragment getInstance() {
 
@@ -50,21 +47,35 @@ public class RejectedMyRidesFragment extends Fragment {
     }
 
     public void setRides(List<Ride> rides) {
-        mRides = rides;
+
+        if( rides == null )
+            return;
+
+        mRides.clear();
+        mRides.addAll(rides);
+
         if (!mRides.isEmpty()) {
+
             sort();
             FilteringApproveAndOtherDrivers();
+
         }
     }
 
     public void updateRides(List<Ride> rides){
 
-        //!rides.isEmpty()
-        if (true) {
-            mRides = rides;
+        if( rides == null )
+            return;
+
+        mRides.clear();
+        mRides.addAll(rides);
+
+        if (!mRides.isEmpty()) {
+
             sort();
             FilteringApproveAndOtherDrivers();
-            adapter.notifyDataSetChanged();
+
+            mRidesAdapter.notifyDataSetChanged();
         }
     }
 
@@ -77,16 +88,13 @@ public class RejectedMyRidesFragment extends Fragment {
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_myride_general, container, false);
 
-        RecyclerView recycler = (RecyclerView)rootView.findViewById(R.id.recyclerMyRides);
-        recycler.setHasFixedSize(true);
-        recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recycler.setItemAnimator(new DefaultItemAnimator());
+        mRecycler = (RecyclerView)rootView.findViewById(R.id.recyclerMyRides);
+        mRecycler.setHasFixedSize(true);
+        mRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mRecycler.setItemAnimator(new DefaultItemAnimator());
 
-
-
-
-        adapter = new MyRidesAdapter(mRides);
-        adapter.setOnClickListener(new IRecyclerClickListener() {
+        mRidesAdapter = new MyRidesAdapter(mRides);
+        mRidesAdapter.setOnClickListener(new IRecyclerClickListener() {
 
 
             @Override
@@ -100,10 +108,9 @@ public class RejectedMyRidesFragment extends Fragment {
                 startActivity(intent);
             }
         });
-        recycler.setAdapter(adapter);
+        mRecycler.setAdapter(mRidesAdapter);
 
         return rootView;
-
     }
 
     private  void FilteringApproveAndOtherDrivers(){
@@ -119,8 +126,6 @@ public class RejectedMyRidesFragment extends Fragment {
         }
         mRides =  tempList;
     }
-
-
 
     private void sort(){
 

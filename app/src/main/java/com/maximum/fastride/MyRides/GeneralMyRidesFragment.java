@@ -2,7 +2,6 @@ package com.maximum.fastride.MyRides;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Parcelable;
 import android.support.v4.app.Fragment;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -10,20 +9,16 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Toast;
 
 import com.maximum.fastride.R;
 import com.maximum.fastride.RideDetailsActivity;
-import com.maximum.fastride.adapters.ModesPeersAdapter;
 import com.maximum.fastride.adapters.MyRidesAdapter;
-import com.maximum.fastride.model.FRMode;
 import com.maximum.fastride.model.Ride;
 import com.maximum.fastride.utils.IRecyclerClickListener;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 
 
@@ -32,13 +27,12 @@ import java.util.List;
  */
 public class GeneralMyRidesFragment extends Fragment{
 
-
-
-
-    List<Ride> mRides;
+    List<Ride> mRides = new ArrayList<>();
     private static final String ARG_POSITION = "position";
     private static GeneralMyRidesFragment FragmentInstance;
-    MyRidesAdapter adapter;
+
+    RecyclerView   mRecycler;
+    MyRidesAdapter mRidesAdapter;
 
     public static GeneralMyRidesFragment getInstance() {
 
@@ -52,29 +46,36 @@ public class GeneralMyRidesFragment extends Fragment{
     }
 
     public void setRides(List<Ride> rides) {
-        mRides = rides;
+
+        if( rides == null )
+            return;
+
+        mRides.clear();
+        mRides.addAll(rides);
+
         if (!mRides.isEmpty()) {
             sort();
         }
     }
 
     public void updateRides(List<Ride> rides){
-        //!rides.isEmpty()
-        if (true) {
-            mRides = rides;
+
+        if( rides == null )
+            return;
+
+        mRides.clear();
+        mRides.addAll(rides);
+
+        if (!mRides.isEmpty()) {
             sort();
-            adapter.notifyDataSetChanged();
+            mRidesAdapter.notifyDataSetChanged();
         }
     }
-
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater,
@@ -84,32 +85,26 @@ public class GeneralMyRidesFragment extends Fragment{
         // Inflate the layout for this fragment
         View rootView = inflater.inflate(R.layout.fragment_myride_general, container, false);
 
-        RecyclerView recycler = (RecyclerView)rootView.findViewById(R.id.recyclerMyRides);
-        recycler.setHasFixedSize(true);
-        recycler.setLayoutManager(new LinearLayoutManager(getActivity()));
-        recycler.setItemAnimator(new DefaultItemAnimator());
+        mRecycler = (RecyclerView)rootView.findViewById(R.id.recyclerMyRides);
+        mRecycler.setHasFixedSize(true);
+        mRecycler.setLayoutManager(new LinearLayoutManager(getActivity()));
+        mRecycler.setItemAnimator(new DefaultItemAnimator());
 
+        mRidesAdapter = new MyRidesAdapter(mRides);
+        mRidesAdapter.setOnClickListener(new IRecyclerClickListener() {
+            @Override
+            public void clicked(View v, int position) {
+                // TODO:
+                Ride currentRide = mRides.get(position);
+                Intent intent = new Intent(getActivity(), RideDetailsActivity.class);
 
-
-
-
-        adapter = new MyRidesAdapter(mRides);
-        adapter.setOnClickListener(new IRecyclerClickListener() {
-                @Override
-                public void clicked(View v, int position) {
-                    // TODO:
-                    Ride currentRide = mRides.get(position);
-                    Intent intent = new Intent(getActivity(), RideDetailsActivity.class);
-
-
-                    intent.putExtra("ride",  currentRide);
-                    startActivity(intent);
-                }
-            });
-        recycler.setAdapter(adapter);
+                intent.putExtra("ride", currentRide);
+                startActivity(intent);
+            }
+        });
+        mRecycler.setAdapter(mRidesAdapter);
 
         return rootView;
-
     }
 
     private void sort(){
