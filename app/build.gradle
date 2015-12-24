@@ -108,12 +108,12 @@ model {
 
         }
 
-//        create("x86") {
-//            ndk.with {
-//                abiFilters += "x86"
-//                println "*** building for x86"
-//            }
-//        }
+        create("x86") {
+            ndk.with {
+                abiFilters += "x86"
+                println "*** building for x86"
+            }
+        }
     }
 
 //    components.android {
